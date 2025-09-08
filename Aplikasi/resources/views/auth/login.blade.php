@@ -25,7 +25,7 @@
                   <img src={{ url("assets/images/logos/logosekolah.png")}} alt="" width="250px">
                 </a>
                 <p class="text-center">Selamat Datang di Sma Muhammadiyah 2 Palembang</p>
-                <form>
+                <form method="POST" action="{{ route('login') }}">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" >
@@ -36,7 +36,7 @@
                     </div>
                     <a class="text-primary fw-bold mb-3" href="./index.html">Forgot Password ?</a>
 
-                  <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-3 rounded-2">Sign In</a>
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-3 rounded-2">Login</Button>
                 </form>
               </div>
             </div>
