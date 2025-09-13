@@ -38,17 +38,94 @@
   </head>
   <body>
     <div class="wrapper">
-      <div class="sidebar bg-success">
+      <div class="sidebar" style="background-color:#155b31;">
+        <style>
+            /* === STYLE SIDEBAR CUSTOM === */
+
+            /* Warna default semua link & ikon sidebar */
+            .sidebar .nav .nav-item a,
+            .sidebar .nav .nav-item a i,
+            .sidebar .nav .nav-item a p,
+            .sidebar .nav .nav-collapse li a span {
+                color: #ffffff !important;
+            }
+
+            /* ======================
+            HOVER STATE
+            ====================== */
+            /* Hover untuk menu utama */
+            .sidebar .nav .nav-item a:hover,
+            .sidebar .nav .nav-item a:hover i,
+            .sidebar .nav .nav-item a:hover p {
+                background-color: #198754 !important; /* hijau bootstrap */
+                color: #ffffff !important;
+                border-radius: 4px;
+            }
+
+            /* Hover untuk submenu */
+            .sidebar .nav .nav-collapse li a:hover,
+            .sidebar .nav .nav-collapse li a:hover i,
+            .sidebar .nav .nav-collapse li a:hover span {
+                background-color: #29d843 !important; /* hijau terang */
+                color: #ffffff !important;
+                border-radius: 4px;
+            }
+
+            /* ======================
+            ACTIVE STATE (klik)
+            ====================== */
+            /* Menu utama saat aktif */
+            .sidebar .nav .nav-item.active > a,
+            .sidebar .nav .nav-item.active > a i,
+            .sidebar .nav .nav-item.active > a p {
+                background-color: #198754 !important;
+                color: #ffffff !important;
+                border-radius: 4px;
+            }
+
+            /* Submenu saat aktif */
+            .sidebar .nav .nav-collapse li.active > a,
+            .sidebar .nav .nav-collapse li.active > a span,
+            .sidebar .nav .nav-collapse li.active > a i {
+                background-color: #46bc52 !important; /* hijau lebih muda */
+                color: #ffffff !important;
+                border-radius: 4px;
+            }
+
+            /* ======================
+            TAMBAHAN: caret & ikon collapse
+            ====================== */
+            .sidebar .nav .nav-item a .caret {
+                color: #ffffff !important;
+            }
+
+            /* Saat menu parent terbuka */
+            .sidebar .nav .nav-item a[aria-expanded="true"],
+            .sidebar .nav .nav-item a[aria-expanded="true"] i,
+            .sidebar .nav .nav-item a[aria-expanded="true"] p {
+                color: #ffffff !important;
+                font-weight: bold;
+            }
+
+            /* Submenu yang terbuka */
+            .sidebar .nav .nav-item .collapse.show a,
+            .sidebar .nav .nav-item .collapse.show a i,
+            .sidebar .nav .nav-item .collapse.show a span,
+            .sidebar .nav .nav-item .collapse.show a p {
+                color: #ffffff !important;
+            }
+        </style>
+
         <div class="sidebar-logo">
           <!-- Logo Header -->
-          <div class="logo-header bg-white">
-            <a href="#" class="logo mt-1">
+          <div class="logo-header d-flex justify-content-end align-items-center">
+            <a href="#" class="logo">
               <img
-                src="{{ url('assets/img/Logo.png') }}"
+                src="{{ url('assets/img/LogoSekolah.png') }}"
                 alt="navbar brand"
                 class="navbar-brand"
-                height="70px"
-                width="185px"
+                height="140px"
+                width="250px"
               />
             </a>
             <div class="nav-toggle">
@@ -69,38 +146,48 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                <li class="nav-item">
+                <li class="nav-item mb-2">
                     <a href="{{ url('dashboard')}}">
                         <i class="fas fa-home"></i>
-                        <p>Dashboard</p>
+                        <p class="text-white">Dashboard</p>
                     </a>
                 </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#base">
-                  <i class="fas fa-layer-group"></i>
-                  <p>Base</p>
+                <li class="nav-item mb-2">
+                    <a href="{{ url('profile')}}">
+                        <i class="fas fa-user"></i>
+                        <p class="text-white">Profile</p>
+                    </a>
+                </li>
+              <li class="nav-item mb-2">
+                <a data-bs-toggle="collapse" href="#belajar">
+                  <i class="fas fa-layer-group text-white"></i>
+                  <p class="text-white">Pembelajaran</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="base">
+                <div class="collapse px-4" id="belajar">
                     <ul class="nav nav-collapse">
                         <li>
-                            <a href="components/avatars.html">
-                                <span class="sub-item">Avatars</span>
+                            <a href="{{ url('absensi') }}">
+                                <i class="fas fa-user-check"></i>
+                                <span>Absensi</span>
                             </a>
                         </li>
                         <li>
-                            <a href="components/buttons.html">
-                                <span class="sub-item">Buttons</span>
+                            <a href="{{ url('jadwal') }}">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Jadwal</span>
                             </a>
                         </li>
                         <li>
-                            <a href="components/gridsystem.html">
-                                <span class="sub-item">Grid System</span>
+                            <a href="{{ url('materi') }}">
+                                <i class="fas fa-book"></i>
+                                <span>Materi</span>
                             </a>
                         </li>
                         <li>
-                            <a href="components/panels.html">
-                                <span class="sub-item">Panels</span>
+                            <a href="{{ url('tahfiz') }}">
+                                <i class="fas fa-list"></i>
+                                <span>Tahfiz</span>
                             </a>
                         </li>
                     </ul>
@@ -115,10 +202,10 @@
         <div class="main-header">
           <div class="main-header-logo">
             <!-- Logo Header -->
-            <div class="logo-header"">
-              <a href="index.html" class="logo">
+            <div class="logo-header" style="background-color:#155b31; color:#fff;">
+              <a href="#" class="logo">
                 <img
-                  src="assets/img/kaiadmin/logo_light.svg"
+                  src="{{ url('assets/img/LogoSekolah.png') }}"
                   alt="navbar brand"
                   class="navbar-brand"
                   height="20"
@@ -139,10 +226,8 @@
             <!-- End Logo Header -->
           </div>
           <!-- Navbar Header -->
-          <nav
-            class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
-          >
-            <div class="container-fluid">
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom" style="background-color:#155b31;">
+            <div class="container-fluid" >
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                 <li class="nav-item topbar-icon dropdown hidden-caret">
                   <a
@@ -407,8 +492,7 @@
                       />
                     </div>
                     <span class="profile-username">
-                      <span class="op-7">Hi,</span>
-                      <span class="fw-bold">Hizrian</span>
+                      <span class="fw-bold">Danda Ganteng</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">

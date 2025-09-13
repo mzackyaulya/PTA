@@ -43,6 +43,7 @@ class BannerController extends Controller
             'is_active'=>$request->boolean('is_active', true),
         ]);
         return redirect()->route('dashboard')->with('success','Banner berhasil ditambahkan');
+        dd($request->all());
     }
 
     /**

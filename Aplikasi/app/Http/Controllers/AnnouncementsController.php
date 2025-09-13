@@ -28,21 +28,29 @@ class AnnouncementsController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi input
         $data = $request->validate([
-            'title'=>['required','string','max:150'],
-            'body'=>['required','string'],
-            'category'=>['nullable','string','max:50'],
-            'starts_at'=>['nullable','date'],
-            'ends_at'=>['nullable','date','after_or_equal:starts_at'],
-            'is_published'=>['nullable','boolean'],
+            'title'        => 'required|string|max:255',
+            'body'         => 'nullable|string',
+            'image'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:3072',
+            'published_at' => 'required|date',
         ]);
 
+        // Simpan gambar jika ada
+        $path = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('announcements', 'public');
+        }
+
+        // Simpan ke database
         Announcements::create([
-            ...$data,
-            'is_published'=>$request->boolean('is_published', true),
-            'created_by'=>optional(auth()->user())->id,
+            'title'        => $data['title'],
+            'body'         => $data['body'] ?? null,
+            'image_path'   => $path,
+            'published_at' => $data['published_at'],
         ]);
-        return redirect()->route('dashboard')->with('success','Pengumuman Berhasil ditambahkan');
+
+        return redirect()->route('dashboard')->with('success', 'Pengumuman berhasil ditambahkan');
     }
 
     /**

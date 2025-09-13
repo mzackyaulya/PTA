@@ -9,10 +9,10 @@ class Announcements extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'title','body','category','starts_at','ends_at','is_published','created_by'
+        'title','body','image_path','published_at'
     ];
+
     protected $casts = [
-        'starts_at'=>'datetime','ends_at'=>'datetime','is_published'=>'boolean',
+        'published_at' => 'date',
     ];
-    public function author(){ return $this->belongsTo(User::class,'created_by'); }
 }
