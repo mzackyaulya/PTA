@@ -22,6 +22,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('banners', BannerController::class)->only(['create','store','edit','update']);
-Route::resource('announcements', AnnouncementsController::class)->only(['create','store']);
+Route::resource('announcements', AnnouncementsController::class)->only(['index','create','store']);
 
 require __DIR__.'/auth.php';

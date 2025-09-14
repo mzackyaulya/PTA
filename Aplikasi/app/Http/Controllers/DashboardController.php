@@ -8,12 +8,21 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $banners = Banner::where('is_active',1)->orderBy('sort_order')->get();
-        $announcements = Announcements::whereNotNull('published_at')
-            ->orderBy('published_at','desc')
-            ->paginate(9);
-        return view('dashboard', compact('banners','announcements'));
+         // Query pengumuman
+        $query = Announcements::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('title', 'like', '%'.$request->search.'%')
+                  ->orWhere('body', 'like', '%'.$request->search.'%');
+        }
+
+        $announcements = $query->latest()->paginate(6);
+
+        // Tetap load banners
+        $banners = Banner::latest()->get();
+
+        return view('dashboard', compact('announcements', 'banners'));
     }
 }

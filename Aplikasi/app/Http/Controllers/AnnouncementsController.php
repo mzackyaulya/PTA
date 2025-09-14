@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcements;
+use App\Models\Banner;
 use Illuminate\Http\Request;
 
 class AnnouncementsController extends Controller
@@ -10,9 +11,21 @@ class AnnouncementsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Announcements::query();
+
+    if ($request->has('search') && $request->search != '') {
+        $query->where('title', 'like', '%'.$request->search.'%')
+              ->orWhere('body', 'like', '%'.$request->search.'%');
+    }
+
+    $announcements = $query->latest()->paginate(6);
+
+    // Load banners juga
+    $banners = Banner::latest()->get();
+
+    return view('dashboard', compact('announcements', 'banners'));
     }
 
     /**

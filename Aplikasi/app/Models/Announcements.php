@@ -15,4 +15,6 @@ class Announcements extends Model
     protected $casts = [
         'published_at' => 'date',
     ];
+
+    protected $table = 'announcements';
 }
