@@ -7,7 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnnouncementsController;
 
 Route::get('/', function () {
-    return view('layout.main');
+    return view('auth.login');
 });
 
 // Route::get('/dashboard', function () {

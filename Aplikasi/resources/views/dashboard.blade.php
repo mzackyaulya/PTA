@@ -4,7 +4,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="mb-2">
-        <h1 class="h3 fw-bold text-dark">Dashboard</h1>
+        <h1 class="h2 fw-bold text-dark">Dashboard</h1>
         <p class="text-muted">Informasi SMA Muhammadiyah 2 Palembang</p>
     </div>
 
@@ -82,9 +82,9 @@
 
                 {{-- Judul (1 baris, kecil) --}}
                 <div class="card-header border-bottom">
-                    <h6 class="card-title fw-semibold text-dark text-truncate mb-0" style="font-size: 0.9rem;">
+                    <h4 class="card-title fw-semibold text-dark text-truncate mb-0" style="font-size: 1.4rem;">
                         {{ $a->title }}
-                    </h6>
+                    </h4>
                 </div>
 
                 {{-- Isi card --}}
