@@ -28,7 +28,7 @@
                         style="height:400px; object-fit:cover;"
                         alt="Banner">
                     <div class="position-absolute top-50 start-50 translate-middle d-none edit-btn text-center">
-                        <a href="{{ route('banners.edit', $banner->id) }}" class="btn btn-transparant fw-bold px-4 py-2 fs-5 shadow text-white">
+                        <a href="{{ route('banners.edit', $banner->id) }}" class="btn btn-transparant fw-bold px-4 py-2 fs-5 text-white">
                             <i class="fas fa-pen"></i> EDIT BANNER
                         </a>
                     </div>

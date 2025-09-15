@@ -25,21 +25,32 @@
                                 <p class="text-center">Selamat Datang di Akademik</p>
                                 <p class="text-center">Sma Muhammadiyah 2 Palembang</p>
                                 <form method="POST" action="{{ route('login') }}">
+                                    @csrf
                                     <div class="mb-3">
-                                        <label for="exampleInputEmail1" class="form-label">Username</label>
-                                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                        <label for="username" class="form-label">Username</label>
+                                        <input type="number" class="form-control" id="username" name="username" placeholder="Masukan NISN atau NIP" value="{{ old('username') }}" required>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="exampleInputPassword1" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="exampleInputPassword1">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Masukan Password" required>
                                     </div>
 
-                                    <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Login</a>
+                                    <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Login</button>
                                     <div class="d-flex align-items-center justify-content-center">
                                         <p class="fs-4 mb-0 fw-bold">Lupa Password?</p>
                                         <a class="text-primary fw-bold ms-2" href="#">Hubungi Admin !</a>
                                     </div>
                                 </form>
+                                @if ($errors->any())
+                                    <script>
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Login Gagal',
+                                            text: 'Username atau Pssword salah!',
+                                            confirmButtonColor: '#198754', // hijau biar sesuai tema
+                                        });
+                                    </script>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -47,6 +58,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url('assets/libs/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
     <!-- solar icons -->

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,14 +23,33 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        $request->session()->regenerate();
+        $username = $request->input('username');
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Cari user berdasarkan nisn atau nip
+        $user = \App\Models\User::where('nisn', $username)
+                    ->orWhere('nip', $username)
+                    ->first();
+
+        if ($user && \Hash::check($request->password, $user->password)) {
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard'));
+        }
+
+        return back()->withErrors([
+            'username' => 'NISN atau NIP atau Password salah.',
+        ]);
     }
+
+
 
     /**
      * Destroy an authenticated session.

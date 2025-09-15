@@ -1,0 +1,118 @@
+/* =========================
+GLOBAL LAYOUT
+========================= */
+.wrapper {
+  display: block; /* jangan flex karena sidebar fixed */
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #155b31;
+  overflow: visible !important;
+  z-index: 1000;
+}
+
+/* Main panel */
+.main-panel {
+  margin-left: 260px; /* geser sesuai lebar sidebar */
+  background-color: #f5f6fa;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* Header */
+.main-header,
+.main-header .logo-header,
+.navbar.navbar-header {
+  margin-left: 0 !important;
+  width: 100% !important;
+  background-color: #155b31 !important;
+  color: #fff !important;
+}
+
+/* Container di dalam konten */
+.main-panel .container {
+  padding: 20px;
+}
+
+/* =========================
+SIDEBAR MENU
+========================= */
+.sidebar .nav .nav-item a {
+  color: #ffffff !important;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar .nav .nav-item a i,
+.sidebar .nav .nav-item a p,
+.sidebar .nav .nav-collapse li a span {
+  color: #ffffff !important;
+}
+
+/* Hover */
+.sidebar .nav .nav-item a:hover {
+  background-color: #198754 !important;
+  color: #ffffff !important;
+}
+
+/* =========================
+ACTIVE STATE (cekungan)
+========================= */
+.sidebar .nav .nav-item a.active {
+  background-color: #198754 !important;
+  color: #ffffff !important;
+  font-weight: bold;
+  border-radius: 4px 0 0 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.sidebar .nav .nav-item a.active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -20px;
+  width: 20px;
+  height: 100%;
+  background-color: #f5f6fa; /* warna konten */
+  border-radius: 0 10px 10px 0;
+  z-index: 1;
+}
+
+/* =========================
+SUBMENU
+========================= */
+.sidebar .nav .nav-collapse li a:hover {
+  background-color: #29d843 !important;
+  color: #ffffff !important;
+  border-radius: 4px;
+}
+
+.sidebar .nav .nav-collapse li.active > a {
+  background-color: #46bc52 !important;
+  color: #ffffff !important;
+  border-radius: 4px;
+}
+
+/* Caret */
+.sidebar .nav .nav-item a .caret {
+  color: #ffffff !important;
+}
+
+/* Saat parent terbuka */
+.sidebar .nav .nav-item a[aria-expanded="true"] {
+  font-weight: bold;
+}

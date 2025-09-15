@@ -38,164 +38,216 @@
   </head>
   <body>
     <div class="wrapper">
-      <div class="sidebar" style="background-color:#155b31;">
-        <style>
-            /* === STYLE SIDEBAR CUSTOM === */
+        <div class="sidebar" style="background-color:#155b31;">
+            <style>
+                /* =========================
+                STYLE SIDEBAR FIX
+                ========================= */
 
-            /* Warna default semua link & ikon sidebar */
-            .sidebar .nav .nav-item a,
-            .sidebar .nav .nav-item a i,
-            .sidebar .nav .nav-item a p,
-            .sidebar .nav .nav-collapse li a span {
+                /* Wrapper konten utama */
+                .wrapper .main-panel {
+                background-color: #f5f6fa;
+                margin-left: 0;   /* pastikan nempel sidebar */
+                padding-left: 0;
+                }
+
+                /* =========================
+                MENU UTAMA (NORMAL STATE)
+                ========================= */
+                .sidebar {
+                    background-color: #155b31; /* hijau tua */
+
+                }
+
+                .sidebar .nav .nav-item a,
+                .sidebar .nav .nav-item a i,
+                .sidebar .nav .nav-item a p,
+                .sidebar .nav .nav-collapse li a span {
                 color: #ffffff !important;
-            }
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 15px;
+                border-radius: 4px;
+                position: relative;
+                z-index: 1;
+                }
 
-            /* ======================
-            HOVER STATE
-            ====================== */
-            /* Hover untuk menu utama */
-            .sidebar .nav .nav-item a:hover,
-            .sidebar .nav .nav-item a:hover i,
-            .sidebar .nav .nav-item a:hover p {
+                /* =========================
+                HOVER STATE
+                ========================= */
+                .sidebar .nav .nav-item a:hover,
+                .sidebar .nav .nav-item a:hover i,
+                .sidebar .nav .nav-item a:hover p {
                 background-color: #198754 !important; /* hijau bootstrap */
                 color: #ffffff !important;
                 border-radius: 4px;
-            }
+                }
 
-            /* Hover untuk submenu */
-            .sidebar .nav .nav-collapse li a:hover,
-            .sidebar .nav .nav-collapse li a:hover i,
-            .sidebar .nav .nav-collapse li a:hover span {
+                /* Hover untuk submenu */
+                .sidebar .nav .nav-collapse li a:hover,
+                .sidebar .nav .nav-collapse li a:hover i,
+                .sidebar .nav .nav-collapse li a:hover span {
                 background-color: #29d843 !important; /* hijau terang */
                 color: #ffffff !important;
                 border-radius: 4px;
-            }
+                }
 
-            /* ======================
-            ACTIVE STATE (klik)
-            ====================== */
-            /* Menu utama saat aktif */
-            .sidebar .nav .nav-item.active > a,
-            .sidebar .nav .nav-item.active > a i,
-            .sidebar .nav .nav-item.active > a p {
+                /* Link aktif dengan cekungan */
+                .sidebar .nav .nav-item a.active {
                 background-color: #198754 !important;
                 color: #ffffff !important;
-                border-radius: 4px;
-            }
+                font-weight: bold;
+                position: relative;
+                z-index: 20;
+                border-radius: 4px 0 0 4px;
+                overflow: visible;
+                }
 
-            /* Submenu saat aktif */
-            .sidebar .nav .nav-collapse li.active > a,
-            .sidebar .nav .nav-collapse li.active > a span,
-            .sidebar .nav .nav-collapse li.active > a i {
-                background-color: #46bc52 !important; /* hijau lebih muda */
+                /* Efek cekungan tajam */
+                .sidebar .nav .nav-item a.active::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: -16px; /* nempel ke konten */
+                    width: 40px;
+                    height: 100%;
+                    background: #eff0f4f4; /* warna konten utama */
+
+                    /* Bentuk cekungan tajam */
+                    clip-path: polygon(100% 0, 60% 0, 0 50%, 60% 100%, 100% 100%);
+
+                    z-index: 15;
+                }
+
+
+                /* =========================
+                SUBMENU STATE
+                ========================= */
+                .sidebar .nav .nav-collapse li.active > a,
+                .sidebar .nav .nav-collapse li.active > a span,
+                .sidebar .nav .nav-collapse li.active > a i {
+                background-color: #46bc52 !important; /* hijau muda */
                 color: #ffffff !important;
                 border-radius: 4px;
-            }
+                }
 
-            /* ======================
-            TAMBAHAN: caret & ikon collapse
-            ====================== */
-            .sidebar .nav .nav-item a .caret {
+                /* caret collapse */
+                .sidebar .nav .nav-item a .caret {
                 color: #ffffff !important;
-            }
+                }
 
-            /* Saat menu parent terbuka */
-            .sidebar .nav .nav-item a[aria-expanded="true"],
-            .sidebar .nav .nav-item a[aria-expanded="true"] i,
-            .sidebar .nav .nav-item a[aria-expanded="true"] p {
+                /* Saat menu parent terbuka */
+                .sidebar .nav .nav-item a[aria-expanded="true"],
+                .sidebar .nav .nav-item a[aria-expanded="true"] i,
+                .sidebar .nav .nav-item a[aria-expanded="true"] p {
                 color: #ffffff !important;
                 font-weight: bold;
-            }
+                }
 
-            /* Submenu yang terbuka */
-            .sidebar .nav .nav-item .collapse.show a,
-            .sidebar .nav .nav-item .collapse.show a i,
-            .sidebar .nav .nav-item .collapse.show a span,
-            .sidebar .nav .nav-item .collapse.show a p {
+                /* Submenu terbuka */
+                .sidebar .nav .nav-item .collapse.show a,
+                .sidebar .nav .nav-item .collapse.show a i,
+                .sidebar .nav .nav-item .collapse.show a span,
+                .sidebar .nav .nav-item .collapse.show a p {
                 color: #ffffff !important;
-            }
-        </style>
+                }
 
-        <div class="sidebar-logo">
-          <!-- Logo Header -->
-          <div class="logo-header d-flex justify-content-end align-items-center">
-            <a href="#" class="logo">
-              <img
-                src="{{ url('assets/img/LogoSekolah.png') }}"
-                alt="navbar brand"
-                class="navbar-brand"
-                height="140px"
-                width="250px"
-              />
-            </a>
-            <div class="nav-toggle">
-              <button class="btn btn-toggle toggle-sidebar">
-                <i class="gg-menu-right"></i>
-              </button>
-              <button class="btn btn-toggle sidenav-toggler">
-                <i class="gg-menu-left"></i>
-              </button>
-            </div>
-            <button class="topbar-toggler more">
-              <i class="gg-more-vertical-alt"></i>
-            </button>
-          </div>
-          <!-- End Logo Header -->
-        </div>
-        {{-- SideBar --}}
-        <div class="sidebar-wrapper scrollbar scrollbar-inner">
-          <div class="sidebar-content">
-            <ul class="nav nav-secondary">
-                <li class="nav-item mb-2">
-                    <a href="{{ url('dashboard')}}">
-                        <i class="fas fa-home"></i>
-                        <p class="text-white">Dashboard</p>
-                    </a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a href="{{ url('profile')}}">
-                        <i class="fas fa-user"></i>
-                        <p class="text-white">Profile</p>
-                    </a>
-                </li>
-              <li class="nav-item mb-2">
-                <a data-bs-toggle="collapse" href="#belajar">
-                  <i class="fas fa-layer-group text-white"></i>
-                  <p class="text-white">Pembelajaran</p>
-                  <span class="caret"></span>
+                .sidebar,
+                .sidebar .nav,
+                .sidebar .nav .nav-item {
+                overflow: visible !important;
+                }
+
+                .main-panel {
+                margin-left: 260px; /* sesuai lebar sidebar */
+                background-color: #f5f6fa;
+                position: relative;
+                z-index: 5; /* biar konten tetap di atas sidebar */
+                }
+            </style>
+
+            <div class="sidebar-logo">
+            <!-- Logo Header -->
+            <div class="logo-header d-flex justify-content-end align-items-center">
+                <a href="#" class="logo">
+                <img
+                    src="{{ url('assets/img/LogoSekolah.png') }}"
+                    alt="navbar brand"
+                    class="navbar-brand"
+                    height="140px"
+                    width="250px"
+                />
                 </a>
-                <div class="collapse px-4" id="belajar">
-                    <ul class="nav nav-collapse">
-                        <li>
-                            <a href="{{ url('absensi') }}">
-                                <i class="fas fa-user-check"></i>
-                                <span>Absensi</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('jadwal') }}">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Jadwal</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('materi') }}">
-                                <i class="fas fa-book"></i>
-                                <span>Materi</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ url('tahfiz') }}">
-                                <i class="fas fa-list"></i>
-                                <span>Tahfiz</span>
-                            </a>
-                        </li>
-                    </ul>
+                <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                    <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                    <i class="gg-menu-left"></i>
+                </button>
                 </div>
-            </ul>
-          </div>
+                <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+                </button>
+            </div>
+            <!-- End Logo Header -->
+            </div>
+            {{-- SideBar --}}
+            <div class="sidebar-wrapper scrollbar scrollbar-inner">
+            <div class="sidebar-content">
+                <ul class="nav nav-secondary">
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('dashboard')}}" class="{{ request()->is('dashboard*') ? 'active' : '' }}">
+                            <i class="fas fa-home"></i>
+                            <p class="text-white">Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
+                            <i class="fas fa-user"></i>
+                            <p class="text-white">Profile</p>
+                        </a>
+                    </li>
+                <li class="nav-item mb-2">
+                    <a data-bs-toggle="collapse" href="#belajar">
+                    <i class="fas fa-layer-group text-white"></i>
+                    <p class="text-white">Pembelajaran</p>
+                    <span class="caret"></span>
+                    </a>
+                    <div class="collapse px-4" id="belajar">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="{{ url('absensi') }}">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Absensi</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url('jadwal') }}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Jadwal</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url('materi') }}">
+                                    <i class="fas fa-book"></i>
+                                    <span>Materi</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url('tahfiz') }}">
+                                    <i class="fas fa-list"></i>
+                                    <span>Tahfiz</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </ul>
+            </div>
+            </div>
         </div>
-      </div>
       <!-- End Sidebar -->
 
       <div class="main-panel">
@@ -367,40 +419,39 @@
                       />
                     </div>
                     <span class="profile-username">
-                      <span class="fw-bold">Danda Ganteng</span>
+                      <span class="text-white fw-bold">{{ Auth::user()->name }}</span>
                     </span>
                   </a>
-                  <ul class="dropdown-menu dropdown-user animated fadeIn">
+                  <ul class="dropdown-menu dropdown-user rounded animated fadeIn">
                     <div class="dropdown-user-scroll scrollbar-outer">
-                      <li>
-                        <div class="user-box">
-                          <div class="avatar-lg">
-                            <img
-                              src="assets/img/profile.jpg"
-                              alt="image profile"
-                              class="avatar-img rounded"
-                            />
-                          </div>
-                          <div class="u-text">
-                            <h4>Hizrian</h4>
-                            <p class="text-muted">hello@example.com</p>
-                            <a
-                              href="profile.html"
-                              class="btn btn-xs btn-secondary btn-sm"
-                              >View Profile</a
-                            >
-                          </div>
-                        </div>
-                      </li>
+                        <li>
+                            <div class="user-box">
+                                <div class="avatar-lg">
+                                    <img
+                                    src="assets/img/profile.jpg"
+                                    alt="image profile"
+                                    class="avatar-img rounded"
+                                    />
+                                </div>
+                                <div class="u-text">
+                                    <h4>{{ Auth::user()->name }}</h4>
+                                    <p class="text-muted">{{ Auth::user()->email }}</p>
+                                </div>
+                            </div>
+                        </li>
                       <li>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">My Profile</a>
-                        <a class="dropdown-item" href="#">My Balance</a>
-                        <a class="dropdown-item" href="#">Inbox</a>
+                        <a class="dropdown-item mb-1" href="{{ url('profile') }}"><i class="fas fa-user-circle me-2"></i>Profile</a>
+                        <a class="dropdown-item mb-1" href="#"><i class="fas fa-unlock me-2"></i>Ganti Sandi</a>
+                        <a class="dropdown-item mb-1" href="#"><i class="fas fa-info-circle me-2"></i>Inbox</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Account Setting</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Logout</a>
+                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-power-off me-2"></i>
+                            <span class="align-middle">Keluar</span>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        </a>
                       </li>
                     </div>
                   </ul>
@@ -419,9 +470,9 @@
       </div>
     </div>
     <!--   Core JS Files   -->
-    <script src="assets/js/core/jquery-3.7.1.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="{{ url('assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url('assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ url('assets/js/core/bootstrap.min.js') }}"></script>
 
     <!-- jQuery Scrollbar -->
     <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
