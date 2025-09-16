@@ -107,20 +107,32 @@
 
                 /* Efek cekungan tajam */
                 .sidebar .nav .nav-item a.active::after {
-                    content: "";
+                    content: "none";
                     position: absolute;
                     top: 0;
-                    right: -16px; /* nempel ke konten */
+                    right: -27px; /* nempel ke konten */
                     width: 40px;
                     height: 100%;
                     background: #eff0f4f4; /* warna konten utama */
 
                     /* Bentuk cekungan tajam */
-                    clip-path: polygon(100% 0, 60% 0, 0 50%, 60% 100%, 100% 100%);
+                    clip-path: polygon(100% 0, 70% 0, 0 50%, 70% 100%, 100% 100%);
 
                     z-index: 15;
                 }
 
+                /* Hanya parent-menu yang dapat cekungan */
+                .sidebar .nav .nav-item a.parent-menu.active::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: -30px;
+                    width: 40px;
+                    height: 100%;
+                    background: #eff0f4f4;
+                    clip-path: polygon(100% 0, 60% 0, 0 50%, 60% 100%, 100% 100%);
+                    z-index: 15;
+                }
 
                 /* =========================
                 SUBMENU STATE
@@ -196,56 +208,96 @@
             </div>
             {{-- SideBar --}}
             <div class="sidebar-wrapper scrollbar scrollbar-inner">
-            <div class="sidebar-content">
-                <ul class="nav nav-secondary">
-                    <li class="nav-item mb-2">
-                        <a href="{{ url('dashboard')}}" class="{{ request()->is('dashboard*') ? 'active' : '' }}">
-                            <i class="fas fa-home"></i>
-                            <p class="text-white">Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
-                            <i class="fas fa-user"></i>
-                            <p class="text-white">Profile</p>
-                        </a>
-                    </li>
-                <li class="nav-item mb-2">
-                    <a data-bs-toggle="collapse" href="#belajar">
-                    <i class="fas fa-layer-group text-white"></i>
-                    <p class="text-white">Pembelajaran</p>
-                    <span class="caret"></span>
-                    </a>
-                    <div class="collapse px-4" id="belajar">
-                        <ul class="nav nav-collapse">
-                            <li>
-                                <a href="{{ url('absensi') }}">
-                                    <i class="fas fa-user-check"></i>
-                                    <span>Absensi</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url('jadwal') }}">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>Jadwal</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url('materi') }}">
-                                    <i class="fas fa-book"></i>
-                                    <span>Materi</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url('tahfiz') }}">
-                                    <i class="fas fa-list"></i>
-                                    <span>Tahfiz</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </ul>
-            </div>
+                <div class="sidebar-content">
+                    <ul class="nav nav-secondary">
+                        <li class="nav-item mb-2">
+                            <a href="{{ url('dashboard')}}" class="{{ request()->is('dashboard*') ? 'active' : '' }}">
+                                <i class="fas fa-home"></i>
+                                <p class="text-white">Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
+                                <i class="fas fa-user"></i>
+                                <p class="text-white">Profile</p>
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a data-bs-toggle="collapse"
+                            href="#data"
+                            class="parent-menu {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'active' : '' }}"
+                            aria-expanded="{{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'true' : 'false' }}">
+                                <i class="fas fa-layer-group text-white"></i>
+                                <p class="text-white">Data Master</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse px-4 {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'show' : '' }}" id="data">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="{{ url('siswa') }}">
+                                            <i class="fas fa-user-check"></i>
+                                            <span>Data Siswa</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('guru') }}" class="{{ request()->is('guru*') ? 'active' : '' }}">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>Data Guru</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('kelas') }}" class="{{ request()->is('kelas*') ? 'active' : '' }}">
+                                            <i class="fas fa-book"></i>
+                                            <span>Data Kelas</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('mapel') }}" class="{{ request()->is('mapel*') ? 'active' : '' }}">
+                                            <i class="fas fa-list"></i>
+                                            <span>Data Mata Pelajaran</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="nav-item mb-2">
+                            <a data-bs-toggle="collapse" href="#belajar">
+                            <i class="fas fa-layer-group text-white"></i>
+                            <p class="text-white">Pembelajaran</p>
+                            <span class="caret"></span>
+                            </a>
+                            <div class="collapse px-4" id="belajar">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="{{ url('absensi') }}">
+                                            <i class="fas fa-user-check"></i>
+                                            <span>Absensi</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('jadwal') }}">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>Jadwal</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('materi') }}">
+                                            <i class="fas fa-book"></i>
+                                            <span>Materi</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url('tahfiz') }}">
+                                            <i class="fas fa-list"></i>
+                                            <span>Tahfiz</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
       <!-- End Sidebar -->
