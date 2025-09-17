@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Siswa;
 use App\Models\User;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class SiswaController extends Controller
 {
@@ -31,35 +32,60 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'nisn' => 'required|string|unique:users,nisn',
-            'email' => 'nullable|email|unique:users,email',
-            'password' => 'nullable|min:6', // bisa default kalau kosong
+            'name'           => 'required|string|max:255',
+            'nisn'           => 'required|unique:users,nisn',
+            'email'          => 'nullable|email|unique:users,email',
+            'password'       => 'nullable|min:6',
+            'jenis_kelamin'  => 'nullable|string',
+            'tempat_lahir'   => 'nullable|string',
+            'tanggal_lahir'  => 'nullable|date',
+            'agama'          => 'nullable|string',
+            'alamat'         => 'nullable|string',
+            'nohp'           => 'nullable|string',
+            'foto'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'tahun_masuk'    => 'nullable|numeric',
+            'status_siswa'   => 'required|in:aktif,lulus,pindah',
         ]);
 
-        // buat akun login di tabel users
+        // Simpan ke tabel users
         $user = User::create([
-            'name' => $request->name,
-            'nisn' => $request->nisn,
-            'email' => $request->email,
-            'password' => bcrypt($request->password ?? 'siswa123'), // default siswa123
-            'role' => 'siswa',
+            'name'     => $request->name,
+            'nisn'     => $request->nisn,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password ?? 'siswa123'),
+            'role'     => 'siswa',
         ]);
 
-        // buat biodata siswa di tabel siswas
+        // Upload foto jika ada
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('foto_siswa', 'public');
+        }
+
+        // Simpan ke tabel siswas
         Siswa::create([
-            'user_id' => $user->id,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tempat_lahir' => $request->tempat_lahir,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'agama' => $request->agama,
-            'alamat' => $request->alamat,
-            'nohp' => $request->nohp,
-            'tahun_masuk' => $request->tahun_masuk,
-            'status_siswa' => $request->status_siswa ?? 'aktif',
+            'user_id'          => $user->id,
+            'jenis_kelamin'    => $request->jenis_kelamin,
+            'tempat_lahir'     => $request->tempat_lahir,
+            'tanggal_lahir'    => $request->tanggal_lahir,
+            'kewarganegaraan'  => $request->kewarganegaraan,
+            'agama'            => $request->agama,
+            'alamat'           => $request->alamat,
+            'nik'              => $request->nik,
+            'nohp'             => $request->nohp,
+            'kode_pos'         => $request->kode_pos,
+            'nama_ayah'        => $request->nama_ayah,
+            'tanggal_lahir_ayah' => $request->tanggal_lahir_ayah,
+            'pekerjaan_ayah'   => $request->pekerjaan_ayah,
+            'nama_ibu'         => $request->nama_ibu,
+            'tanggal_lahir_ibu' => $request->tanggal_lahir_ibu,
+            'pekerjaan_ibu'    => $request->pekerjaan_ibu,
+            'tahun_masuk'      => $request->tahun_masuk,
+            'status_siswa'     => $request->status_siswa,
+            'foto'             => $fotoPath,
         ]);
 
-        return redirect()->route('siswas.index')->with('success', 'Siswa berhasil ditambahkan.');
+        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil ditambahkan.');
     }
 
     /**
@@ -75,7 +101,7 @@ class SiswaController extends Controller
      */
     public function edit(Siswa $siswa)
     {
-        //
+        return view('siswa.edit');
     }
 
     /**

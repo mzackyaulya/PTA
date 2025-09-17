@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('foto')->nullable();
             $table->year('tahun_masuk')->nullable();
             $table->enum('status_siswa', ['aktif','lulus','pindah'])->default('aktif');
+            $table->timestamps();
         });
     }
 
