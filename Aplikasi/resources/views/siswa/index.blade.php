@@ -7,9 +7,11 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title fw-bold mb-2">Data Siswa</h2>
-                <a href="{{ route('siswa.create') }}" class="btn btn-primary">
-                    Tambah Siswa
-                </a>
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('siswa.create') }}" class="btn btn-primary">
+                        Tambah Siswa
+                    </a>
+                @endif
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -24,7 +26,9 @@
                                 <th class="sorting text-center" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 125.55px;">Agama</th>
                                 <th class="sorting text-center" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 104.713px;">Tahun Masuk</th>
                                 <th class="sorting text-center" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 104.713px;">Status</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 104.713px;">Aksi</th>
+                                @if(auth()->user()->role === 'admin')
+                                    <th class="sorting text-center" tabindex="0" aria-controls="basic-datatables" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 104.713px;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tfoot>
@@ -37,7 +41,9 @@
                                 <th rowspan="1" colspan="1" class="text-center">Agama</th>
                                 <th rowspan="1" colspan="1" class="text-center">Tahun Masuk</th>
                                 <th rowspan="1" colspan="1" class="text-center">Status</th>
-                                <th rowspan="1" colspan="1" class="text-center">Aksi</th>
+                                @if(auth()->user()->role === 'admin')
+                                    <th rowspan="1" colspan="1" class="text-center">Aksi</th>
+                                @endif
                             </tr>
                         </tfoot>
                         <tbody>
@@ -58,9 +64,11 @@
                                         {{ ucfirst($siswa->status_siswa) }}
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <a href="{{ route('siswa.edit', $siswa->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                </td>
+                                @if(auth()->user()->role === 'admin')
+                                    <td class="text-center">
+                                        <a href="{{ route('siswa.edit', $siswa->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    </td>
+                                @endif
                             </tr>
                             @empty
                             <tr>

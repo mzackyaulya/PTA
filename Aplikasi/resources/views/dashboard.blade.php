@@ -8,14 +8,19 @@
         <p class="text-muted">Informasi SMA Muhammadiyah 2 Palembang</p>
     </div>
 
-    <div class="mb-4 d-flex gap-2">
-        <a href="{{ route('announcements.create') }}" class="btn btn-primary">
-            Tambah Pengumuman
-        </a>
-        <a href="{{ route('banners.create') }}" class="btn btn-primary text-white">
-            Tambah Banner
-        </a>
-    </div>
+    @if(auth()->user()->role === 'admin')
+        <div class="mb-4 d-flex gap-2">
+            <a href="{{ route('announcements.create') }}" class="btn btn-primary">
+                Tambah Pengumuman
+            </a>
+
+            @if($banners->count() < 3)
+                <a href="{{ route('banners.create') }}" class="btn btn-primary text-white">
+                    Tambah Banner
+                </a>
+            @endif
+        </div>
+    @endif
 
     {{-- Slider Banner --}}
     <div id="bannerCarousel" class="carousel slide mb-5" data-bs-ride="carousel">

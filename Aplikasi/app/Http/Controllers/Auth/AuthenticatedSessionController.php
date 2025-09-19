@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use Hash;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -32,12 +33,12 @@ class AuthenticatedSessionController extends Controller
 
         $username = $request->input('username');
 
-        // Cari user berdasarkan nisn atau nip
-        $user = \App\Models\User::where('nisn', $username)
+        // Cari user berdasarkan nisn, nip, atau email
+        $user = User::where('nisn', $username)
                     ->orWhere('nip', $username)
                     ->first();
 
-        if ($user && \Hash::check($request->password, $user->password)) {
+        if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
@@ -45,9 +46,10 @@ class AuthenticatedSessionController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'NISN atau NIP atau Password salah.',
+            'username' => 'NISN / NIP / Email atau Password salah.',
         ]);
     }
+
 
 
 

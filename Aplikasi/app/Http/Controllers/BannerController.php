@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 
@@ -28,22 +29,24 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
+        // Batasi maksimal 3 banner
+        if (Banner::count() >= 3) {
+            return redirect()->route('dashboard')->with('error','Maksimal 3 banner saja.');
+        }
+
         $data = $request->validate([
             'title' => ['nullable','string','max:100'],
             'image' => ['required','image','mimes:jpg,jpeg,png,webp','max:3072'],
-            'sort_order' => ['nullable','integer','min:0'],
-            'is_active' => ['nullable','boolean'],
         ]);
+
         $path = $request->file('image')->store('banners','public');
 
         Banner::create([
-            'title'=>$data['title']??null,
-            'image_path'=>$path,
-            'sort_order'=>$data['sort_order']??0,
-            'is_active'=>$request->boolean('is_active', true),
+            'title' => $data['title'] ?? null,
+            'image_path' => $path,
         ]);
+
         return redirect()->route('dashboard')->with('success','Banner berhasil ditambahkan');
-        dd($request->all());
     }
 
     /**
@@ -59,7 +62,7 @@ class BannerController extends Controller
      */
     public function edit(Banner $banner)
     {
-        //
+        return view('banner.edit', compact('banner'));
     }
 
     /**
@@ -67,7 +70,26 @@ class BannerController extends Controller
      */
     public function update(Request $request, Banner $banner)
     {
-        //
+        $data = $request->validate([
+            'title' => ['nullable','string','max:100'],
+            'image' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:3072'],
+        ]);
+
+        // Kalau upload gambar baru
+        if ($request->hasFile('image')) {
+            // hapus file lama kalau ada
+            if ($banner->image_path && \Storage::disk('public')->exists($banner->image_path)) {
+                Storage::disk('public')->delete($banner->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('banners','public');
+        }
+
+        $banner->update([
+            'title' => $data['title'] ?? $banner->title,
+            'image_path' => $data['image_path'] ?? $banner->image_path,
+        ]);
+
+        return redirect()->route('dashboard')->with('success','Banner berhasil diperbarui');
     }
 
     /**

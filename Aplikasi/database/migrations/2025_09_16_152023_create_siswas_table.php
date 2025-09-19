@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('siswas', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('jenis_kelamin')->nullable();
             $table->string('tempat_lahir')->nullable();
             $table->date('tanggal_lahir')->nullable();
@@ -24,12 +25,12 @@ return new class extends Migration
             $table->string('nohp')->nullable();
             $table->string('kode_pos')->nullable();
             $table->string('nama_ayah')->nullable();
-            $table->string('tanggal_lahir_ayah')->nullable();
+            $table->date('tanggal_lahir_ayah')->nullable();
             $table->string('nik_ayah')->nullable();
             $table->string('pendidikan_ayah')->nullable();
             $table->string('pekerjaan_ayah')->nullable();
             $table->string('nama_ibu')->nullable();
-            $table->string('tanggal_lahir_ibu')->nullable();
+            $table->date('tanggal_lahir_ibu')->nullable();
             $table->string('nik_ibu')->nullable();
             $table->string('pendidikan_ibu')->nullable();
             $table->string('pekerjaan_ibu')->nullable();

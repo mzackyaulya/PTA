@@ -11,22 +11,29 @@
     <!-- Fonts and icons -->
     <script src="{{ url('assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
-      WebFont.load({
-        google: { families: ["Public Sans:300,400,500,600,700"] },
-        custom: {
-          families: [
-            "Font Awesome 5 Solid",
-            "Font Awesome 5 Regular",
-            "Font Awesome 5 Brands",
-            "simple-line-icons",
-          ],
-          urls: ["{{ url('assets/css/fonts.min.css') }}"],
-        },
-        active: function () {
-          sessionStorage.fonts = true;
-        },
-      });
+        WebFont.load({
+            google: {
+            families: [
+                "Public Sans:300,400,500,600,700",
+                "Playfair Display:700",
+                "Poppins:600"
+            ]
+            },
+            custom: {
+            families: [
+                "Font Awesome 5 Solid",
+                "Font Awesome 5 Regular",
+                "Font Awesome 5 Brands",
+                "simple-line-icons",
+            ],
+            urls: ["{{ url('assets/css/fonts.min.css') }}"],
+            },
+            active: function () {
+            sessionStorage.fonts = true;
+            },
+        });
     </script>
+
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ url('assets/css/bootstrap.min.css') }}" />
@@ -222,45 +229,47 @@
                                 <p class="text-white">Profile</p>
                             </a>
                         </li>
-                        <li class="nav-item mb-2">
-                            <a data-bs-toggle="collapse"
-                            href="#data"
-                            class="parent-menu {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'active' : '' }}"
-                            aria-expanded="{{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'true' : 'false' }}">
-                                <i class="fas fa-layer-group text-white"></i>
-                                <p class="text-white">Data Master</p>
-                                <span class="caret"></span>
-                            </a>
-                            <div class="collapse px-4 {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'show' : '' }}" id="data">
-                                <ul class="nav nav-collapse">
-                                    <li>
-                                        <a href="{{ url('siswa') }}">
-                                            <i class="fas fa-user-check"></i>
-                                            <span>Data Siswa</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ url('guru') }}" class="{{ request()->is('guru*') ? 'active' : '' }}">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span>Data Guru</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ url('kelas') }}" class="{{ request()->is('kelas*') ? 'active' : '' }}">
-                                            <i class="fas fa-book"></i>
-                                            <span>Data Kelas</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ url('mapel') }}" class="{{ request()->is('mapel*') ? 'active' : '' }}">
-                                            <i class="fas fa-list"></i>
-                                            <span>Data Mata Pelajaran</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
 
+                        @if(auth()->user()->role === 'admin')
+                            <li class="nav-item mb-2">
+                                <a data-bs-toggle="collapse"
+                                href="#data"
+                                class="parent-menu {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'active' : '' }}"
+                                aria-expanded="{{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'true' : 'false' }}">
+                                    <i class="fas fa-layer-group text-white"></i>
+                                    <p class="text-white">Data Master</p>
+                                    <span class="caret"></span>
+                                </a>
+                                <div class="collapse px-4 {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'show' : '' }}" id="data">
+                                    <ul class="nav nav-collapse">
+                                        <li>
+                                            <a href="{{ url('siswa') }}">
+                                                <i class="fas fa-user-check"></i>
+                                                <span>Data Siswa</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('guru') }}" class="{{ request()->is('guru*') ? 'active' : '' }}">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span>Data Guru</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('kelas') }}" class="{{ request()->is('kelas*') ? 'active' : '' }}">
+                                                <i class="fas fa-book"></i>
+                                                <span>Data Kelas</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('mapel') }}" class="{{ request()->is('mapel*') ? 'active' : '' }}">
+                                                <i class="fas fa-list"></i>
+                                                <span>Data Mata Pelajaran</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        @endif
                         <li class="nav-item mb-2">
                             <a data-bs-toggle="collapse" href="#belajar">
                             <i class="fas fa-layer-group text-white"></i>
@@ -377,84 +386,6 @@
                     </li>
                   </ul>
                 </li>
-                <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a
-                    class="nav-link"
-                    data-bs-toggle="dropdown"
-                    href="#"
-                    aria-expanded="false"
-                  >
-                    <i class="fas fa-layer-group"></i>
-                  </a>
-                  <div class="dropdown-menu quick-actions animated fadeIn">
-                    <div class="quick-actions-header">
-                      <span class="title mb-1">Quick Actions</span>
-                      <span class="subtitle op-7">Shortcuts</span>
-                    </div>
-                    <div class="quick-actions-scroll scrollbar-outer">
-                      <div class="quick-actions-items">
-                        <div class="row m-0">
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div class="avatar-item bg-danger rounded-circle">
-                                <i class="far fa-calendar-alt"></i>
-                              </div>
-                              <span class="text">Calendar</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div
-                                class="avatar-item bg-warning rounded-circle"
-                              >
-                                <i class="fas fa-map"></i>
-                              </div>
-                              <span class="text">Maps</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div class="avatar-item bg-info rounded-circle">
-                                <i class="fas fa-file-excel"></i>
-                              </div>
-                              <span class="text">Reports</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div
-                                class="avatar-item bg-success rounded-circle"
-                              >
-                                <i class="fas fa-envelope"></i>
-                              </div>
-                              <span class="text">Emails</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div
-                                class="avatar-item bg-primary rounded-circle"
-                              >
-                                <i class="fas fa-file-invoice-dollar"></i>
-                              </div>
-                              <span class="text">Invoice</span>
-                            </div>
-                          </a>
-                          <a class="col-6 col-md-4 p-0" href="#">
-                            <div class="quick-actions-item">
-                              <div
-                                class="avatar-item bg-secondary rounded-circle"
-                              >
-                                <i class="fas fa-credit-card"></i>
-                              </div>
-                              <span class="text">Payments</span>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
 
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a
@@ -464,11 +395,13 @@
                     aria-expanded="false"
                   >
                     <div class="avatar-sm">
-                      <img
-                        src="assets/img/profile.jpg"
-                        alt="..."
-                        class="avatar-img rounded-circle"
-                      />
+                        <img
+                            src="{{ auth()->check() && auth()->user()?->siswa?->foto
+                                    ? asset('storage/'.auth()->user()->siswa->foto)
+                                    : url('assets/img/admin.png') }}"
+                            alt="Foto Profil"
+                            class="avatar-img rounded-circle"
+                        />
                     </div>
                     <span class="profile-username">
                       <span class="text-white fw-bold">{{ Auth::user()->name }}</span>
@@ -480,9 +413,11 @@
                             <div class="user-box">
                                 <div class="avatar-lg">
                                     <img
-                                    src="assets/img/profile.jpg"
-                                    alt="image profile"
-                                    class="avatar-img rounded"
+                                        src="{{ optional(auth()->user()->siswa)->foto
+                                                ? asset('storage/'.auth()->user()->siswa->foto)
+                                                : url('assets/img/admin.png') }}"
+                                        alt="image profile"
+                                        class="avatar-img rounded"
                                     />
                                 </div>
                                 <div class="u-text">

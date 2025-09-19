@@ -8,6 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Banner extends Model
 {
     use HasFactory;
-    protected $fillable = ['title','image_path','is_active','sort_order'];
-    protected $casts = ['is_active'=>'boolean'];
+    protected $fillable = ['title','image_path'];
 }
