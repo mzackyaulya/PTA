@@ -5,6 +5,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnnouncementsController;
+use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 
 Route::get('/', function () {
@@ -27,6 +28,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth','role:admin'])->group(function () {
     Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa');
     Route::resource('siswa',SiswaController::class);
+});
+
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::get('/guru', [GuruController::class, 'index'])->name('guru');
+    Route::resource('guru',GuruController::class);
 });
 
 require __DIR__.'/auth.php';

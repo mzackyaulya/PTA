@@ -249,19 +249,19 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('guru') }}" class="{{ request()->is('guru*') ? 'active' : '' }}">
-                                                <i class="fas fa-calendar-alt"></i>
+                                            <a href="{{ url('guru') }}">
+                                                <i class="fas fa-chalkboard-teacher"></i>
                                                 <span>Data Guru</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('kelas') }}" class="{{ request()->is('kelas*') ? 'active' : '' }}">
-                                                <i class="fas fa-book"></i>
+                                            <a href="{{ url('kelas') }}">
+                                                <i class="fas fa-door-open"></i>
                                                 <span>Data Kelas</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('mapel') }}" class="{{ request()->is('mapel*') ? 'active' : '' }}">
+                                            <a href="{{ url('mapel') }}">
                                                 <i class="fas fa-list"></i>
                                                 <span>Data Mata Pelajaran</span>
                                             </a>
