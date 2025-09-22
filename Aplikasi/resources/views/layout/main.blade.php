@@ -8,6 +8,7 @@
     <link rel="icon" href="{{ url('assets/img/logoweb.png') }}" type="image/x-icon" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
+
     <!-- Fonts and icons -->
     <script src="{{ url('assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
@@ -483,10 +484,9 @@
     <script src="{{ url('assets/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
     <script src="assets/js/plugin/jsvectormap/world.js"></script>
 
-    <!-- Sweet Alert -->
-    <script src="{{ url('assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
-
     <!-- Kaiadmin JS -->
     <script src="{{ url('assets/js/kaiadmin.min.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>

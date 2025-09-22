@@ -28,24 +28,17 @@ class SiswaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan data siswa baru.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name'           => 'required|string|max:255',
-            'nisn'           => 'required|unique:users,nisn',
-            'email'          => 'nullable|email|unique:users,email',
-            'password'       => 'nullable|min:6',
-            'jenis_kelamin'  => 'nullable|string',
-            'tempat_lahir'   => 'nullable|string',
-            'tanggal_lahir'  => 'nullable|date',
-            'agama'          => 'nullable|string',
-            'alamat'         => 'nullable|string',
-            'nohp'           => 'nullable|string',
-            'foto'           => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
-            'tahun_masuk'    => 'nullable|numeric',
-            'status_siswa'   => 'required|in:aktif,lulus,pindah',
+            'name'            => 'required|string|max:255',
+            'nisn'            => 'required|unique:users,nisn',
+            'email'           => 'nullable|email|unique:users,email',
+            'password'        => 'nullable|min:6',
+            'foto'            => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
+            'status_siswa'    => 'required|in:aktif,lulus,pindah',
         ]);
 
         // Simpan ke tabel users
@@ -65,65 +58,97 @@ class SiswaController extends Controller
 
         // Simpan ke tabel siswas
         Siswa::create([
-            'user_id'          => $user->id,
-            'jenis_kelamin'    => $request->jenis_kelamin,
-            'tempat_lahir'     => $request->tempat_lahir,
-            'tanggal_lahir'    => $request->tanggal_lahir,
-            'kewarganegaraan'  => $request->kewarganegaraan,
-            'agama'            => $request->agama,
-            'alamat'           => $request->alamat,
-            'nik'              => $request->nik,
-            'nohp'             => $request->nohp,
-            'kode_pos'         => $request->kode_pos,
-            'nama_ayah'        => $request->nama_ayah,
-            'tanggal_lahir_ayah' => $request->tanggal_lahir_ayah,
-            'pekerjaan_ayah'   => $request->pekerjaan_ayah,
-            'nama_ibu'         => $request->nama_ibu,
-            'tanggal_lahir_ibu' => $request->tanggal_lahir_ibu,
-            'pekerjaan_ibu'    => $request->pekerjaan_ibu,
-            'tahun_masuk'      => $request->tahun_masuk,
-            'status_siswa'     => $request->status_siswa,
-            'foto'             => $fotoPath,
+            'user_id'             => $user->id,
+            'nis'                 => $request->nis,
+            'jenis_kelamin'       => $request->jenis_kelamin,
+            'tempat_lahir'        => $request->tempat_lahir,
+            'tanggal_lahir'       => $request->tanggal_lahir,
+            'kewarganegaraan'     => $request->kewarganegaraan,
+            'agama'               => $request->agama,
+            'alamat'              => $request->alamat,
+            'nik'                 => $request->nik,
+            'nohp'                => $request->nohp,
+            'dusun'               => $request->dusun,
+            'kecamatan'           => $request->kecamatan,
+            'kelurahan'           => $request->kelurahan,
+            'rt'                  => $request->rt,
+            'rw'                  => $request->rw,
+            'kodepos'             => $request->kodepos,
+            'jenis_tinggal'       => $request->jenis_tinggal,
+            'alat_transportasi'   => $request->alat_transportasi,
+
+            // Data ayah
+            'nama_ayah'           => $request->nama_ayah,
+            'tanggal_lahir_ayah'  => $request->tanggal_lahir_ayah,
+            'nik_ayah'            => $request->nik_ayah,
+            'pendidikan_ayah'     => $request->pendidikan_ayah,
+            'pekerjaan_ayah'      => $request->pekerjaan_ayah,
+            'penghasilan_ayah'    => $request->penghasilan_ayah,
+
+            // Data ibu
+            'nama_ibu'            => $request->nama_ibu,
+            'tanggal_lahir_ibu'   => $request->tanggal_lahir_ibu,
+            'nik_ibu'             => $request->nik_ibu,
+            'pendidikan_ibu'      => $request->pendidikan_ibu,
+            'pekerjaan_ibu'       => $request->pekerjaan_ibu,
+            'penghasilan_ibu'     => $request->penghasilan_ibu,
+
+            // Data wali
+            'nama_wali'           => $request->nama_wali,
+            'tanggal_lahir_wali'  => $request->tanggal_lahir_wali,
+            'nik_wali'            => $request->nik_wali,
+            'pendidikan_wali'     => $request->pendidikan_wali,
+            'pekerjaan_wali'      => $request->pekerjaan_wali,
+
+            // Data tambahan
+            'kelas'               => $request->kelas,
+            'no_akta_lahir'       => $request->no_akta_lahir,
+            'kebutuhan_khusus'    => $request->kebutuhan_khusus,
+            'asal_sekolah'        => $request->asal_sekolah,
+            'anakke'              => $request->anakke,
+            'no_kk'               => $request->no_kk,
+            'berat_badan'         => $request->berat_badan,
+            'tinggi_badan'        => $request->tinggi_badan,
+            'lingkar_kepala'      => $request->lingkar_kepala,
+            'jumlah_saudara'      => $request->jumlah_saudara,
+            'jarak_rumah'         => $request->jarak_rumah,
+
+            'foto'                => $fotoPath,
+            'tahun_masuk'         => $request->tahun_masuk,
+            'status_siswa'        => $request->status_siswa,
         ]);
 
         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil ditambahkan.');
     }
 
     /**
-     * Display the specified resource.
+     * Tampilkan detail siswa.
      */
     public function show(Siswa $siswa)
     {
-        //
+        return view('siswa.show', compact('siswa'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Form edit siswa.
      */
     public function edit(Siswa $siswa)
     {
-        return view('siswa.edit',compact('siswa'));
+        return view('siswa.edit', compact('siswa'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data siswa.
      */
     public function update(Request $request, Siswa $siswa)
     {
         $request->validate([
-            'name'           => 'required|string|max:255',
-            'nisn'           => 'required|unique:users,nisn,' . $siswa->user->id,
-            'email'          => 'nullable|email|unique:users,email,' . $siswa->user->id,
-            'password'       => 'nullable|min:6',
-            'jenis_kelamin'  => 'nullable|string',
-            'tempat_lahir'   => 'nullable|string',
-            'tanggal_lahir'  => 'nullable|date',
-            'agama'          => 'nullable|string',
-            'alamat'         => 'nullable|string',
-            'nohp'           => 'nullable|string',
-            'foto'           => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
-            'tahun_masuk'    => 'nullable|numeric',
-            'status_siswa'   => 'required|in:aktif,lulus,pindah',
+            'name'          => 'required|string|max:255',
+            'nisn'          => 'required|unique:users,nisn,' . $siswa->user->id,
+            'email'         => 'nullable|email|unique:users,email,' . $siswa->user->id,
+            'password'      => 'nullable|min:6',
+            'foto'          => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
+            'status_siswa'  => 'required|in:aktif,lulus,pindah',
         ]);
 
         // Update user
@@ -134,11 +159,10 @@ class SiswaController extends Controller
             'password' => $request->password ? Hash::make($request->password) : $siswa->user->password,
         ]);
 
-        // Handle foto baru
+        // Foto
         $fotoPath = $siswa->foto;
         if ($request->hasFile('foto')) {
-            // hapus foto lama kalau ada
-            if ($fotoPath && \Storage::disk('public')->exists($fotoPath)) {
+            if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
             $fotoPath = $request->file('foto')->store('foto_siswa', 'public');
@@ -146,24 +170,63 @@ class SiswaController extends Controller
 
         // Update siswa
         $siswa->update([
-            'jenis_kelamin'    => $request->jenis_kelamin,
-            'tempat_lahir'     => $request->tempat_lahir,
-            'tanggal_lahir'    => $request->tanggal_lahir,
-            'kewarganegaraan'  => $request->kewarganegaraan,
-            'agama'            => $request->agama,
-            'alamat'           => $request->alamat,
-            'nik'              => $request->nik,
-            'nohp'             => $request->nohp,
-            'kode_pos'         => $request->kode_pos,
-            'nama_ayah'        => $request->nama_ayah,
-            'tanggal_lahir_ayah' => $request->tanggal_lahir_ayah,
-            'pekerjaan_ayah'   => $request->pekerjaan_ayah,
-            'nama_ibu'         => $request->nama_ibu,
-            'tanggal_lahir_ibu'=> $request->tanggal_lahir_ibu,
-            'pekerjaan_ibu'    => $request->pekerjaan_ibu,
-            'tahun_masuk'      => $request->tahun_masuk,
-            'status_siswa'     => $request->status_siswa,
-            'foto'             => $fotoPath,
+            'nis'                 => $request->nis,
+            'jenis_kelamin'       => $request->jenis_kelamin,
+            'tempat_lahir'        => $request->tempat_lahir,
+            'tanggal_lahir'       => $request->tanggal_lahir,
+            'kewarganegaraan'     => $request->kewarganegaraan,
+            'agama'               => $request->agama,
+            'alamat'              => $request->alamat,
+            'nik'                 => $request->nik,
+            'nohp'                => $request->nohp,
+            'dusun'               => $request->dusun,
+            'kecamatan'           => $request->kecamatan,
+            'kelurahan'           => $request->kelurahan,
+            'rt'                  => $request->rt,
+            'rw'                  => $request->rw,
+            'kodepos'             => $request->kodepos,
+            'jenis_tinggal'       => $request->jenis_tinggal,
+            'alat_transportasi'   => $request->alat_transportasi,
+
+            // Data ayah
+            'nama_ayah'           => $request->nama_ayah,
+            'tanggal_lahir_ayah'  => $request->tanggal_lahir_ayah,
+            'nik_ayah'            => $request->nik_ayah,
+            'pendidikan_ayah'     => $request->pendidikan_ayah,
+            'pekerjaan_ayah'      => $request->pekerjaan_ayah,
+            'penghasilan_ayah'    => $request->penghasilan_ayah,
+
+            // Data ibu
+            'nama_ibu'            => $request->nama_ibu,
+            'tanggal_lahir_ibu'   => $request->tanggal_lahir_ibu,
+            'nik_ibu'             => $request->nik_ibu,
+            'pendidikan_ibu'      => $request->pendidikan_ibu,
+            'pekerjaan_ibu'       => $request->pekerjaan_ibu,
+            'penghasilan_ibu'     => $request->penghasilan_ibu,
+
+            // Data wali
+            'nama_wali'           => $request->nama_wali,
+            'tanggal_lahir_wali'  => $request->tanggal_lahir_wali,
+            'nik_wali'            => $request->nik_wali,
+            'pendidikan_wali'     => $request->pendidikan_wali,
+            'pekerjaan_wali'      => $request->pekerjaan_wali,
+
+            // Data tambahan
+            'kelas'               => $request->kelas,
+            'no_akta_lahir'       => $request->no_akta_lahir,
+            'kebutuhan_khusus'    => $request->kebutuhan_khusus,
+            'asal_sekolah'        => $request->asal_sekolah,
+            'anakke'              => $request->anakke,
+            'no_kk'               => $request->no_kk,
+            'berat_badan'         => $request->berat_badan,
+            'tinggi_badan'        => $request->tinggi_badan,
+            'lingkar_kepala'      => $request->lingkar_kepala,
+            'jumlah_saudara'      => $request->jumlah_saudara,
+            'jarak_rumah'         => $request->jarak_rumah,
+
+            'foto'                => $fotoPath,
+            'tahun_masuk'         => $request->tahun_masuk,
+            'status_siswa'        => $request->status_siswa,
         ]);
 
         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui.');

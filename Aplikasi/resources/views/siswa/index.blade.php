@@ -66,7 +66,23 @@
                                 </td>
                                 @if(auth()->user()->role === 'admin')
                                     <td class="text-center">
-                                        <a href="{{ route('siswa.edit', $siswa->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-transparant border-0" type="button" id="aksiMenu{{ $siswa->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v"></i> {{-- Icon titik 3 vertikal --}}
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="aksiMenu{{ $siswa->id }}">
+                                                <li>
+                                                    <a href="{{ route('siswa.show', $siswa->id) }}" class="dropdown-item">
+                                                        <i class="fa fa-eye text-info me-2"></i> Detail Siswa
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ route('siswa.edit', $siswa->id) }}" class="dropdown-item">
+                                                        <i class="fa fa-edit text-warning me-2"></i> Edit
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 @endif
                             </tr>
@@ -82,4 +98,18 @@
             </div>
         </div>
     </div>
+    
+@if(session('success'))
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 3000
+        });
+    });
+</script>
+@endif
 @endsection

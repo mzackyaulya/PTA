@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use App\Models\Guru;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -99,8 +100,56 @@ class GuruController extends Controller
      */
     public function update(Request $request, Guru $guru)
     {
-        //
+        $request->validate([
+            'nip' => 'required|unique:users,nip,' . $guru->user->id,
+            'nama' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $guru->user->id,
+            'password' => 'nullable|min:6',
+            'jenis_kelamin' => 'required|string',
+            'status_guru' => 'required|in:aktif,pensiun,nonaktif',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
+        ]);
+
+        // update tabel users
+        $guru->user->update([
+            'name' => $request->nama,
+            'nip' => $request->nip,
+            'email' => $request->email,
+            'password' => $request->password
+                ? Hash::make($request->password)
+                : $guru->user->password,
+        ]);
+
+        // handle foto lama
+        $fotoPath = $guru->foto;
+        if ($request->hasFile('foto')) {
+            if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
+                \Storage::disk('public')->delete($fotoPath);
+            }
+            $fotoPath = $request->file('foto')->store('foto_guru', 'public');
+        }
+
+        // update tabel guru
+        $guru->update([
+            'nip' => $request->nip,
+            'nama' => $request->nama,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'agama' => $request->agama,
+            'alamat' => $request->alamat,
+            'nohp' => $request->nohp,
+            'email' => $request->email,
+            'pendidikan_terakhir' => $request->pendidikan_terakhir,
+            'jabatan' => $request->jabatan,
+            'mapel' => $request->mapel,
+            'status_guru' => $request->status_guru,
+            'foto' => $fotoPath,
+        ]);
+
+        return redirect()->route('guru.index')->with('success', 'Data guru berhasil diperbarui.');
     }
+
 
     /**
      * Remove the specified resource from storage.
