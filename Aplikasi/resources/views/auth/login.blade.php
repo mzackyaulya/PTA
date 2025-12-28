@@ -1,62 +1,121 @@
-
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Akademik</title>
-  <link rel="shortcut icon" type="image/png" href="{{ url('assets/img/logoweb.png') }}" />
-  <link rel="stylesheet" href="{{ url('assets/css/styles.min.css') }}" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login Akademik</title>
+
+    <link rel="shortcut icon" type="image/png" href="{{ url('assets/img/logoweb.png') }}" />
+    <link rel="stylesheet" href="{{ url('assets/css/styles.min.css') }}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Font bagus -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== DEFAULT: MOBILE (hijau) ===== */
+        .login-bg{
+            background: #198754; /* hijau */
+            min-height: 100vh;
+        }
+        .login-overlay{
+            background: transparent; /* mobile gak perlu overlay gelap */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 12px;
+        }
+
+        .login-card{
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        /* Judul */
+            .login-title{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            letter-spacing: .2px;
+            font-size: 20px; /* mobile */
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        /* ===== PC/TABLET (md ke atas): pakai gambar background + judul lebih besar ===== */
+        @media (min-width: 768px) {
+            .login-bg{
+                background-image: url("{{ asset('assets/img/backgrndLogin.png') }}");
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+            .login-overlay{
+                background: rgba(0,0,0,0.35); /* overlay cuma untuk PC */
+                padding: 0;
+            }
+            .login-title{
+                font-size: 26px; /* windows lebih besar */
+                font-weight: 800;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <!--  Body Wrapper -->
-    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
-        <div class="position-relative overflow-hidden text-bg-light min-vh-100 d-flex align-items-center justify-content-center bg-success">
-            <div class="d-flex align-items-center justify-content-center w-100">
-                <div class="row justify-content-center w-100">
-                    <div class="col-md-8 col-lg-6 col-xxl-3">
-                        <div class="card mb-0">
-                            <div class="card-body">
-                                <a href="/" class="text-nowrap logo-img text-center d-block py-3 w-50">
-                                    <img src="{{ url('assets/img/Logo.png') }}" alt="" width="305px" height="120px">
-                                </a>
-                                <p class="text-center">Selamat Datang di Akademik</p>
-                                <p class="text-center">Sma Muhammadiyah 2 Palembang</p>
+    <div class="login-bg">
+        <div class="login-overlay">
+            <div class="container">
+                <div class="row justify-content-center justify-content-md-end pe-md-5">
+                    <div class="col-12 col-sm-10 col-md-6 col-lg-5 col-xxl-4">
+                        <div class="card login-card">
+                            <div class="card-body p-4">
+                                <div class="text-center mb-3 d-block d-md-none">
+                                    <img src="{{ url('assets/img/Logo.png') }}" alt="Logo" width="280" height="110">
+                                </div>
+
+                                <div class="text-center login-title">Akademik SMA Muhammadiyah 2</div>
+                                <p class="text-center d-md-none mb-4">Sistem Pembelajaran Online dan Efektif</p>
+                                <p class="text-center text-muted d-none d-md-block mb-4">Sistem Pembelajaran Online dan Efektif</p>
+
                                 <form method="POST" action="{{ route('login') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="username" class="form-label">Username</label>
-                                        <input type="number" class="form-control" id="username" name="username" placeholder="Masukan NISN atau NIP" value="{{ old('username') }}" required>
+                                        <label class="form-label">Username</label>
+                                        <input type="number"
+                                            class="form-control"
+                                            name="username"
+                                            placeholder="Masukkan NISN atau NIP"
+                                            value="{{ old('username') }}"
+                                            required>
                                     </div>
 
-                                    <div class="mb-4 position-relative">
-                                        <label for="password" class="form-label">Password</label>
+                                    <div class="mb-4">
+                                        <label class="form-label">Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="password" name="password" placeholder="Masukan Password" required>
-                                            <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                            <input type="password"
+                                                    class="form-control"
+                                                    id="password"
+                                                    name="password"
+                                                    placeholder="Masukkan Password"
+                                                    required>
+                                            <span class="input-group-text" id="togglePassword" style="cursor:pointer">
                                                 <i class="fa-solid fa-eye" id="eyeIcon"></i>
                                             </span>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Login</button>
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <p class="fs-4 mb-0 fw-bold">Lupa Password?</p>
-                                        <a class="text-primary fw-bold ms-2" href="#">Hubungi Admin !</a>
+
+                                    <button type="submit" class="btn btn-success w-100 py-2 fs-5 rounded-3">
+                                        Login
+                                    </button>
+
+                                    <div class="text-center mt-3">
+                                        <span class="fw-bold">Lupa Password?</span>
+                                        <a href="#" class="text-success fw-bold ms-1">Hubungi Admin!</a>
                                     </div>
                                 </form>
-                                @if ($errors->any())
-                                    <script>
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Login Gagal',
-                                            text: 'Username atau Pssword salah!',
-                                            confirmButtonColor: '#198754', // hijau biar sesuai tema
-                                        });
-                                    </script>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -64,25 +123,35 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ url('assets/libs/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ url('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-    <!-- solar icons -->
-    <script src="{{ url('https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js') }}"></script>
-    <script src="{{ url('https://kit.fontawesome.com/your-fontawesome-key.js') }}" crossorigin="anonymous"></script>
-    <script>
-        const togglePassword = document.querySelector("#togglePassword");
-        const password = document.querySelector("#password");
-        const eyeIcon = document.querySelector("#eyeIcon");
 
-        togglePassword.addEventListener("click", function () {
-            const type = password.getAttribute("type") === "password" ? "text" : "password";
-            password.setAttribute("type", type);
+  <!-- SCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="{{ url('assets/libs/jquery/dist/jquery.min.js') }}"></script>
+  <script src="{{ url('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 
-            // Ganti ikon
-            eyeIcon.classList.toggle("fa-eye");
-            eyeIcon.classList.toggle("fa-eye-slash");
-        });
-    </script>
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const password = document.getElementById("password");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    togglePassword.addEventListener("click", function () {
+      const type = password.type === "password" ? "text" : "password";
+      password.type = type;
+      eyeIcon.classList.toggle("fa-eye");
+      eyeIcon.classList.toggle("fa-eye-slash");
+    });
+  </script>
+
+  @if ($errors->any())
+  <script>
+    Swal.fire({
+      icon: 'error',
+      title: 'Login Gagal',
+      text: 'Username atau Password salah!',
+      confirmButtonColor: '#198754'
+    });
+  </script>
+  @endif
+
 </body>
 </html>

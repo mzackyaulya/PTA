@@ -116,10 +116,10 @@
                         <tr>
                             <td><strong>Kode Pos</strong></td>
                             <td class="colon">:</td>
-                            <td>{{ $user->siswa->kode_pos ?? '-' }}</td>
+                            <td>{{ $user->siswa->kodepos ?? '-' }}</td>
                             <td><strong>RT/RW</strong></td>
-                            <td class="colon">:</td>
-                            <td>-</td>
+                            <td class="colon"> : </td>
+                            <td>{{ $user->siswa->rt ?? '-' }} / {{ $user->siswa->rw ?? '-' }}</td>
                         </tr>
                     </tbody>
                 </table>

@@ -18,8 +18,8 @@ class AdminSeeder extends Seeder
             'name' => 'Administrator',
             'email' =>'lboy9428@gmail.com',
             'role' => 'admin',
-            'nip' => '1234567890', // isi dengan nip admin
-            'password' => Hash::make('password123'), // ganti dengan password aman
+            'nip' => '1234567890',
+            'password' => Hash::make('password123'),
         ]);
     }
 }
