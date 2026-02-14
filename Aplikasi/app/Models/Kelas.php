@@ -29,4 +29,15 @@ class Kelas extends Model
     {
         return $this->belongsTo(Guru::class, 'wali_kelas');
     }
+
+    public function riwayatKelas()
+    {
+        return $this->hasMany(RiwayatKelas::class);
+    }
+
+    public function mengajar()
+    {
+        return $this->hasMany(Mengajar::class);
+    }
+
 }

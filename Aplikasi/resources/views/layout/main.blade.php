@@ -270,6 +270,39 @@
                                     </ul>
                                 </div>
                             </li>
+                            <li class="nav-item mb-2">
+                                <a data-bs-toggle="collapse"
+                                href="#akademik"
+                                class="parent-menu {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'active' : '' }}"
+                                aria-expanded="{{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'true' : 'false' }}">
+                                    <i class="fas fa-school text-white"></i>
+                                    <p class="text-white">Akademik</p>
+                                    <span class="caret"></span>
+                                </a>
+
+                                <div class="collapse px-4 {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'show' : '' }}" id="akademik">
+                                    <ul class="nav nav-collapse">
+                                        <li>
+                                            <a href="{{ url('tahunajaran') }}">
+                                                <i class="fas fa-calendar"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('riwayatkelas') }}">
+                                                <i class="fas fa-users"></i>
+                                                <span>Penempatan Siswa</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url('mengajar') }}">
+                                                <i class="fas fa-chalkboard"></i>
+                                                <span>Jadwal Mengajar</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
                         @endif
                         <li class="nav-item mb-2">
                             <a data-bs-toggle="collapse" href="#belajar">

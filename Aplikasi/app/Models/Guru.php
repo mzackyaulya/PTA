@@ -37,6 +37,12 @@ class Guru extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function mengajar()
+    {
+        return $this->hasMany(Mengajar::class);
+    }
+
+
     // Relasi ke Kelas (sebagai wali kelas)
     // public function kelas()
     // {
