@@ -9,6 +9,23 @@
             <h5 class="card-title fw-semibold mb-4">Detail Siswa</h5>
             <div class="card">
                 <div class="card-body">
+                    {{-- FOTO PROFIL --}}
+                    <div class="text-center mb-4">
+                        @if($siswa->foto)
+                            <img src="{{ asset('storage/'.$siswa->foto) }}"
+                                alt="Foto Siswa"
+                                class="rounded-circle shadow"
+                                style="width:150px; height:150px; object-fit:cover; border:4px solid #e9ecef;">
+                        @else
+                            <img src="{{ asset('images/default-user.png') }}"
+                                class="rounded-circle shadow"
+                                style="width:150px; height:150px; object-fit:cover;">
+                            <div class="text-muted mt-2">Belum ada foto</div>
+                        @endif
+
+                        <h5 class="mt-3 mb-0 fw-semibold">{{ $siswa->user->name }}</h5>
+                        <small class="text-muted">NISN : {{ $siswa->user->nisn }}</small>
+                    </div>
 
                     {{-- ===================== DATA AKUN ===================== --}}
                     <h6 class="fw-bold">Data Akun</h6>
@@ -78,7 +95,36 @@
                     {{-- ===================== AKADEMIK & TAMBAHAN ===================== --}}
                     <h6 class="fw-bold mt-4">Data Akademik & Tambahan</h6>
                     <table class="table table-bordered">
-                        <tr><th>Kelas</th><td>{{ $siswa->kelas ?? '-' }}</td></tr>
+                        <tr>
+                            <th>Kelas</th>
+                            <td>
+                                @if($siswa->kelasAktif)
+                                    {{ $siswa->kelasAktif->kelas->tingkat }} {{ $siswa->kelasAktif->kelas->nama_kelas }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Semester</th>
+                            <td>
+                                @if($siswa->kelasAktif)
+                                    {{ $siswa->kelasAktif->tahunAjaran->semester }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Tahun Ajaran</th>
+                            <td>
+                                @if($siswa->kelasAktif)
+                                    {{ $siswa->kelasAktif->tahunAjaran->tahun ?? '-' }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
                         <tr><th>No Akta Lahir</th><td>{{ $siswa->no_akta_lahir ?? '-' }}</td></tr>
                         <tr><th>Kebutuhan Khusus</th><td>{{ $siswa->kebutuhan_khusus ?? '-' }}</td></tr>
                         <tr><th>Asal Sekolah</th><td>{{ $siswa->asal_sekolah ?? '-' }}</td></tr>
@@ -92,14 +138,6 @@
                         <tr><th>Tahun Masuk</th><td>{{ $siswa->tahun_masuk ?? '-' }}</td></tr>
                         <tr><th>Status</th><td>{{ ucfirst($siswa->status_siswa) }}</td></tr>
                     </table>
-
-                    {{-- ===================== FOTO ===================== --}}
-                    <h6 class="fw-bold mt-4">Foto</h6>
-                    @if($siswa->foto)
-                        <img src="{{ asset('storage/'.$siswa->foto) }}" alt="Foto Siswa" class="img-thumbnail" style="max-width: 200px;">
-                    @else
-                        <p><i>Belum ada foto</i></p>
-                    @endif
 
                     <div class="mt-4">
                         <a href="{{ route('siswa.index') }}" class="btn btn-secondary">Kembali</a>

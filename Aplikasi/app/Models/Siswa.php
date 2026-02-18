@@ -34,7 +34,7 @@ class Siswa extends Model
         'jenis_tinggal',
         'alat_transportasi',
 
-        // Data Ayah
+
         'nama_ayah',
         'tanggal_lahir_ayah',
         'nik_ayah',
@@ -42,7 +42,7 @@ class Siswa extends Model
         'pekerjaan_ayah',
         'penghasilan_ayah',
 
-        // Data Ibu
+
         'nama_ibu',
         'tanggal_lahir_ibu',
         'nik_ibu',
@@ -50,17 +50,13 @@ class Siswa extends Model
         'pekerjaan_ibu',
         'penghasilan_ibu',
 
-        // Data Wali
+
         'nama_wali',
         'tanggal_lahir_wali',
         'nik_wali',
         'pendidikan_wali',
         'pekerjaan_wali',
-        // kalau mau tambahkan penghasilan_wali di migration, tambahkan juga disini
-        // 'penghasilan_wali',
 
-        // Data tambahan
-        'kelas',
         'no_akta_lahir',
         'kebutuhan_khusus',
         'asal_sekolah',
@@ -90,6 +86,15 @@ class Siswa extends Model
     public function riwayatKelas()
     {
         return $this->hasMany(RiwayatKelas::class);
+    }
+
+    public function kelasAktif()
+    {
+        return $this->hasOne(RiwayatKelas::class)
+            ->whereHas('tahunAjaran', function ($q) {
+                $q->where('aktif', 1);
+            })
+            ->latestOfMany('created_at');
     }
 
 }

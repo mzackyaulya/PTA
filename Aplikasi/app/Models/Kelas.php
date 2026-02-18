@@ -20,6 +20,11 @@ class Kelas extends Model
         'wali_kelas',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
     public function siswa()
     {
         return $this->hasMany(Siswa::class, 'kelas_id');

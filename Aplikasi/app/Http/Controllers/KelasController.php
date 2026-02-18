@@ -13,9 +13,17 @@ class KelasController extends Controller
      */
     public function index()
     {
-        $kelas = Kelas::with(['wali.user'])->get();
+        $kelas = Kelas::query()
+            ->select('kelas.*') // ← PENTING BANGET (mencegah id ketimpa relasi)
+            ->with([
+                'wali:id,user_id',
+                'wali.user:id,name'
+            ])
+            ->get();
+
         return view('kelas.index', compact('kelas'));
     }
+
 
     /**
      * Show the form for creating a new resource.

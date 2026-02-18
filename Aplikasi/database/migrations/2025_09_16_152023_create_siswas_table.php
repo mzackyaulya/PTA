@@ -53,7 +53,6 @@ return new class extends Migration
             $table->string('pendidikan_wali')->nullable();
             $table->string('pekerjaan_wali')->nullable();
 
-            $table->string('kelas')->nullable();
             $table->string('no_akta_lahir')->nullable();
             $table->string('kebutuhan_khusus')->nullable();
             $table->string('asal_sekolah')->nullable();

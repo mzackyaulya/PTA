@@ -32,7 +32,7 @@
             </div>
 
             <div class="alert alert-info">
-                Tahun ajaran aktif: <b>{{ $tahun->tahun }} ({{ $tahun->semester }})</b>
+                Tahun ajaran aktif: <b>{{ $tahun->tahun }} Semester {{ $tahun->semester }}</b>
             </div>
 
             <button class="btn btn-success">Simpan</button>

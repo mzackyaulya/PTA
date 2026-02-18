@@ -59,14 +59,17 @@ Route::middleware(['auth','role:admin'])->group(function () {
     */
     Route::resource('siswa', SiswaController::class);
     Route::resource('guru', GuruController::class);
-    Route::resource('kelas', KelasController::class);
+    Route::resource('kelas', KelasController::class)
+    ->parameters(['kelas' => 'kelas']);
+
+
 
     /*
     |----------------------------------
     | AKADEMIK SETUP
     |----------------------------------
     */
-    Route::resource('tahunajaran', TahunAjaranController::class);
+    Route::resource('tahunajaran', TahunAjaranController::class)->parameters(['tahunajaran' => 'tahunAjaran']);
     Route::resource('mapel', MapelController::class);
     Route::resource('riwayatkelas', RiwayatKelasController::class)->except(['show','edit','update']);
     Route::resource('mengajar', MengajarController::class)->except(['show','edit','update']);

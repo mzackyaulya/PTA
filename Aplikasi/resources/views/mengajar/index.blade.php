@@ -27,7 +27,7 @@
                     <td>{{ $i+1 }}</td>
                     <td>{{ $d->guru->nama }}</td>
                     <td>{{ $d->mapel->nama }}</td>
-                    <td>{{ $d->kelas->nama_kelas }}</td>
+                    <td>{{ $d->kelas->tingkat }} {{ $d->kelas->nama_kelas }}</td>
                     <td>{{ $d->hari }}</td>
                     <td>Jam ke {{ $d->jam_ke }}</td>
                     <td>

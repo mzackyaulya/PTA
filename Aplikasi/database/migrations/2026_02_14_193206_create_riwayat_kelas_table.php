@@ -21,7 +21,10 @@ return new class extends Migration
             $table->foreign('siswa_id')->references('id')->on('siswas')->cascadeOnDelete();
             $table->foreign('kelas_id')->references('id')->on('kelas')->cascadeOnDelete();
             $table->foreign('tahun_ajaran_id')->references('id')->on('tahun_ajarans')->cascadeOnDelete();
+
             $table->timestamps();
+
+            $table->unique(['siswa_id','tahun_ajaran_id']);
         });
     }
 

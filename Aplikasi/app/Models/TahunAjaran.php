@@ -23,4 +23,9 @@ class TahunAjaran extends Model
         });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
 }

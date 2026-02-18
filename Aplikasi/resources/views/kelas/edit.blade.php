@@ -9,7 +9,7 @@
             <h5 class="card-title fw-semibold mb-4">Form Edit Kelas</h5>
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('kelas.update', $kelas->id) }}" method="POST">
+                    <form action="{{ route('kelas.update', $kelas) }}" method="POST">
                         @csrf
                         @method('PUT')
 

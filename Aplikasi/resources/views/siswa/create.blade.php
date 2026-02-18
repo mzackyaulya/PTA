@@ -3,6 +3,22 @@
 @section('title', 'Tambah Siswa')
 
 @section('content')
+@if(session('error'))
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
+@endif
+
+@if($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <div class="col-md-12">
     <div class="card">
         <div class="card-body">
@@ -40,7 +56,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Jenis Kelamin</label>
-                                <select name="jenis_kelamin" class="form-select">
+                                <select name="jenis_kelamin" class="form-select" value="{{ old('jenis_kelamin') }}">
                                     <option value="">- Pilih -</option>
                                     <option value="Laki-Laki">Laki-laki</option>
                                     <option value="Perempuan">Perempuan</option>
@@ -133,7 +149,6 @@
                         {{-- ===================== AKADEMIK & TAMBAHAN ===================== --}}
                         <h6 class="fw-bold mt-4">Data Akademik & Tambahan</h6>
                         <div class="row">
-                            <div class="col-md-4 mb-3"><label class="form-label">Kelas</label><input type="text" name="kelas" class="form-control" value="{{ old('kelas') }}"></div>
                             <div class="col-md-4 mb-3"><label class="form-label">No Akta Lahir</label><input type="text" name="no_akta_lahir" class="form-control" value="{{ old('no_akta_lahir') }}"></div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Kebutuhan Khusus</label>
