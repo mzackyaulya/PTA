@@ -26,7 +26,7 @@
                 <select name="kelas_id" class="form-control" required>
                     <option value="">-- pilih kelas --</option>
                     @foreach($kelas as $k)
-                        <option value="{{ $k->id }}">{{ $k->tingkat }} {{ $k->nama_kelas }}</option>
+                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
                     @endforeach
                 </select>
             </div>
@@ -54,8 +54,13 @@
             </div>
 
             <div class="mb-3">
-                <label>Jam Ke</label>
-                <input type="number" name="jam_ke" class="form-control" required>
+                <label>Jam Mulai</label>
+                <input type="time" name="jam_mulai" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>Jam Selesai</label>
+                <input type="time" name="jam_selesai" class="form-control" required>
             </div>
 
             <button class="btn btn-success">Simpan</button>

@@ -17,7 +17,8 @@ class Mengajar extends Model
         'kelas_id',
         'tahun_ajaran_id',
         'hari',
-        'jam_ke'
+        'jam_mulai',
+        'jam_selesai'
     ];
 
     public $incrementing = false;

@@ -49,142 +49,330 @@
         <div class="sidebar" style="background-color:#155b31;">
             <style>
                 /* =========================
-                STYLE SIDEBAR FIX
+                    STYLE SIDEBAR FIX
                 ========================= */
 
                 /* Wrapper konten utama */
                 .wrapper .main-panel {
-                background-color: #f5f6fa;
-                margin-left: 0;   /* pastikan nempel sidebar */
-                padding-left: 0;
+                    background-color: #f5f6fa;
+                    margin-left: 0;
+                    padding-left: 0;
+                    margin-top: 0;
+                    padding-top: 0;
                 }
 
                 /* =========================
-                MENU UTAMA (NORMAL STATE)
+                  MENU UTAMA (NORMAL STATE)
                 ========================= */
+
                 .sidebar {
-                    background-color: #155b31; /* hijau tua */
-
+                    background-color: #155b31;
                 }
 
-                .sidebar .nav .nav-item a,
-                .sidebar .nav .nav-item a i,
-                .sidebar .nav .nav-item a p,
-                .sidebar .nav .nav-collapse li a span {
-                color: #ffffff !important;
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 10px 15px;
-                border-radius: 4px;
-                position: relative;
-                z-index: 1;
+                /* jarak antar menu */
+                .sidebar .nav .nav-item{
+                    padding:4px 10px;
+                }
+
+                /* style menu */
+                .sidebar .nav .nav-item a{
+                    color:#ffffff !important;
+                    text-decoration:none;
+
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+
+                    padding:10px 15px;
+
+                    border-radius:10px;
+                    margin:4px 6px;
+
+                    position:relative;
+                    z-index:1;
+
+                    transition:all .2s ease;
                 }
 
                 /* =========================
-                HOVER STATE
+                        HOVER STATE
                 ========================= */
+
                 .sidebar .nav .nav-item a:hover,
                 .sidebar .nav .nav-item a:hover i,
-                .sidebar .nav .nav-item a:hover p {
-                background-color: #198754 !important; /* hijau bootstrap */
-                color: #ffffff !important;
-                border-radius: 4px;
+                .sidebar .nav .nav-item a:hover p{
+                    background-color:#198754 !important;
+                    color:#ffffff !important;
+                    border-radius:10px;
                 }
 
-                /* Hover untuk submenu */
+                /* Hover submenu */
                 .sidebar .nav .nav-collapse li a:hover,
                 .sidebar .nav .nav-collapse li a:hover i,
-                .sidebar .nav .nav-collapse li a:hover span {
-                background-color: #29d843 !important; /* hijau terang */
-                color: #ffffff !important;
-                border-radius: 4px;
-                }
-
-                /* Link aktif dengan cekungan */
-                .sidebar .nav .nav-item a.active {
-                background-color: #198754 !important;
-                color: #ffffff !important;
-                font-weight: bold;
-                position: relative;
-                z-index: 20;
-                border-radius: 4px 0 0 4px;
-                overflow: visible;
-                }
-
-                /* Efek cekungan tajam */
-                .sidebar .nav .nav-item a.active::after {
-                    content: "none";
-                    position: absolute;
-                    top: 0;
-                    right: -29px; /* nempel ke konten */
-                    width: 40px;
-                    height: 100%;
-                    background: #eff0f4f4; /* warna konten utama */
-
-                    /* Bentuk cekungan tajam */
-                    clip-path: polygon(100% 0, 70% 0, 0 50%, 70% 100%, 100% 100%);
-
-                    z-index: 15;
-                }
-
-                /* Hanya parent-menu yang dapat cekungan */
-                .sidebar .nav .nav-item a.parent-menu.active::after {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    right: -30px;
-                    width: 40px;
-                    height: 100%;
-                    background: #eff0f4f4;
-                    clip-path: polygon(100% 0, 60% 0, 0 50%, 60% 100%, 100% 100%);
-                    z-index: 15;
+                .sidebar .nav .nav-collapse li a:hover span{
+                    background-color:#29d843 !important;
+                    color:#ffffff !important;
+                    border-radius:8px;
                 }
 
                 /* =========================
-                SUBMENU STATE
+                        MENU AKTIF
                 ========================= */
+
+                .sidebar .nav .nav-item a.active{
+                    background-color:#198754 !important;
+                    color:#ffffff !important;
+                    font-weight:bold;
+
+                    border-radius:10px !important;
+                    margin:4px 6px !important;
+
+                    position:relative;
+                    z-index:20;
+
+                    overflow:hidden;
+                }
+
+                /* hilangkan cekungan segitiga */
+                .sidebar .nav .nav-item a.active::after{
+                    display:none !important;
+                }
+
+                /* =========================
+                        PARENT MENU
+                ========================= */
+
+                .sidebar .nav .nav-item a.parent-menu.active::after{
+                    display:none !important;
+                }
+
+                /* =========================
+                        SUBMENU STATE
+                ========================= */
+
                 .sidebar .nav .nav-collapse li.active > a,
                 .sidebar .nav .nav-collapse li.active > a span,
-                .sidebar .nav .nav-collapse li.active > a i {
-                background-color: #46bc52 !important; /* hijau muda */
-                color: #ffffff !important;
-                border-radius: 4px;
+                .sidebar .nav .nav-collapse li.active > a i{
+                    background-color:#46bc52 !important;
+                    color:#ffffff !important;
+
+                    border-radius:8px;
+                    margin:2px 6px;
                 }
 
-                /* caret collapse */
-                .sidebar .nav .nav-item a .caret {
-                color: #ffffff !important;
+                /* =========================
+                        CARET ICON
+                ========================= */
+
+                .sidebar .nav .nav-item a{
+                    display:flex;
+                    align-items:center;
                 }
 
-                /* Saat menu parent terbuka */
+                /* caret dropdown */
+                .sidebar .nav .nav-item a .caret{
+                    margin-left:auto;
+
+                    display:inline-block !important;
+
+                    width:0;
+                    height:0;
+
+                    border-left:5px solid transparent;
+                    border-right:5px solid transparent;
+                    border-top:6px solid #ffffff;
+                }
+
+                /* =========================
+                    CARET DROPDOWN DIRECTION
+                ========================= */
+
+                /* default (menu tertutup) → kanan */
+                .sidebar .nav .nav-item a .caret{
+                    margin-left:auto;
+                    width:0;
+                    height:0;
+                    border-top:5px solid transparent;
+                    border-bottom:5px solid transparent;
+                    border-left:6px solid #ffffff;
+                    transition:0.1s;
+                }
+
+                /* saat menu terbuka → bawah */
+                .sidebar .nav .nav-item a[aria-expanded="true"] .caret{
+                    border-left:5px solid transparent;
+                    border-right:5px solid transparent;
+                    border-top:6px solid #ffffff;
+                    border-bottom:0;
+                }
+
+                /* menu utama tetap rata */
+                .sidebar .nav .nav-item > a{
+                    padding-left:15px !important;
+                }
+
+                /* submenu masuk sedikit */
+                .sidebar .nav-collapse li a{
+                    padding-left:35px !important;
+                }
+
+                /* =========================
+                    PARENT MENU ACTIVE
+                ========================= */
+
                 .sidebar .nav .nav-item a[aria-expanded="true"],
                 .sidebar .nav .nav-item a[aria-expanded="true"] i,
-                .sidebar .nav .nav-item a[aria-expanded="true"] p {
-                color: #ffffff !important;
-                font-weight: bold;
+                .sidebar .nav .nav-item a[aria-expanded="true"] p{
+                    color:#ffffff !important;
+                    font-weight:bold;
                 }
 
-                /* Submenu terbuka */
+                /* =========================
+                    SUBMENU TERBUKA
+                ========================= */
+
                 .sidebar .nav .nav-item .collapse.show a,
                 .sidebar .nav .nav-item .collapse.show a i,
                 .sidebar .nav .nav-item .collapse.show a span,
-                .sidebar .nav .nav-item .collapse.show a p {
-                color: #ffffff !important;
+                .sidebar .nav .nav-item .collapse.show a p{
+                    color:#ffffff !important;
                 }
+
+                /* =========================
+                        OVERFLOW FIX
+                ========================= */
 
                 .sidebar,
                 .sidebar .nav,
-                .sidebar .nav .nav-item {
-                overflow: visible !important;
+                .sidebar .nav .nav-item{
+                    overflow:visible !important;
                 }
 
-                .main-panel {
-                margin-left: 260px; /* sesuai lebar sidebar */
-                background-color: #f5f6fa;
-                position: relative;
-                z-index: 5; /* biar konten tetap di atas sidebar */
+                /* =========================
+                        MAIN PANEL
+                ========================= */
+
+                .main-panel{
+                    margin-left:260px;
+                    background-color:#f5f6fa;
+                    position:relative;
+                    z-index:5;
+                }
+                /* =========================
+                SUBMENU STYLE SEPERTI MENU UTAMA
+                ========================= */
+
+                .sidebar .nav-collapse li{
+                    padding:4px 10px;
+                }
+
+                /* submenu tampil seperti menu utama */
+                .sidebar .nav-collapse li a{
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+
+                    padding:10px 15px !important;
+
+                    margin:4px 6px !important;
+                    border-radius:10px !important;
+
+                    transition:all .2s ease;
+                }
+
+                /* hover submenu */
+                .sidebar .nav-collapse li a:hover{
+                    background:#198754 !important;
+                }
+
+                /* submenu aktif */
+                .sidebar .nav-collapse li a.active{
+                    background:#198754 !important;
+                }
+                /* =========================
+                FIX JARAK DROPDOWN MENU
+                ========================= */
+
+                /* hilangkan ruang kosong dropdown */
+                .sidebar .collapse{
+                    padding-top:4px !important;
+                    padding-bottom:4px !important;
+                }
+
+                /* rapikan jarak item submenu */
+                .sidebar .nav-collapse li{
+                    margin-bottom:2px;
+                }
+
+                /* pastikan submenu tidak terlalu tinggi */
+                .sidebar .nav-collapse{
+                    padding-top:2px;
+                    padding-bottom:2px;
+                }
+
+                /* =========================
+                FIX JARAK DROPDOWN JADWAL
+                ========================= */
+
+                /* rapikan container dropdown */
+                .sidebar .nav-collapse{
+                    padding-top:4px !important;
+                    padding-bottom:4px !important;
+                }
+
+                /* hilangkan margin besar antar item */
+                .sidebar .nav-collapse li{
+                    margin-bottom:4px !important;
+                }
+
+                /* hilangkan ruang kosong setelah dropdown */
+                .sidebar .nav-item .collapse{
+                    margin-bottom:4px !important;
+                }
+
+                /* pastikan item terakhir tidak menambah jarak */
+                .sidebar .nav-collapse li:last-child{
+                    margin-bottom:0 !important;
+                }
+                /* =========================
+                FIX SPACE DROPDOWN JADWAL
+                ========================= */
+
+                /* hilangkan tinggi container collapse */
+                .sidebar .nav-collapse .collapse{
+                    padding:0 !important;
+                    margin:0 !important;
+                }
+
+                /* hilangkan margin nav-item di dalam submenu */
+                .sidebar .nav-collapse .nav-item{
+                    padding:0 !important;
+                    margin:0 !important;
+                }
+
+                /* rapikan jarak item */
+                .sidebar .nav-collapse li{
+                    margin-bottom:4px !important;
+                }
+
+                /* item terakhir tidak menambah jarak */
+                .sidebar .nav-collapse li:last-child{
+                    margin-bottom:0 !important;
+                }
+                /* FIX SPACE JADWAL DROPDOWN */
+
+                #jadwal{
+                    padding-top:4px !important;
+                    padding-bottom:4px !important;
+                }
+
+                #jadwal .nav{
+                    margin:0 !important;
+                    padding:0 !important;
+                }
+
+                #jadwal li{
+                    margin:2px 0 !important;
                 }
             </style>
 
@@ -220,13 +408,13 @@
                     <ul class="nav nav-secondary">
                         <li class="nav-item mb-2">
                             <a href="{{ url('dashboard')}}" class="{{ request()->is('dashboard*') ? 'active' : '' }}">
-                                <i class="fas fa-home"></i>
+                                <i class="fas fa-home text-white"></i>
                                 <p class="text-white">Dashboard</p>
                             </a>
                         </li>
                         <li class="nav-item mb-2">
                             <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-user text-white"></i>
                                 <p class="text-white">Profile</p>
                             </a>
                         </li>
@@ -305,39 +493,141 @@
                             </li>
                         @endif
                         <li class="nav-item mb-2">
-                            <a data-bs-toggle="collapse" href="#belajar">
-                            <i class="fas fa-layer-group text-white"></i>
-                            <p class="text-white">Pembelajaran</p>
-                            <span class="caret"></span>
+
+                            <a data-bs-toggle="collapse"
+                            href="#belajar"
+                            class="parent-menu {{ request()->is('absensi*') || request()->is('jadwal*') || request()->is('materi*') || request()->is('tahfiz*') ? 'active' : '' }}">
+
+                                <i class="fas fa-layer-group text-white"></i>
+                                <p class="text-white">Pembelajaran</p>
+                                <span class="caret"></span>
+
                             </a>
-                            <div class="collapse px-4" id="belajar">
+
+                            <div class="collapse px-4 {{ request()->is('absensi*') || request()->is('jadwal*') || request()->is('materi*') || request()->is('tahfiz*') ? 'show' : '' }}"
+                                id="belajar">
+
                                 <ul class="nav nav-collapse">
+
+                                    {{-- =======================
+                                            ABSENSI
+                                    ======================= --}}
+
+                                    @if(auth()->user()->role === 'guru')
+
                                     <li>
-                                        <a href="{{ url('absensi') }}">
+                                        <a href="{{ route('absensi.guru') }}"
+                                        class="{{ request()->is('absensi*') ? 'active' : '' }}">
                                             <i class="fas fa-user-check"></i>
                                             <span>Absensi</span>
                                         </a>
                                     </li>
+
+                                    @endif
+
+
+                                    @if(auth()->user()->role === 'siswa')
+
                                     <li>
-                                        <a href="{{ url('jadwal') }}">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span>Jadwal</span>
+                                        <a href="{{ route('absensi.siswa') }}"
+                                        class="{{ request()->is('absensi*') ? 'active' : '' }}">
+                                            <i class="fas fa-user-check"></i>
+                                            <span>Absensi</span>
                                         </a>
                                     </li>
+
+                                    @endif
+
+                                    {{-- =======================
+                                            JADWAL
+                                    ======================= --}}
+                                    @if(auth()->user()->role === 'admin')
+
                                     <li>
-                                        <a href="{{ url('materi') }}">
+
+                                        <a data-bs-toggle="collapse"
+                                            href="#jadwal"
+                                            class="{{ request()->is('jadwal*') ? 'active' : '' }}">
+
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>Jadwal</span>
+                                            <span class="caret"></span>
+
+                                        </a>
+
+                                        <div class="collapse {{ request()->is('jadwal*') ? 'show' : '' }}" id="jadwal">
+
+                                            <ul class="nav nav-collapse">
+
+                                                <li>
+                                                    <a href="{{ route('jadwal.guru.list') }}">
+                                                        <i class="fas fa-chalkboard-teacher"></i>
+                                                        <span>List Guru</span>
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="{{ route('jadwal.siswa.list') }}">
+                                                        <i class="fas fa-user-graduate"></i>
+                                                        <span>List Siswa</span>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+
+                                        </div>
+
+                                    </li>
+
+                                    @endif
+
+
+                                    @if(auth()->user()->role === 'guru')
+
+                                        <li>
+                                            <a href="{{ route('jadwal.guru', auth()->user()->guru->id) }}"
+                                            class="{{ request()->is('jadwal*') ? 'active' : '' }}">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span>Jadwal</span>
+                                            </a>
+                                        </li>
+
+                                    @endif
+
+
+                                    @if(auth()->user()->role === 'siswa')
+
+                                        <li>
+                                            <a href="{{ route('jadwal.siswa', auth()->user()->siswa->id) }}"
+                                            class="{{ request()->is('jadwal*') ? 'active' : '' }}">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span>Jadwal</span>
+                                            </a>
+                                        </li>
+
+                                    @endif
+
+
+                                    <li>
+                                        <a href="{{ url('materi') }}"
+                                        class="{{ request()->is('materi*') ? 'active' : '' }}">
                                             <i class="fas fa-book"></i>
                                             <span>Materi</span>
                                         </a>
                                     </li>
+
                                     <li>
-                                        <a href="{{ url('tahfiz') }}">
+                                        <a href="{{ url('tahfiz') }}"
+                                        class="{{ request()->is('tahfiz*') ? 'active' : '' }}">
                                             <i class="fas fa-list"></i>
                                             <span>Tahfiz</span>
                                         </a>
                                     </li>
+
                                 </ul>
+
                             </div>
+
                         </li>
                     </ul>
                 </div>

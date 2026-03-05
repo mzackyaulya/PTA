@@ -20,7 +20,10 @@ return new class extends Migration
             $table->uuid('tahun_ajaran_id');
 
             $table->string('hari');
-            $table->integer('jam_ke');
+            // $table->integer('jam_ke');
+
+            $table->time('jam_mulai');
+            $table->time('jam_selesai');
 
             $table->timestamps();
 

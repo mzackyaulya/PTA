@@ -1,20 +1,24 @@
 <?php
 
+use App\Http\Controllers\AbsensiController;
+
+use App\Http\Controllers\AnnouncementsController;
+use App\Http\Controllers\BannerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuruController;
+
+use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\MapelController;
+
+use App\Http\Controllers\MengajarController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RiwayatKelasController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\TahunAjaranController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\BannerController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AnnouncementsController;
 
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\KelasController;
-
-use App\Http\Controllers\TahunAjaranController;
-use App\Http\Controllers\MapelController;
-use App\Http\Controllers\RiwayatKelasController;
-use App\Http\Controllers\MengajarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +85,95 @@ Route::middleware(['auth','role:admin'])->group(function () {
     */
     Route::resource('banners', BannerController::class)->only(['create','store','edit','update']);
     Route::resource('announcements', AnnouncementsController::class)->only(['index','create','store']);
+    
 });
 
+/*
+|--------------------------------------------------------------------------
+| JADWAL (SEMUA USER LOGIN)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/jadwal', [JadwalController::class, 'index'])
+        ->name('jadwal');
+
+    Route::get('/jadwal/guru', [JadwalController::class, 'guruList'])
+        ->name('jadwal.guru.list');
+
+    Route::get('/jadwal/guru/{id}', [JadwalController::class, 'jadwalGuru'])
+        ->name('jadwal.guru');
+
+    Route::get('/jadwal/siswa', [JadwalController::class, 'siswaList'])
+        ->name('jadwal.siswa.list');
+
+    Route::get('/jadwal/siswa/{id}', [JadwalController::class, 'jadwalSiswa'])
+        ->name('jadwal.siswa');
+});
+
+Route::middleware(['auth','role:admin'])->group(function () {
+
+    Route::resource('siswa', SiswaController::class);
+    Route::resource('guru', GuruController::class);
+    Route::resource('kelas', KelasController::class);
+
+    Route::resource('tahunajaran', TahunAjaranController::class)
+        ->parameters(['tahunajaran' => 'tahunAjaran']);
+
+    Route::resource('mapel', MapelController::class);
+    Route::resource('riwayatkelas', RiwayatKelasController::class)
+        ->except(['show','edit','update']);
+
+    Route::resource('mengajar', MengajarController::class)
+        ->except(['show','edit','update']);
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/absensi',[AbsensiController::class,'index'])
+        ->name('absensi.guru');
+
+    Route::get('/absensi/form/{id}',[AbsensiController::class,'form'])
+        ->name('absensi.form');
+
+    Route::post('/absensi/store',[AbsensiController::class,'store'])
+        ->name('absensi.store');
+
+    Route::get('/absensi/barcode/{id}',[AbsensiController::class,'barcode'])
+        ->name('absensi.barcode');
+
+    Route::get('/scan/{token}',[AbsensiController::class,'scan'])
+        ->name('absensi.scan');
+
+    Route::get('/absensi-siswa',[AbsensiController::class,'absensiSiswa'])
+        ->name('absensi.siswa');
+
+});
+
+Route::middleware(['auth','role:guru'])->group(function () {
+
+    Route::get('/absensi',[AbsensiController::class,'index'])
+        ->name('absensi.guru');
+
+    Route::get('/absensi/form/{id}',[AbsensiController::class,'form'])
+        ->name('absensi.form');
+
+    Route::post('/absensi/store',[AbsensiController::class,'store'])
+        ->name('absensi.store');
+
+    Route::get('/absensi/barcode/{id}',[AbsensiController::class,'barcode'])
+        ->name('absensi.barcode');
+
+});
+
+Route::middleware(['auth','role:siswa'])->group(function () {
+
+    Route::get('/absensi-siswa',[AbsensiController::class,'absensiSiswa'])
+        ->name('absensi.siswa');
+
+    Route::get('/scan/{token}',[AbsensiController::class,'scan'])
+        ->name('absensi.scan');
+
+});
 require __DIR__.'/auth.php';

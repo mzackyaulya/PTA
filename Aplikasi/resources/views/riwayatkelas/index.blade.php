@@ -24,7 +24,7 @@
                 <tr>
                     <td>{{ $i+1 }}</td>
                     <td>{{ $d->siswa->user->name ?? '-' }}</td>
-                    <td>{{ $d->kelas->tingkat }} {{ $d->kelas->nama_kelas }}</td>
+                    <td>{{ $d->kelas->nama_kelas }}</td>
                     <td>{{ $d->tahunAjaran->tahun }} ({{ $d->tahunAjaran->semester }})</td>
                     <td>
                         <form action="{{ route('riwayatkelas.destroy',$d->id) }}" method="POST">
