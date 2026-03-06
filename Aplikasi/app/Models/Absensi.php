@@ -10,21 +10,23 @@ class Absensi extends Model
     use HasUuids;
 
     protected $fillable = [
+        'pertemuan_id',
         'siswa_id',
-        'mengajar_id',
-        'tanggal',
         'status',
         'keterangan',
         'scan_barcode'
     ];
+
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     public function siswa()
     {
         return $this->belongsTo(Siswa::class);
     }
 
-    public function mengajar()
+    public function pertemuan()
     {
-        return $this->belongsTo(Mengajar::class);
+        return $this->belongsTo(PertemuanAbsensi::class);
     }
 }

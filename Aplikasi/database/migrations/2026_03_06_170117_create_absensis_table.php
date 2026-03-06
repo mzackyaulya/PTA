@@ -14,10 +14,8 @@ return new class extends Migration
         Schema::create('absensis', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
+            $table->uuid('pertemuan_id');
             $table->uuid('siswa_id');
-            $table->uuid('mengajar_id');
-
-            $table->date('tanggal');
 
             $table->enum('status',[
                 'hadir',

@@ -6,7 +6,6 @@
     <title>@yield('title')</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
     <link rel="icon" href="{{ url('assets/img/logoweb.png') }}" type="image/x-icon" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
 
     <!-- Fonts and icons -->
@@ -256,7 +255,7 @@
                     margin-left:260px;
                     background-color:#f5f6fa;
                     position:relative;
-                    z-index:5;
+                    z-index:1;
                 }
                 /* =========================
                 SUBMENU STYLE SEPERTI MENU UTAMA
@@ -373,6 +372,24 @@
 
                 #jadwal li{
                     margin:2px 0 !important;
+                }
+
+                #qr-container svg{
+                    background:#fff;
+                    padding:10px;
+                    border-radius:10px;
+                }
+
+                .modal-dialog{
+                    max-width:420px;
+                }
+                /* FIX MODAL BOOTSTRAP */
+                .modal{
+                    z-index:99999 !important;
+                }
+
+                .modal-backdrop{
+                    z-index:99998 !important;
                 }
             </style>
 
@@ -513,28 +530,44 @@
                                             ABSENSI
                                     ======================= --}}
 
-                                    @if(auth()->user()->role === 'guru')
+                                    {{-- ADMIN --}}
+                                    @if(auth()->user()->role === 'admin')
 
-                                    <li>
-                                        <a href="{{ route('absensi.guru') }}"
-                                        class="{{ request()->is('absensi*') ? 'active' : '' }}">
-                                            <i class="fas fa-user-check"></i>
-                                            <span>Absensi</span>
-                                        </a>
-                                    </li>
+                                        <li>
+                                            <a href="{{ route('pertemuan.index') }}"
+                                            class="{{ request()->is('admin/pertemuan*') ? 'active' : '' }}">
+                                                <i class="fas fa-calendar-check"></i>
+                                                <span>Pertemuan Absensi</span>
+                                            </a>
+                                        </li>
 
                                     @endif
 
 
+                                    {{-- GURU --}}
+                                    @if(auth()->user()->role === 'guru')
+
+                                        <li>
+                                            <a href="{{ route('absensi.guru') }}"
+                                            class="{{ request()->is('guru/absensi*') ? 'active' : '' }}">
+                                                <i class="fas fa-user-check"></i>
+                                                <span>Absensi</span>
+                                            </a>
+                                        </li>
+
+                                    @endif
+
+
+                                    {{-- SISWA --}}
                                     @if(auth()->user()->role === 'siswa')
 
-                                    <li>
-                                        <a href="{{ route('absensi.siswa') }}"
-                                        class="{{ request()->is('absensi*') ? 'active' : '' }}">
-                                            <i class="fas fa-user-check"></i>
-                                            <span>Absensi</span>
-                                        </a>
-                                    </li>
+                                        <li>
+                                            <a href="{{ route('absensi.siswa') }}"
+                                            class="{{ request()->is('siswa/absensi*') ? 'active' : '' }}">
+                                                <i class="fas fa-user-check"></i>
+                                                <span>Absensi</span>
+                                            </a>
+                                        </li>
 
                                     @endif
 
@@ -782,8 +815,7 @@
     </div>
     <!--   Core JS Files   -->
     <script src="{{ url('assets/js/core/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ url('assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ url('assets/js/core/bootstrap.min.js') }}"></script>
+    
 
     <!-- jQuery Scrollbar -->
     <script src="{{ url('assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
@@ -809,6 +841,7 @@
 
     <!-- Kaiadmin JS -->
     <script src="{{ url('assets/js/kaiadmin.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>

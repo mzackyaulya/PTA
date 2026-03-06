@@ -1,24 +1,44 @@
 @extends('layout.main')
 
-@section('title','QR Absensi')
-
 @section('content')
 
-<div class="card">
+<div class="container">
 
-<div class="card-header">
-<h4>QR Code Absensi</h4>
-</div>
+    <div class="card shadow text-center">
 
-<div class="card-body text-center">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                Barcode Absensi
+            </h5>
+        </div>
 
-{!! QrCode::size(300)->generate(route('absensi.scan',$token)) !!}
+        <div class="card-body">
 
-<p class="mt-3">
-Silakan siswa scan QR ini
-</p>
+            <p>
+                Silahkan scan QR Code untuk melakukan absensi
+            </p>
 
-</div>
+            <div class="mt-4">
+
+                {!! QrCode::size(250)
+                        ->generate(route('absensi.scan',$barcode->token)) !!}
+
+            </div>
+
+            <div class="mt-4">
+
+                <p class="text-danger">
+
+                    QR berlaku sampai
+                    {{ $barcode->expired_at }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 

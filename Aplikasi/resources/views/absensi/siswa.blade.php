@@ -1,101 +1,190 @@
 @extends('layout.main')
 
-@section('title','Absensi Saya')
+@section('title','Dashboard Kehadiran Siswa')
 
 @section('content')
 <style>
-    .status-h{
-        background:#d4edda;
-        color:#155724;
-        font-weight:bold;
-        }
+.status-box{
+    display:inline-block;
+    width:38px;
+    height:38px;
+    line-height:38px;
+    text-align:center;
+    font-weight:bold;
+    font-size:18px;
+    color:white;
+    border-radius:6px;
+}
 
-        .status-i{
-        background:#ffeeba;
-        color:#856404;
-        }
+.status-hadir{
+    background:#28a745;
+}
 
-        .status-a{
-        background:#f8d7da;
-        color:#721c24;
-    }
+.status-izin{
+    background:#ffc107;
+    color:black;
+}
+
+.status-sakit{
+    background:#17a2b8;
+}
+
+.status-alpa{
+    background:#dc3545;
+}
 </style>
 
-<div class="card">
+<div class="container">
 
-<div class="card-header d-flex justify-content-between">
+    <div class="card shadow-sm">
 
-<h4>Dashboard Kehadiran Siswa</h4>
+        <div class="card-header">
+            <h5 class="mb-0">Dashboard Absensi Siswa</h5>
 
-</div>
+            <!-- BUTTON SCAN --> 
+            <a href="{{ route('absensi.scan.camera') }}" class="btn btn-success btn-sm"> 
+                <i class="fas fa-qrcode"></i> Scan Absensi 
+            </a>
+            
+        </div>
 
-<div class="card-body">
+        <div class="card-body">
 
-<table class="table table-bordered">
+            @if($absensi->count() == 0)
 
-<thead>
+                <div class="alert alert-secondary text-center">
+                    Belum ada pertemuan sama sekali
+                </div>
 
-<tr>
+            @else
 
-<th>Mata Pelajaran</th>
-<th>SKS</th>
-<th>Kelas</th>
+                @php
 
-<th colspan="5" class="text-center">
-Pertemuan
-</th>
+                    $grouped = $absensi->groupBy(function($item){
+                        return $item->pertemuan->mengajar->mapel->nama;
+                    });
 
-<th>Persentase Kehadiran</th>
+                    $maxPertemuan = $absensi->max(function($item){
+                        return $item->pertemuan->pertemuan_ke;
+                    });
 
-</tr>
+                @endphp
 
-<tr>
+                <table class="table table-bordered text-center">
 
-<th></th>
-<th></th>
-<th></th>
+                    <thead class="table-light">
 
-<th>1</th>
-<th>2</th>
-<th>3</th>
-<th>4</th>
-<th>5</th>
+                        <tr>
+                            <th rowspan="2">Mata Pelajaran</th>
+                            <th colspan="{{ $maxPertemuan }}">PERTEMUAN</th>
+                            <th rowspan="2">Persentase Kehadiran (%)</th>
+                        </tr>
 
-<th></th>
+                        <tr>
 
-</tr>
+                            @for ($i = 1; $i <= $maxPertemuan; $i++)
+                                <th>{{ $i }}</th>
+                            @endfor
 
-</thead>
+                        </tr>
 
-<tbody>
+                    </thead>
 
-@foreach($jadwal as $j)
+                    <tbody>
 
-<tr>
+                        @foreach($grouped as $mapel => $items)
 
-<td>{{ $j->mapel->nama }}</td>
+                            @php
+                                $total = $items->count();
+                                $hadir = $items->where('status','hadir')->count();
+                                $persen = $total > 0 ? round(($hadir / $total) * 100) : 0;
+                            @endphp
 
-<td>{{ $j->mapel->sks ?? '-' }}</td>
+                            <tr>
 
-<td>{{ $j->kelas->nama_kelas }}</td>
+                                <td class="text-center">
+                                    {{ $mapel }}
+                                </td>
 
-<td>H</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
+                                @for ($i = 1; $i <= $maxPertemuan; $i++)
 
-<td>100%</td>
+                                    @php
+                                        $data = $items->firstWhere('pertemuan.pertemuan_ke',$i);
+                                    @endphp
 
-</tr>
+                                    <td
+                                        @if($data)
 
-@endforeach
+                                            @if($data->status == 'hadir')
+                                                style="background:#28a745;color:white;font-weight:bold;font-size:18px;"
+                                            @elseif($data->status == 'izin')
+                                                style="background:#ffc107;color:black;font-weight:bold;font-size:18px;"
+                                            @elseif($data->status == 'sakit')
+                                                style="background:#17a2b8;color:white;font-weight:bold;font-size:18px;"
+                                            @elseif($data->status == 'alpa')
+                                                style="background:#dc3545;color:white;font-weight:bold;font-size:18px;"
+                                            @endif
 
-</tbody>
+                                        @endif
+                                        >
 
-</table>
+                                        @if($data)
 
-</div>
+                                            @if($data->status == 'hadir')
+                                                H
+                                            @elseif($data->status == 'izin')
+                                                I
+                                            @elseif($data->status == 'sakit')
+                                                S
+                                            @elseif($data->status == 'alpa')
+                                                A
+                                            @endif
+
+                                        @else
+                                            -
+                                        @endif
+
+                                    </td>
+
+                                @endfor
+
+                                <td>
+
+                                    <span class="badge 
+                                        @if($persen >= 80) bg-success
+                                        @elseif($persen >= 60) bg-warning text-dark
+                                        @else bg-danger
+                                        @endif
+                                    ">
+                                        {{ $persen }}%
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+
+                <div class="mt-3">
+
+                    <strong>Keterangan :</strong>
+
+                    <span class="badge bg-success">H</span> Hadir
+                    <span class="badge bg-warning text-dark">I</span> Izin
+                    <span class="badge bg-info">S</span> Sakit
+                    <span class="badge bg-danger">A</span> Alpa
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
 
 </div>
 

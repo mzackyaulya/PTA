@@ -1,65 +1,77 @@
 @extends('layout.main')
 
-@section('title','Absensi')
-
+@section('title','Daftar Pertemuan Absensi')
+    
 @section('content')
 
-<div class="card">
+<div class="container">
 
-<div class="card-header">
-<h4>Jadwal Mengajar Hari Ini</h4>
-</div>
+    <div class="card shadow-sm">
 
-<div class="card-body">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Daftar Pertemuan Absensi</h5>
+        </div>
 
-<table class="table table-bordered">
+        <div class="card-body">
 
-<thead>
+            <table class="table table-bordered table-striped">
 
-<tr>
-<th>No</th>
-<th>Kelas</th>
-<th>Mapel</th>
-<th>Jam</th>
-<th>Aksi</th>
-</tr>
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Kelas</th>
+                        <th>Pertemuan</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
 
-</thead>
+                <tbody>
 
-<tbody>
+                    @foreach($pertemuan as $key => $p)
 
-@foreach($jadwal as $i => $j)
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
 
-<tr>
+                            <td>
+                                {{ $p->mengajar->mapel->nama ?? '-' }}
+                            </td>
 
-<td>{{ $i+1 }}</td>
+                            <td>
+                                {{ $p->mengajar->kelas->nama_kelas ?? '-' }}
+                            </td>
 
-<td>{{ $j->kelas->nama_kelas }}</td>
+                            <td>
+                                Pertemuan {{ $p->pertemuan_ke }}
+                            </td>
 
-<td>{{ $j->mapel->nama }}</td>
+                            <td>
+                                {{ $p->tanggal }}
+                            </td>
 
-<td>{{ $j->jam_mulai }} - {{ $j->jam_selesai }}</td>
+                            <td class="text-center">
 
-<td>
+                                <a href="{{ route('absensi.form',$p->id) }}"
+                                   class="btn btn-sm btn-success">
 
-<a href="{{ route('absensi.form',$j->id) }}"
-class="btn btn-success btn-sm">
+                                    Isi Absensi
 
-Mulai Absen
+                                </a>
 
-</a>
+                            </td>
 
-</td>
+                        </tr>
 
-</tr>
+                    @endforeach
 
-@endforeach
+                </tbody>
 
-</tbody>
+            </table>
 
-</table>
+        </div>
 
-</div>
+    </div>
 
 </div>
 

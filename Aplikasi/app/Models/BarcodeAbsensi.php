@@ -12,16 +12,16 @@ class BarcodeAbsensi extends Model
     protected $table = 'barcode_absensi';
 
     protected $fillable = [
-        'mengajar_id',
+        'pertemuan_id',
         'token',
-        'tanggal'
+        'expired_at'
     ];
 
     protected $keyType = 'string';
     public $incrementing = false;
 
-    public function mengajar()
+    public function pertemuan()
     {
-        return $this->belongsTo(Mengajar::class);
+        return $this->belongsTo(PertemuanAbsensi::class);
     }
 }

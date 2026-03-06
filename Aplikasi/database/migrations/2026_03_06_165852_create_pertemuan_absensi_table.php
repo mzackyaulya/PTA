@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barcode_absensi', function (Blueprint $table) {
-
-            $table->uuid('id')->primary();
+        Schema::create('pertemuan_absensi', function (Blueprint $table) {
+           $table->uuid('id')->primary();
 
             $table->uuid('mengajar_id');
-
-            $table->string('token');
-
             $table->date('tanggal');
+            $table->integer('pertemuan_ke');
 
+            $table->boolean('is_approved')->default(false); // acc admin
+            $table->boolean('is_started')->default(false); // mulai oleh guru
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('pertemuan_absensi');
     }
 };

@@ -92,7 +92,7 @@
                         <tr>
                             <td><strong>Kelas</strong></td>
                             <td class="colon">:</td>
-                            <td>{{ $user->siswa->kelas ?? '-' }}</td>
+                            <td>{{ $user->siswa->kelasAktif->kelas->tingkat ?? '-' }}</td>
                             <td><strong>Pendidikan Ibu</strong></td>
                             <td class="colon">:</td>
                             <td>{{ $user->siswa->pendidikan_ibu ?? '-' }}</td>
