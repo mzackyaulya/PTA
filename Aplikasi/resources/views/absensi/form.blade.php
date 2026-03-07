@@ -188,7 +188,7 @@
     </div>
 
 </div>
-```
+
 
 </div>
 
@@ -198,7 +198,6 @@
 
 <div id="popupQR" class="popup-overlay">
 
-```
 <div class="popup-card">
 
     <button class="popup-close" id="closeQR">✕</button>
@@ -209,7 +208,7 @@
 
     <div id="qr-container" class="mt-3">
 
-        {!! QrCode::size(230)->generate(route('absensi.scan',$barcode->token)) !!}
+        {!! QrCode::size(250)->generate(url('/siswa/scan/'.$barcode->token)) !!}
 
     </div>
 
@@ -222,7 +221,6 @@
     </div>
 
 </div>
-```
 
 </div>
 
@@ -284,6 +282,30 @@ popup.onclick = function(e){
         popup.style.display = "none";
     }
 };
+
+setInterval(function(){
+
+    fetch("/guru/scan-check/{{ $pertemuan->id }}")
+    .then(res => res.json())
+    .then(data => {
+
+        if(!data.siswa_id) return;
+
+        document.querySelectorAll("input[name='siswa_id[]']").forEach(function(input){
+
+            if(input.value == data.siswa_id){
+
+                let row = input.closest("tr");
+
+                row.querySelector("input[value='hadir']").checked = true;
+
+            }
+
+        });
+
+    });
+
+},2000);
 
 </script>
 

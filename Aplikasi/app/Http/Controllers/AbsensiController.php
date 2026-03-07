@@ -73,7 +73,8 @@ class AbsensiController extends Controller
             );
         }
 
-        return back()->with('success','Absensi berhasil disimpan');
+        return redirect()->route('absensi.guru')
+            ->with('success','Absensi berhasil disimpan');
     }
 
     /*
@@ -95,11 +96,6 @@ class AbsensiController extends Controller
         return view('absensi.barcode',compact('barcode'));
     }
 
-    public function scanCamera()
-    {
-        return view('absensi.scan');
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Scan barcode oleh siswa
@@ -111,28 +107,57 @@ class AbsensiController extends Controller
         $barcode = BarcodeAbsensi::where('token',$token)->first();
 
         if(!$barcode){
-            return "QR tidak valid";
+            return response()->json([
+                'status'=>'invalid'
+            ]);
         }
 
-        if(now() > $barcode->expired_at){
-            return "QR sudah expired";
+        if(now()->greaterThan($barcode->expired_at)){
+            return response()->json([
+                'status'=>'expired'
+            ]);
+        }
+
+        if(!auth()->check()){
+            return response()->json([
+                'status'=>'login_required'
+            ]);
         }
 
         $siswa = auth()->user()->siswa;
 
-        Absensi::updateOrCreate(
-            [
-                'pertemuan_id'=>$barcode->pertemuan_id,
-                'siswa_id'=>$siswa->id
-            ],
-            [
-                'status'=>'hadir',
-                'scan_barcode'=>true
-            ]
-        );
+        if(!$siswa){
+            return response()->json([
+                'status'=>'bukan_siswa'
+            ]);
+        }
 
-        return redirect()->route('absensi.siswa')
-            ->with('success','Absensi berhasil');
+        $barcode->last_scan_siswa = $siswa->id;
+        $barcode->save();
+
+        return response()->json([
+            'status'=>'success'
+        ]);
+    }
+
+    public function scanCheck($id)
+    {
+        $barcode = BarcodeAbsensi::where('pertemuan_id',$id)
+                    ->latest()
+                    ->first();
+
+        if(!$barcode || !$barcode->last_scan_siswa){
+            return response()->json([]);
+        }
+
+        $siswa_id = $barcode->last_scan_siswa;
+
+        $barcode->last_scan_siswa = null;
+        $barcode->save();
+
+        return response()->json([
+            'siswa_id'=>$siswa_id
+        ]);
     }
 
     /*

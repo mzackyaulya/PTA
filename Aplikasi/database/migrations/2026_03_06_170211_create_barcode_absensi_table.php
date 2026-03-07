@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('token');
 
             $table->timestamp('expired_at');
+
+            $table->unsignedBigInteger('last_scan_siswa')->nullable();
             $table->timestamps();
         });
     }

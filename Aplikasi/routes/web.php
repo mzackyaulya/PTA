@@ -16,7 +16,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RiwayatKelasController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -113,6 +115,8 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
 
     Route::get('/absensi/barcode/{id}',[AbsensiController::class,'barcode'])->name('absensi.barcode');
 
+    Route::get('/scan-check/{id}',[AbsensiController::class,'scanCheck']);
+
 });
 
 
@@ -122,17 +126,16 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth','role:siswa'])->prefix('siswa')->group(function(){
 
-    Route::get('/absensi',[AbsensiController::class,'absensiSiswa'])->name('absensi.siswa');
 
-    Route::get('/scan/{token}',[AbsensiController::class,'scan'])->name('absensi.scan');
+Route::prefix('siswa')->group(function(){
 
-    Route::get('/scan-camera',[AbsensiController::class,'scanCamera'])
-        ->name('absensi.scan.camera');
+    Route::middleware(['auth','role:siswa'])->group(function(){
 
-    Route::resource('announcements', AnnouncementsController::class)
-        ->only(['index']);
+        Route::get('/absensi',[AbsensiController::class,'absensiSiswa'])->name('absensi.siswa');
+        Route::get('/scan/{token}',[AbsensiController::class,'scan'])->name('absensi.scan');
+
+    });
 
 });
 
@@ -156,6 +159,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/jadwal/siswa/{id}',[JadwalController::class,'jadwalSiswa'])->name('jadwal.siswa');
 
 });
-
+/*
+|--------------------------------------------------------------------------
+| QR SCAN PUBLIC
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';

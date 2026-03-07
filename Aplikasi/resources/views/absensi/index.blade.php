@@ -18,12 +18,12 @@
 
                 <thead class="table-light">
                     <tr>
-                        <th>No</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Kelas</th>
-                        <th>Pertemuan</th>
-                        <th>Tanggal</th>
-                        <th>Aksi</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Mata Pelajaran</th>
+                        <th class="text-center">Kelas</th>
+                        <th class="text-center">Pertemuan</th>
+                        <th class="text-center">Tanggal</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
 
@@ -32,21 +32,21 @@
                     @foreach($pertemuan as $key => $p)
 
                         <tr>
-                            <td>{{ $key + 1 }}</td>
+                            <td class="text-center">{{ $key + 1 }}</td>
 
-                            <td>
+                            <td class="text-center">
                                 {{ $p->mengajar->mapel->nama ?? '-' }}
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 {{ $p->mengajar->kelas->nama_kelas ?? '-' }}
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 Pertemuan {{ $p->pertemuan_ke }}
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 {{ $p->tanggal }}
                             </td>
 
