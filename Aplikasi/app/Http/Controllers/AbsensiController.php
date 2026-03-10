@@ -14,17 +14,39 @@ class AbsensiController extends Controller
 {
     public function index(Request $request)
     {
-        $pertemuan = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
-            ->orderBy('tanggal','desc')
-            ->get();
+        $kelas = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
+            ->get()
+            ->unique(function ($item) {
+                return $item->mengajar->kelas_id;
+            })
+            ->values();
 
-        $kelas = $pertemuan->unique(function ($item) {
-            return $item->mengajar->kelas_id;
-        })->values();
-
+        $pertemuan = [];
         $siswa = [];
         $barcode = null;
         $selectedPertemuan = null;
+
+        /*
+        ===============================
+        FILTER KELAS
+        ===============================
+        */
+
+        if($request->kelas_id){
+
+            $pertemuan = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
+                ->whereHas('mengajar', function($q) use ($request){
+                    $q->where('kelas_id',$request->kelas_id);
+                })
+                ->orderBy('tanggal','desc')
+                ->get();
+        }
+
+        /*
+        ===============================
+        PILIH PERTEMUAN
+        ===============================
+        */
 
         if($request->pertemuan_id){
 
@@ -49,8 +71,8 @@ class AbsensiController extends Controller
         }
 
         return view('absensi.index',compact(
-            'pertemuan',
             'kelas',
+            'pertemuan',
             'siswa',
             'barcode',
             'selectedPertemuan'
@@ -217,47 +239,37 @@ class AbsensiController extends Controller
         $barcode = BarcodeAbsensi::where('token',$token)->first();
 
         if(!$barcode){
-            return response()->json([
-                'status'=>'invalid'
-            ]);
+            return response()->json(['status'=>'invalid']);
         }
 
         if(now()->greaterThan($barcode->expired_at)){
-            return response()->json([
-                'status'=>'expired'
-            ]);
+            return response()->json(['status'=>'expired']);
+        }
+
+        if(!auth()->check()){
+            return response()->json(['status'=>'login_required']);
         }
 
         $pertemuan = $barcode->pertemuan;
 
-        if(!$pertemuan->is_started){
-            return response()->json([
-                'status'=>'belum_dimulai'
-            ]);
+        if(!$pertemuan || !$pertemuan->is_started){
+            return response()->json(['status'=>'belum_dimulai']);
         }
 
         if($pertemuan->is_closed){
-            return response()->json([
-                'status'=>'ditutup'
-            ]);
-        }
-
-        if(!auth()->check()){
-            return response()->json([
-                'status'=>'login_required'
-            ]);
+            return response()->json(['status'=>'ditutup']);
         }
 
         $siswa = auth()->user()->siswa;
 
         if(!$siswa){
-            return response()->json([
-                'status'=>'bukan_siswa'
-            ]);
+            return response()->json(['status'=>'bukan_siswa']);
         }
 
-        $barcode->last_scan_siswa = $siswa->id;
-        $barcode->save();
+        // hanya kirim info ke halaman guru
+        $barcode->update([
+            'last_scan_siswa' => $siswa->id
+        ]);
 
         return response()->json([
             'status'=>'success'
@@ -267,7 +279,7 @@ class AbsensiController extends Controller
     public function scanCheck($id)
     {
         $barcode = BarcodeAbsensi::where('pertemuan_id',$id)
-                    ->latest()
+                    ->latest('created_at')
                     ->first();
 
         if(!$barcode || !$barcode->last_scan_siswa){
@@ -276,8 +288,9 @@ class AbsensiController extends Controller
 
         $siswa_id = $barcode->last_scan_siswa;
 
-        $barcode->last_scan_siswa = null;
-        $barcode->save();
+        $barcode->update([
+            'last_scan_siswa' => null
+        ]);
 
         return response()->json([
             'siswa_id'=>$siswa_id

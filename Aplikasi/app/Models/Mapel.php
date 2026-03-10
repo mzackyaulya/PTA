@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class Mapel extends Model
 {
-     protected $fillable = ['nama','kode'];
+    protected $fillable = ['nama','kode'];
 
     public $incrementing = false;
     protected $keyType = 'string';

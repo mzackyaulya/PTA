@@ -10,6 +10,7 @@ use App\Http\Controllers\JadwalController;
 
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
+use App\Http\Controllers\MateriController;
 use App\Http\Controllers\MengajarController;
 use App\Http\Controllers\PertemuanController;
 use App\Http\Controllers\ProfileController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -119,6 +121,18 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
     Route::post('/pertemuan/{id}/start',[AbsensiController::class,'start'])->name('absensi.start');
 
     Route::post('/pertemuan/{id}/close',[AbsensiController::class,'close'])->name('absensi.close');
+    
+    Route::get('/materi',[MateriController::class,'index'])
+        ->name('materi.guru.index');
+
+    Route::get('/materi/create',[MateriController::class,'create'])
+        ->name('materi.create');
+
+    Route::post('/materi/store',[MateriController::class,'store'])
+        ->name('materi.store');
+
+    Route::delete('/materi/{id}',[MateriController::class,'destroy'])
+        ->name('materi.destroy');
 
 });
 
@@ -137,6 +151,15 @@ Route::prefix('siswa')->group(function(){
 
         Route::get('/absensi',[AbsensiController::class,'absensiSiswa'])->name('absensi.siswa');
         Route::get('/scan/{token}',[AbsensiController::class,'scan'])->name('absensi.scan');
+
+         Route::get('/materi',[MateriController::class,'index'])
+            ->name('materi.siswa.index');
+
+        Route::get('/materi/mapel/{id}',[MateriController::class,'materiMapel'])
+            ->name('materi.mapel');
+
+        Route::get('/materi/download/{id}',[MateriController::class,'download'])
+            ->name('materi.download');
 
     });
 

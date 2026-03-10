@@ -111,7 +111,7 @@
                                 {{ $absen->siswa->user->nisn }}
                             </td>
 
-                            <td>
+                            <td class="text-center">
                                 {{ $absen->siswa->user->name }}
                             </td>
 

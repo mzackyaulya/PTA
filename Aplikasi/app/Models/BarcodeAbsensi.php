@@ -14,7 +14,8 @@ class BarcodeAbsensi extends Model
     protected $fillable = [
         'pertemuan_id',
         'token',
-        'expired_at'
+        'expired_at',
+        'last_scan_siswa'
     ];
 
     protected $keyType = 'string';

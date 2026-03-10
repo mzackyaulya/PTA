@@ -85,19 +85,22 @@
             {{-- ================= PILIH KELAS ================= --}}
             <div class="section-box">
 
-                <select class="form-control">
+                <select class="form-control" onchange="pilihKelas(this.value)">
 
-                    <option selected disabled>Pilih Kelas</option>
+                <option value="" disabled selected>Pilih Kelas</option>
 
-                    @foreach($kelas as $k)
+                @foreach($kelas as $k)
 
-                        <option value="{{ $k->mengajar_id }}">
-                            {{ $k->mengajar->kelas->nama_kelas }}
-                            -
-                            {{ $k->mengajar->mapel->nama }}
-                        </option>
+                <option value="{{ $k->mengajar->kelas_id }}"
+                @if(request('kelas_id') == $k->mengajar->kelas_id) selected @endif>
 
-                    @endforeach
+                {{ $k->mengajar->kelas->nama_kelas }}
+                -
+                {{ $k->mengajar->mapel->nama }}
+
+                </option>
+
+                @endforeach
 
                 </select>
 
@@ -110,23 +113,20 @@
 
                 <select class="form-control" onchange="pilihPertemuan(this.value)">
 
-                    @if(isset($selectedPertemuan))
+                    <option disabled {{ !request('pertemuan_id') ? 'selected' : '' }}>
+                    Pilih Pertemuan
+                    </option>
 
-                        <option selected value="{{ $selectedPertemuan->id }}">
-                            Pertemuan {{ $selectedPertemuan->pertemuan_ke }} - {{ $selectedPertemuan->tanggal }}
+                    @foreach($pertemuan as $p)
+
+                        <option value="{{ $p->id }}"
+                            @if(request('pertemuan_id') == $p->id) selected @endif>
+
+                            Pertemuan {{ $p->pertemuan_ke }} - {{ $p->tanggal }}
+
                         </option>
 
-                    @else
-
-                        <option disabled selected>Pilih Pertemuan</option>
-
-                        @foreach($pertemuan as $p)
-                            <option value="{{ $p->id }}">
-                                Pertemuan {{ $p->pertemuan_ke }} - {{ $p->tanggal }}
-                            </option>
-                        @endforeach
-
-                    @endif
+                    @endforeach
 
                 </select>
 
@@ -307,7 +307,11 @@
                                     </td>
 
                                     <td>
-                                        <input type="text" name="keterangan[{{ $key }}]" class="form-control">
+                                        <input type="text"
+                                        name="keterangan[{{ $key }}]"
+                                        class="form-control"
+                                        placeholder="Keterangan siswa....."
+                                        value="{{ optional($s->absensi->first())->keterangan }}">
                                     </td>
 
                                     <input type="hidden" name="siswa_id[]" value="{{ $s->id }}">
@@ -365,9 +369,13 @@
 <script>
 
 function pilihPertemuan(id){
+
+    const kelas = document.querySelector("select[onchange='pilihKelas(this.value)']").value
+
     if(id){
-        window.location.href="/guru/absensi?pertemuan_id="+id
+        window.location.href="/guru/absensi?kelas_id="+kelas+"&pertemuan_id="+id
     }
+
 }
 
 const popup = document.getElementById("popupQR")
@@ -380,6 +388,46 @@ if(btnQR){
 
 if(closeQR){
     closeQR.onclick = () => popup.style.display = "none"
+}
+
+setInterval(function(){
+
+    fetch("/guru/scan-check/{{ $selectedPertemuan->id ?? '' }}")
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(data.siswa_id){
+
+            const siswaInputs = document.querySelectorAll("input[name='siswa_id[]']")
+
+            siswaInputs.forEach(function(input){
+
+                if(input.value === data.siswa_id){
+
+                    const row = input.closest("tr")
+
+                    const hadir = row.querySelector("input[value='hadir']")
+
+                    if(hadir){
+                        hadir.checked = true
+                    }
+
+                }
+
+            })
+
+        }
+
+    })
+
+},2000)
+
+function pilihKelas(id){
+    if(id){
+        window.location.href="/guru/absensi?kelas_id="+id
+    }
 }
 
 </script>

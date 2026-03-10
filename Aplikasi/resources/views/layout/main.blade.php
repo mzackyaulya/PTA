@@ -642,18 +642,16 @@
 
 
                                     <li>
-                                        <a href="{{ url('materi') }}"
-                                        class="{{ request()->is('materi*') ? 'active' : '' }}">
+                                        @if(auth()->user()->role == 'guru')
+                                            <a href="{{ route('materi.guru.index') }}">
+                                        @endif
+
+                                        @if(auth()->user()->role == 'siswa')
+                                            <a href="{{ route('materi.siswa.index') }}">
+                                        @endif
+
                                             <i class="fas fa-book"></i>
                                             <span>Materi</span>
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="{{ url('tahfiz') }}"
-                                        class="{{ request()->is('tahfiz*') ? 'active' : '' }}">
-                                            <i class="fas fa-list"></i>
-                                            <span>Tahfiz</span>
                                         </a>
                                     </li>
 
