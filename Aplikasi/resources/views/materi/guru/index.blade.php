@@ -31,9 +31,9 @@
             <thead>
 
                 <tr>
-                    <th width="60">No</th>
+                    <th width="60" class="text-center">No</th>
                     <th>Mata Pelajaran</th>
-                    <th width="100">Materi</th>
+                    <th>Materi</th>
                     <th>Judul</th>
                     <th width="150">Aksi</th>
                 </tr>
@@ -46,12 +46,12 @@
 
                 <tr>
 
-                    <td>{{ $loop->iteration }}</td>
+                    <td class="text-center">{{ $loop->iteration }}</td>
 
                     <td>{{ $m->mapel->nama }}</td>
 
                     <td>
-                        M{{ $m->materi }}
+                        Materi {{ $m->materi }}
                     </td>
 
                     <td>{{ $m->judul }}</td>

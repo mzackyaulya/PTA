@@ -12,6 +12,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\MengajarController;
+use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\PertemuanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RiwayatKelasController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -84,9 +86,13 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
         ->except(['show','edit','update']);
 
     Route::resource('announcements', AnnouncementsController::class)
-            ->only(['index','create','store']);
+        ->only(['index','create','store']);
+
     Route::resource('banners', BannerController::class)
         ->only(['create','store','edit','update']);
+
+    Route::resource('nilai', NilaiController::class)
+        ->only(['index','show']);
 
     /*
     | PERtemuan ABSENSI
@@ -108,6 +114,8 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
 
 Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
 
+    // ABSENSI //
+
     Route::get('/absensi',[AbsensiController::class,'index'])->name('absensi.guru');
 
     Route::get('/absensi/form/{id}',[AbsensiController::class,'form'])->name('absensi.form');
@@ -121,6 +129,8 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
     Route::post('/pertemuan/{id}/start',[AbsensiController::class,'start'])->name('absensi.start');
 
     Route::post('/pertemuan/{id}/close',[AbsensiController::class,'close'])->name('absensi.close');
+
+    // Materi //
     
     Route::get('/materi',[MateriController::class,'index'])
         ->name('materi.guru.index');
@@ -133,6 +143,20 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
 
     Route::delete('/materi/{id}',[MateriController::class,'destroy'])
         ->name('materi.destroy');
+
+    // Nilai //
+
+    Route::get('/nilai',[NilaiController::class,'index'])->name('nilai.guru.index');
+
+    Route::get('/nilai/create',[NilaiController::class,'create'])->name('nilai.create');
+
+    Route::post('/nilai/store',[NilaiController::class,'store'])->name('nilai.store');
+
+    Route::get('/nilai/edit/{id}',[NilaiController::class,'edit'])->name('nilai.edit');
+
+    Route::put('/nilai/update/{id}',[NilaiController::class,'update'])->name('nilai.update');
+
+    Route::delete('/nilai/{id}',[NilaiController::class,'destroy'])->name('nilai.destroy');
 
 });
 
@@ -160,6 +184,10 @@ Route::prefix('siswa')->group(function(){
 
         Route::get('/materi/download/{id}',[MateriController::class,'download'])
             ->name('materi.download');
+
+        Route::get('/nilai',[NilaiController::class,'index'])->name('nilai.siswa.index');
+        
+        
 
     });
 

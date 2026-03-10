@@ -641,25 +641,68 @@
                                     @endif
 
 
+                                    {{-- =======================
+                                            MATERI
+                                    ======================= --}}
+
+                                    @if(auth()->user()->role === 'guru')
                                     <li>
-                                        @if(auth()->user()->role == 'guru')
-                                            <a href="{{ route('materi.guru.index') }}">
-                                        @endif
-
-                                        @if(auth()->user()->role == 'siswa')
-                                            <a href="{{ route('materi.siswa.index') }}">
-                                        @endif
-
+                                        <a href="{{ route('materi.guru.index') }}"
+                                        class="{{ request()->is('guru/materi*') ? 'active' : '' }}">
                                             <i class="fas fa-book"></i>
                                             <span>Materi</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(auth()->user()->role === 'siswa')
+                                    <li>
+                                        <a href="{{ route('materi.siswa.index') }}"
+                                        class="{{ request()->is('siswa/materi*') ? 'active' : '' }}">
+                                            <i class="fas fa-book"></i>
+                                            <span>Materi</span>
+                                        </a>
+                                    </li>
+                                    @endif
                                 </ul>
 
                             </div>
 
                         </li>
+
+                        {{-- =======================
+                                    NILAI
+                        ======================= --}}
+
+                        @if(auth()->user()->role == 'admin')
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('admin/nilai') }}"
+                                class="{{ request()->is('admin/nilai*') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-bar text-white"></i>
+                                    <p class="text-white">Nilai</p>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if(auth()->user()->role == 'guru')
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('guru/nilai') }}"
+                                class="{{ request()->is('guru/nilai*') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-bar text-white"></i>
+                                    <p class="text-white">Nilai</p>
+                                </a>
+                            </li>
+                        @endif
+
+                        @if(auth()->user()->role == 'siswa')
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('siswa/nilai') }}"
+                                class="{{ request()->is('siswa/nilai*') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-bar text-white"></i>
+                                    <p class="text-white">Nilai</p>
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>
