@@ -449,25 +449,25 @@
                                 <div class="collapse px-4 {{ request()->is('siswa*') || request()->is('guru*') || request()->is('kelas*') || request()->is('mapel*') ? 'show' : '' }}" id="data">
                                     <ul class="nav nav-collapse">
                                         <li>
-                                            <a href="{{ url('siswa') }}">
+                                            <a href="{{ route('siswa.index') }}">
                                                 <i class="fas fa-user-check"></i>
                                                 <span>Data Siswa</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('guru') }}">
+                                            <a href="{{ route('guru.index') }}">
                                                 <i class="fas fa-chalkboard-teacher"></i>
                                                 <span>Data Guru</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('kelas') }}">
+                                            <a href="{{ route('kelas.index') }}">
                                                 <i class="fas fa-door-open"></i>
                                                 <span>Data Kelas</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('mapel') }}">
+                                            <a href="{{ route('mapel.index') }}">
                                                 <i class="fas fa-list"></i>
                                                 <span>Data Mata Pelajaran</span>
                                             </a>
@@ -488,19 +488,19 @@
                                 <div class="collapse px-4 {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'show' : '' }}" id="akademik">
                                     <ul class="nav nav-collapse">
                                         <li>
-                                            <a href="{{ url('tahunajaran') }}">
+                                            <a href="{{ route('tahunajaran.index') }}">
                                                 <i class="fas fa-calendar"></i>
                                                 <span>Tahun Ajaran</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('riwayatkelas') }}">
+                                            <a href="{{ route('riwayatkelas.index') }}">
                                                 <i class="fas fa-users"></i>
                                                 <span>Penempatan Siswa</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{ url('mengajar') }}">
+                                            <a href="{{ route('mengajar.index') }}">
                                                 <i class="fas fa-chalkboard"></i>
                                                 <span>Jadwal Mengajar</span>
                                             </a>

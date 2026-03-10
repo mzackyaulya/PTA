@@ -31,14 +31,14 @@
 
                     <tr>
 
-                        <th>No</th>
-                        <th>Mapel</th>
-                        <th>Kelas</th>
-                        <th>Pertemuan</th>
-                        <th>Hari</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Mapel</th>
+                        <th class="text-center">Kelas</th>
+                        <th class="text-center">Pertemuan</th>
+                        <th class="text-center">Hari</th>
+                        <th class="text-center">Tanggal</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Aksi</th>
 
                     </tr>
 
@@ -50,61 +50,66 @@
 
                     <tr>
 
-                        <td>{{ $key + 1 }}</td>
+                        <td class="text-center">{{ $key + 1 }}</td>
 
-                        <td>
+                        <td class="text-center">
                             {{ $p->mengajar->mapel->nama }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             {{ $p->mengajar->kelas->nama_kelas }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             {{ $p->pertemuan_ke }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             {{ $p->mengajar->hari }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             {{ $p->tanggal }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
 
-                            @if($p->is_approved)
+                            @if(!$p->is_approved)
 
-                                <span class="badge bg-success">
-                                    Disetujui
-                                </span>
+                                <span class="badge bg-warning">Belum Disetujui</span>
 
-                            @else
+                            @elseif($p->is_approved && !$p->is_started)
 
-                                <span class="badge bg-warning">
-                                    Belum Disetujui
-                                </span>
+                                <span class="badge bg-secondary">Siap</span>
+
+                            @elseif($p->is_started && !$p->is_closed)
+
+                                <span class="badge bg-success">Berlangsung</span>
+
+                            @elseif($p->is_closed)
+
+                                <span class="badge bg-danger">Selesai</span>
 
                             @endif
 
                         </td>
 
-                        <td>
+                        <td class="text-center">
 
+                            {{-- APPROVE --}}
                             @if(!$p->is_approved)
 
-                            <a href="{{ route('pertemuan.approve',$p->id) }}"
-                               class="btn btn-sm btn-success">
-
-                                Approve
-
-                            </a>
+                                <a href="{{ route('pertemuan.approve',$p->id) }}"
+                                class="btn btn-sm btn-success">
+                                    Buka Absen
+                                </a>
 
                             @endif
 
+
+                            {{-- DETAIL --}}
                             <a href="{{ route('pertemuan.show',$p->id) }}"
-                               class="btn btn-sm btn-info">
+                            class="btn btn-sm btn-info">
 
                                 Detail
 

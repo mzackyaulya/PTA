@@ -16,7 +16,9 @@ class PertemuanAbsensi extends Model
         'tanggal',
         'pertemuan_ke',
         'is_approved',
-        'is_started'
+        'is_started',
+        'is_closed',
+        'is_saved'
     ];
 
     protected $keyType = 'string';

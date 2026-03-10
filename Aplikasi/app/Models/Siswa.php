@@ -97,4 +97,9 @@ class Siswa extends Model
             ->latestOfMany('created_at');
     }
 
+    public function absensi()
+    {
+        return $this->hasMany(Absensi::class,'siswa_id');
+    }
+
 }

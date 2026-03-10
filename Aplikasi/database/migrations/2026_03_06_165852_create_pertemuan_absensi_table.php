@@ -20,6 +20,8 @@ return new class extends Migration
 
             $table->boolean('is_approved')->default(false); // acc admin
             $table->boolean('is_started')->default(false); // mulai oleh guru
+            $table->boolean('is_closed')->default(false); // absensi ditutup
+            $table->boolean('is_saved')->default(false); // absensi disimpan
             $table->timestamps();
         });
     }

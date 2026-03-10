@@ -95,7 +95,6 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
     Route::post('/pertemuan/store',[PertemuanController::class,'store'])->name('pertemuan.store');
     Route::get('/pertemuan/approve/{id}',[PertemuanController::class,'approve'])->name('pertemuan.approve');
     Route::get('/pertemuan/{id}',[PertemuanController::class,'show'])->name('pertemuan.show');
-
 });
 
 
@@ -116,6 +115,10 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
     Route::get('/absensi/barcode/{id}',[AbsensiController::class,'barcode'])->name('absensi.barcode');
 
     Route::get('/scan-check/{id}',[AbsensiController::class,'scanCheck']);
+    
+    Route::post('/pertemuan/{id}/start',[AbsensiController::class,'start'])->name('absensi.start');
+
+    Route::post('/pertemuan/{id}/close',[AbsensiController::class,'close'])->name('absensi.close');
 
 });
 

@@ -57,20 +57,28 @@ class PertemuanController extends Controller
             'tanggal'       => 'required'
         ]);
 
+        $exists = PertemuanAbsensi::where('mengajar_id',$request->mengajar_id)
+            ->where('pertemuan_ke',$request->pertemuan_ke)
+            ->exists();
+
+        if($exists){
+            return back()->with('error','Pertemuan sudah ada');
+        }
+
         PertemuanAbsensi::create([
             'id'            => Str::uuid(),
             'mengajar_id'   => $request->mengajar_id,
             'pertemuan_ke'  => $request->pertemuan_ke,
             'tanggal'       => $request->tanggal,
             'is_approved'   => false,
-            'is_started'    => false
+            'is_started'    => false,
+            'is_closed'     => false,
         ]);
 
         return redirect()
                 ->route('pertemuan.index')
                 ->with('success','Pertemuan berhasil dibuat');
     }
-
 
 
     /*
@@ -103,12 +111,23 @@ class PertemuanController extends Controller
     public function show($id)
     {
         $pertemuan = PertemuanAbsensi::with(
-                        'mengajar.mapel',
-                        'mengajar.kelas',
-                        'absensis.siswa'
-                    )->findOrFail($id);
+            'mengajar.mapel',
+            'mengajar.kelas',
+            'absensis.siswa.user'
+        )->findOrFail($id);
 
-        return view('admin.pertemuan.show', compact('pertemuan'));
+        $hadir = $pertemuan->absensis->where('status','hadir')->count();
+        $izin  = $pertemuan->absensis->where('status','izin')->count();
+        $sakit = $pertemuan->absensis->where('status','sakit')->count();
+        $alpa  = $pertemuan->absensis->where('status','alpa')->count();
+
+        return view('admin.pertemuan.show',compact(
+            'pertemuan',
+            'hadir',
+            'izin',
+            'sakit',
+            'alpa'
+        ));
     }
 
 }

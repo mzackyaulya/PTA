@@ -12,13 +12,99 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AbsensiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pertemuan = PertemuanAbsensi::with('mengajar')
-                    ->where('is_approved',true)
-                    ->get();
+        $pertemuan = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
+            ->orderBy('tanggal','desc')
+            ->get();
 
-        return view('absensi.index',compact('pertemuan'));
+        $kelas = $pertemuan->unique(function ($item) {
+            return $item->mengajar->kelas_id;
+        })->values();
+
+        $siswa = [];
+        $barcode = null;
+        $selectedPertemuan = null;
+
+        if($request->pertemuan_id){
+
+            $selectedPertemuan = PertemuanAbsensi::with('mengajar')
+                ->find($request->pertemuan_id);
+
+            $kelasId = $selectedPertemuan->mengajar->kelas_id;
+
+            $siswa = Siswa::with(['user','absensi'=>function($q) use ($selectedPertemuan){
+                $q->where('pertemuan_id',$selectedPertemuan->id);
+            }])
+            ->whereHas('riwayatKelas',function($q) use ($kelasId){
+                $q->where('kelas_id',$kelasId);
+            })
+            ->get();
+
+            $barcode = BarcodeAbsensi::create([
+                'pertemuan_id'=>$selectedPertemuan->id,
+                'token'=>Str::random(40),
+                'expired_at'=>now()->addMinutes(5)
+            ]);
+        }
+
+        return view('absensi.index',compact(
+            'pertemuan',
+            'kelas',
+            'siswa',
+            'barcode',
+            'selectedPertemuan'
+        ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mulai pertemuan
+    |--------------------------------------------------------------------------
+    */
+
+    public function start($id)
+    {
+        $pertemuan = PertemuanAbsensi::findOrFail($id);
+
+        if(!$pertemuan->is_approved){
+            return back()->with('error','Pertemuan belum disetujui admin');
+        }
+
+        if($pertemuan->is_started){
+            return back()->with('error','Absensi sudah dimulai');
+        }
+
+        $pertemuan->update([
+            'is_started' => true
+        ]);
+
+        return back()->with('success','Absensi berhasil dimulai');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | tutup pertemuan
+    |--------------------------------------------------------------------------
+    */
+
+    public function close($id)
+    {
+        $pertemuan = PertemuanAbsensi::findOrFail($id);
+
+        if(!$pertemuan->is_started){
+            return back()->with('error','Absensi belum dimulai');
+        }
+
+        if($pertemuan->is_closed){
+            return back()->with('error','Absensi sudah ditutup');
+        }
+
+        $pertemuan->update([
+            'is_closed' => true
+        ]);
+
+        return back()->with('success','Absensi berhasil ditutup');
     }
 
     /*
@@ -30,6 +116,14 @@ class AbsensiController extends Controller
     public function form($id)
     {
         $pertemuan = PertemuanAbsensi::with('mengajar')->findOrFail($id);
+
+        if(!$pertemuan->is_started){
+            return back()->with('error','Absensi belum dimulai');
+        }
+
+        if($pertemuan->is_closed){
+            return back()->with('error','Absensi sudah ditutup');
+        }
 
         $kelasId = $pertemuan->mengajar->kelas_id;
 
@@ -62,19 +156,25 @@ class AbsensiController extends Controller
 
             Absensi::updateOrCreate(
                 [
-                    'pertemuan_id'=>$request->pertemuan_id,
-                    'siswa_id'=>$siswa
+                    'pertemuan_id' => $request->pertemuan_id,
+                    'siswa_id' => $siswa
                 ],
                 [
-                    'status'=>$request->status[$key] ?? null,
-                    'keterangan'=>$request->keterangan[$key] ?? null,
-                    'scan_barcode'=>false
+                    'status' => $request->status[$key] ?? null,
+                    'keterangan' => $request->keterangan[$key] ?? null,
+                    'scan_barcode' => false
                 ]
             );
         }
 
-        return redirect()->route('absensi.guru')
-            ->with('success','Absensi berhasil disimpan');
+        PertemuanAbsensi::where('id',$request->pertemuan_id)
+        ->update([
+            'is_saved'=>true
+        ]);
+
+        return redirect()->route('absensi.guru',[
+            'pertemuan_id'=>$request->pertemuan_id
+        ])->with('success','Absensi berhasil disimpan');
     }
 
     /*
@@ -85,6 +185,16 @@ class AbsensiController extends Controller
 
     public function barcode($id)
     {
+        $pertemuan = PertemuanAbsensi::findOrFail($id);
+
+        if(!$pertemuan->is_started){
+            return back()->with('error','Absensi belum dimulai');
+        }
+
+        if($pertemuan->is_closed){
+            return back()->with('error','Absensi sudah ditutup');
+        }
+
         $token = Str::random(40);
 
         $barcode = BarcodeAbsensi::create([
@@ -115,6 +225,20 @@ class AbsensiController extends Controller
         if(now()->greaterThan($barcode->expired_at)){
             return response()->json([
                 'status'=>'expired'
+            ]);
+        }
+
+        $pertemuan = $barcode->pertemuan;
+
+        if(!$pertemuan->is_started){
+            return response()->json([
+                'status'=>'belum_dimulai'
+            ]);
+        }
+
+        if($pertemuan->is_closed){
+            return response()->json([
+                'status'=>'ditutup'
             ]);
         }
 
