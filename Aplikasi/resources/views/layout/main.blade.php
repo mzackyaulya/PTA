@@ -429,12 +429,14 @@
                                 <p class="text-white">Dashboard</p>
                             </a>
                         </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
-                                <i class="fas fa-user text-white"></i>
-                                <p class="text-white">Profile</p>
-                            </a>
-                        </li>
+                        @if(auth()->user()->role === 'siswa' || auth()->user()->role === 'guru')
+                            <li class="nav-item mb-2">
+                                <a href="{{ url('profile')}}" class="{{ request()->is('profile') ? 'active' : '' }}">
+                                    <i class="fas fa-user text-white"></i>
+                                    <p class="text-white">Profile</p>
+                                </a>
+                            </li>
+                        @endif
 
                         @if(auth()->user()->role === 'admin')
                             <li class="nav-item mb-2">
@@ -826,7 +828,9 @@
                         </li>
                       <li>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item mb-1" href="{{ url('profile') }}"><i class="fas fa-user-circle me-2"></i>Profile</a>
+                        @if(auth()->user()->role === 'siswa' || auth()->user()->role === 'guru')
+                            <a class="dropdown-item mb-1" href="{{ url('profile') }}"><i class="fas fa-user-circle me-2"></i>Profile</a>
+                        @endif
                         <a class="dropdown-item mb-1" href="#"><i class="fas fa-unlock me-2"></i>Ganti Sandi</a>
                         <a class="dropdown-item mb-1" href="#"><i class="fas fa-info-circle me-2"></i>Inbox</a>
                         <div class="dropdown-divider"></div>

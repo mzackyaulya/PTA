@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\RiwayatKelas;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -72,6 +73,37 @@ class Siswa extends Model
         'tahun_masuk',
         'status_siswa',
     ];
+
+    // Mutator untuk Nama Ayah
+    protected function namaAyah(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucwords(strtolower($value)),
+        );
+    }
+
+    // Mutator untuk Nama Ibu
+    protected function namaIbu(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucwords(strtolower($value)),
+        );
+    }
+
+    // Mutator untuk Nama Wali
+    protected function namaWali(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucwords(strtolower($value)),
+        );
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucwords(strtolower($value)),
+        );
+    }
 
     public function user()
     {

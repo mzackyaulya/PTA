@@ -15,9 +15,32 @@ class SiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $siswa = Siswa::with('user')->get();
+        $query = Siswa::with('user');
+
+        // Menggunakan 'filled' agar query tidak berjalan jika input search kosong
+        if ($request->filled('search')) {
+            $search = $request->search;
+            
+            // Membungkus pencarian agar operator OR tidak mengacaukan kondisi lain
+            $query->where(function($q) use ($search) {
+                
+                // 1. Cari berdasarkan kolom di tabel Siswa
+                $q->where('tahun_masuk', 'like', "%{$search}%")
+                
+                // 2. ATAU cari berdasarkan relasi di tabel User
+                ->orWhereHas('user', function($qUser) use ($search) {
+                    $qUser->where('name', 'like', "%{$search}%")
+                            ->orWhere('nisn', 'like', "%{$search}%");
+                });
+                
+            });
+        }
+
+        // Pagination 10 data per halaman
+        $siswa = $query->orderBy('tahun_masuk', 'desc')->paginate(10); 
+
         return view('siswa.index', compact('siswa'));
     }
 

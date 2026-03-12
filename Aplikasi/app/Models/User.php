@@ -3,10 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -62,5 +63,15 @@ class User extends Authenticatable
     public function guru()
     {
         return $this->hasOne(Guru::class);
+    }
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            // Menampilkan data (Accessor): Otomatis rapi saat dipanggil di tabel
+            get: fn (?string $value) => $value ? ucwords(strtolower($value)) : null,
+            
+            // Menyimpan data (Mutator): Otomatis rapi saat admin input/save
+            set: fn (?string $value) => $value ? ucwords(strtolower($value)) : null,
+        );
     }
 }
