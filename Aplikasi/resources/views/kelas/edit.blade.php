@@ -9,7 +9,7 @@
             <h5 class="card-title fw-semibold mb-4">Form Edit Kelas</h5>
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('kelas.update', $kelas) }}" method="POST">
+                    <form action="{{ route('kelas.update', $kelas->id) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -28,6 +28,12 @@
                                 <option value="XI" {{ old('tingkat', $kelas->tingkat) == 'XI' ? 'selected' : '' }}>XI</option>
                                 <option value="XII" {{ old('tingkat', $kelas->tingkat) == 'XII' ? 'selected' : '' }}>XII</option>
                             </select>
+                        </div>
+
+                        {{-- Kapasitas --}}
+                        <div class="mb-3">
+                            <label class="form-label">Kapasitas</label>
+                            <input type="number" name="kapasitas" value="{{ old('kapasitas', $kelas->kapasitas) }}" class="form-control" required>
                         </div>
 
                         {{-- Wali Kelas --}}

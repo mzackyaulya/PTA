@@ -60,9 +60,9 @@ class SiswaController extends Controller
     {
         $request->validate([
             'name'         => 'required|string|max:255',
-            'nisn'         => 'required|unique:users,nisn',
+            'nisn'         => 'required|unique:users,nisn|max:10',
             'email'        => 'required|email|unique:users,email',
-            'password'     => 'nullable|min:6',
+            'password'     => 'nullable|min:8',
             'foto'         => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
             'status_siswa' => 'required|in:aktif,lulus,pindah',
         ]);
@@ -185,9 +185,9 @@ class SiswaController extends Controller
     {
         $request->validate([
             'name'          => 'required|string|max:255',
-            'nisn'          => 'required|unique:users,nisn,' . $siswa->user->id,
+            'nisn'          => 'required|unique:users,nisn,|max:10' . $siswa->user->id,
             'email'         => 'nullable|email|unique:users,email,' . $siswa->user->id,
-            'password'      => 'nullable|min:6',
+            'password'      => 'nullable|min:8',
             'foto'          => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
             'status_siswa'  => 'required|in:aktif,lulus,pindah',
         ]);

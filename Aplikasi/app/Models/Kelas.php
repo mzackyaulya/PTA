@@ -17,6 +17,7 @@ class Kelas extends Model
     protected $fillable = [
         'nama_kelas',
         'tingkat',
+        'kapasitas',
         'wali_kelas',
     ];
 
@@ -37,7 +38,7 @@ class Kelas extends Model
 
     public function riwayatKelas()
     {
-        return $this->hasMany(RiwayatKelas::class);
+        return $this->hasMany(RiwayatKelas::class, 'kelas_id');
     }
 
     public function mengajar()

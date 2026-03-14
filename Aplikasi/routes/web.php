@@ -73,7 +73,8 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
 
     Route::resource('siswa',SiswaController::class);
     Route::resource('guru',GuruController::class);
-    Route::resource('kelas',KelasController::class);
+    Route::resource('kelas', KelasController::class)
+        ->parameters(['kelas' => 'kelas']);
     Route::resource('mapel',MapelController::class);
 
     Route::resource('tahunajaran',TahunAjaranController::class)

@@ -48,6 +48,9 @@
         font-weight: 700;
         border-bottom: 2px solid #e9ecef;
     }
+    .table-responsive {
+        overflow: visible !important;
+    }
 </style>
 
     <div class="col-md-12">
@@ -93,7 +96,7 @@
                                 <th class="text-center py-3">Tahun Masuk</th>
                                 <th class="text-center py-3">Status</th>
                                 @if (auth()->user()->role === 'admin')
-                                    <th class="text-center py-3" width="8%">Aksi</th>
+                                    <th class="text-center py-3">Aksi</th>
                                 @endif
                             </tr>
                         </thead>
@@ -107,13 +110,13 @@
                                     <td class="text-center">{{ $item->jenis_kelamin ?? '-' }}</td>
                                     <td class="text-center">{{ $item->agama ?? '-' }}</td>
                                     <td class="text-center">{{ $item->tahun_masuk ?? '-' }}</td>
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill px-3 py-2 fw-normal
-                                            @if ($item->status_siswa == 'aktif') bg-success 
-                                            @elseif($item->status_siswa == 'lulus') bg-primary 
-                                            @else bg-warning text-dark @endif">
-                                            {{ ucfirst($item->status_siswa) }}
-                                        </span>
+                                    <td class="text-center fw-bold
+                                        @if ($item->status_siswa == 'aktif') text-success
+                                        @elseif($item->status_siswa == 'lulus') text-primary
+                                        @else text-warning
+                                        @endif">
+                                        
+                                        {{ ucfirst($item->status_siswa) }}
                                     </td>
                                     @if (auth()->user()->role === 'admin')
                                         <td class="text-center">

@@ -29,6 +29,12 @@
                             </select>
                         </div>
 
+                        {{-- Kapasitas --}}
+                        <div class="mb-3">
+                            <label class="form-label">Kapasitas</label>
+                            <input type="number" name="kapasitas" value="{{ old('kapasitas') }}" class="form-control" required>
+                        </div>
+
                         {{-- Wali Kelas --}}
                         <div class="mb-3">
                             <label class="form-label">Wali Kelas</label>

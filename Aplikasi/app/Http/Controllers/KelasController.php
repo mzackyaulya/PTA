@@ -14,11 +14,12 @@ class KelasController extends Controller
     public function index()
     {
         $kelas = Kelas::query()
-            ->select('kelas.*') // ← PENTING BANGET (mencegah id ketimpa relasi)
+            ->select('kelas.*')
             ->with([
                 'wali:id,user_id',
                 'wali.user:id,name'
             ])
+            ->withCount('riwayatKelas')
             ->get();
 
         return view('kelas.index', compact('kelas'));
@@ -42,13 +43,14 @@ class KelasController extends Controller
         $request->validate([
             'nama_kelas' => 'required|string|max:100',
             'tingkat'    => 'required|string',
+            'kapasitas'    => 'required|integer',
             'wali_kelas' => 'nullable|exists:gurus,id',
         ]);
 
         Kelas::create([
             'nama_kelas' => $request->nama_kelas,
             'tingkat'    => $request->tingkat,
-            'jurusan'    => $request->jurusan,
+            'kapasitas'  => $request->kapasitas,
             'wali_kelas' => $request->wali_kelas,
         ]);
 
@@ -80,12 +82,14 @@ class KelasController extends Controller
         $request->validate([
             'nama_kelas' => 'required|string|max:100',
             'tingkat'    => 'required|string',
+            'kapasitas'    => 'required|integer',
             'wali_kelas' => 'nullable|exists:gurus,id',
         ]);
 
         $kelas->update([
             'nama_kelas' => $request->nama_kelas,
             'tingkat'    => $request->tingkat,
+            'kapasitas'  => $request->kapasitas,
             'wali_kelas' => $request->wali_kelas,
         ]);
 
