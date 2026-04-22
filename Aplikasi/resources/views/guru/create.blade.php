@@ -37,8 +37,8 @@
                             <label class="form-label">Jenis Kelamin</label>
                             <select name="jenis_kelamin" class="form-select">
                                 <option value="">- Pilih -</option>
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
+                                <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                             </select>
                         </div>
 
@@ -54,7 +54,15 @@
 
                         <div class="mb-3">
                             <label class="form-label">Agama</label>
-                            <input type="text" name="agama" class="form-control" value="{{ old('agama') }}">
+                            <select name="agama" class="form-select">
+                                <option value="">- Pilih Agama -</option>
+                                <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                                <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                                <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
+                                <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                                <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                                <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">

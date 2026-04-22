@@ -13,9 +13,25 @@ class GuruController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $guru = Guru::with('user')->get();
+        $query = Guru::with('user');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('jabatan', 'like', "%{$search}%")
+                ->orWhere('mapel', 'like', "%{$search}%")
+                ->orWhereHas('user', function ($qUser) use ($search) {
+                    $qUser->where('name', 'like', "%{$search}%")
+                            ->orWhere('nip', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $guru = $query->orderBy('id', 'desc')->paginate(10);
+
         return view('guru.index', compact('guru'));
     }
 
