@@ -14,13 +14,6 @@
                 Manajemen Pertemuan Absensi
             </h5>
 
-            <a href="{{ route('pertemuan.create') }}"
-               class="btn btn-primary">
-
-                + Buat Pertemuan
-
-            </a>
-
         </div>
 
         <div class="card-body">

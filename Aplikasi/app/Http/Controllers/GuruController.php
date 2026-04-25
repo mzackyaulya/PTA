@@ -100,7 +100,8 @@ class GuruController extends Controller
      */
     public function show(Guru $guru)
     {
-        //
+        $guru->load('user');
+        return view('guru.show', compact('guru'));
     }
 
     /**

@@ -28,10 +28,12 @@
                             <td class="text-center">{{ $item->tingkat }}</td>
                             <td class="text-center">{{ $item->wali->user->name ?? '-' }}</td>
                             <td class="text-center">
-                            @if($item->riwayat_kelas_count >= $item->kapasitas)
-                                <span class="text-danger fw-semibold">{{ $item->riwayat_kelas_count }} / {{ $item->kapasitas }}</span>
+                            @if($item->jumlah_siswa >= $item->kapasitas)
+                                <span class="text-danger fw-semibold">
+                                    {{ $item->jumlah_siswa }} / {{ $item->kapasitas }}
+                                </span>
                             @else
-                                {{ $item->riwayat_kelas_count }} / {{ $item->kapasitas }}
+                                {{ $item->jumlah_siswa }} / {{ $item->kapasitas }}
                             @endif
                         </td>
                             <td class="text-center">
@@ -44,7 +46,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">Belum ada data Kelas</td>
+                            <td colspan="5" class="text-center">Belum ada data Kelas</td>
                         </tr>
                     @endforelse
                 </tbody>

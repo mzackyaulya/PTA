@@ -13,39 +13,89 @@ class MengajarController extends Controller
 {
     public function index()
     {
-        $data = Mengajar::with('guru','kelas','mapel','tahunAjaran')->get();
-        return view('mengajar.index', compact('data'));
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
+
+        $kelas = Kelas::withCount(['mengajar as jumlah_jadwal' => function ($q) use ($tahunAktif) {
+            if ($tahunAktif) {
+                $q->where('tahun_ajaran_id', $tahunAktif->id);
+            }
+        }])
+        ->orderBy('tingkat')
+        ->orderBy('nama_kelas')
+        ->get();
+
+        return view('mengajar.index', compact('kelas', 'tahunAktif'));
     }
 
-    public function create()
+    public function show($kelasId)
     {
-        $guru = Guru::all();
-        $kelas = Kelas::all();
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
+
+        $kelas = Kelas::findOrFail($kelasId);
+
+        $data = Mengajar::with('guru.user', 'kelas', 'mapel', 'tahunAjaran')
+            ->where('kelas_id', $kelasId)
+            ->when($tahunAktif, function ($q) use ($tahunAktif) {
+                $q->where('tahun_ajaran_id', $tahunAktif->id);
+            })
+            ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->orderBy('jam_mulai')
+            ->get();
+
+        return view('mengajar.show', compact('data', 'kelas', 'tahunAktif'));
+    }
+
+    public function create(Request $request)
+    {
+        $request->validate([
+            'kelas_id' => 'required|exists:kelas,id'
+        ]);
+
+        $kelas = Kelas::findOrFail($request->kelas_id);
+        $guru = Guru::with('user')->get();
         $mapel = Mapel::all();
 
-        return view('mengajar.create', compact('guru','kelas','mapel'));
+        return view('mengajar.create', compact('guru', 'kelas', 'mapel'));
     }
 
     public function store(Request $request)
     {
-        $tahun = TahunAjaran::where('aktif',1)->first();
-
-        Mengajar::create([
-            'guru_id'=>$request->guru_id,
-            'kelas_id'=>$request->kelas_id,
-            'mapel_id'=>$request->mapel_id,
-            'tahun_ajaran_id'=>$tahun->id,
-            'hari'=>$request->hari,
-            'jam_mulai'=>$request->jam_mulai,
-            'jam_selesai'=>$request->jam_selesai
+        $request->validate([
+            'guru_id' => 'required|exists:gurus,id',
+            'kelas_id' => 'required|exists:kelas,id',
+            'mapel_id' => 'required|exists:mapels,id',
+            'hari' => 'required|string',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required|after:jam_mulai',
         ]);
 
-        return redirect()->route('mengajar.index')->with('success','Jadwal mengajar dibuat');
+        $tahun = TahunAjaran::where('aktif', 1)->first();
+
+        if (!$tahun) {
+            return back()->with('error', 'Tahun ajaran aktif belum diatur.');
+        }
+
+        Mengajar::create([
+            'guru_id' => $request->guru_id,
+            'kelas_id' => $request->kelas_id,
+            'mapel_id' => $request->mapel_id,
+            'tahun_ajaran_id' => $tahun->id,
+            'hari' => $request->hari,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai
+        ]);
+
+        return redirect()->route('mengajar.show', $request->kelas_id)
+            ->with('success', 'Jadwal mengajar berhasil dibuat.');
     }
 
     public function destroy(Mengajar $mengajar)
     {
+        $kelasId = $mengajar->kelas_id;
+
         $mengajar->delete();
-        return back()->with('success','Jadwal dihapus');
+
+        return redirect()->route('mengajar.show', $kelasId)
+            ->with('success', 'Jadwal dihapus.');
     }
 }

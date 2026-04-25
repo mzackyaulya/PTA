@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Guru;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use App\Models\TahunAjaran;
 
 class KelasController extends Controller
 {
@@ -13,16 +14,22 @@ class KelasController extends Controller
      */
     public function index()
     {
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
+
         $kelas = Kelas::query()
             ->select('kelas.*')
             ->with([
                 'wali:id,user_id',
                 'wali.user:id,name'
             ])
-            ->withCount('riwayatKelas')
+            ->withCount(['riwayatKelas as jumlah_siswa' => function ($q) use ($tahunAktif) {
+                if ($tahunAktif) {
+                    $q->where('tahun_ajaran_id', $tahunAktif->id);
+                }
+            }])
             ->get();
 
-        return view('kelas.index', compact('kelas'));
+        return view('kelas.index', compact('kelas', 'tahunAktif'));
     }
 
 

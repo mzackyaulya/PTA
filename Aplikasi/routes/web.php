@@ -83,8 +83,11 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
     Route::resource('riwayatkelas',RiwayatKelasController::class)
         ->except(['show','edit','update']);
 
-    Route::resource('mengajar',MengajarController::class)
-        ->except(['show','edit','update']);
+    Route::get('/riwayatkelas/siswa', [RiwayatKelasController::class, 'getSiswa'])
+    ->name('riwayatkelas.siswa');
+
+    Route::resource('mengajar', MengajarController::class)
+    ->except(['edit','update']);
 
     Route::resource('announcements', AnnouncementsController::class)
         ->only(['index','create','store']);
@@ -95,6 +98,7 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
     Route::resource('nilai', NilaiController::class)
         ->only(['index','show']);
 
+
     /*
     | PERtemuan ABSENSI
     */
@@ -104,6 +108,7 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
     Route::post('/pertemuan/store',[PertemuanController::class,'store'])->name('pertemuan.store');
     Route::get('/pertemuan/approve/{id}',[PertemuanController::class,'approve'])->name('pertemuan.approve');
     Route::get('/pertemuan/{id}',[PertemuanController::class,'show'])->name('pertemuan.show');
+    
 });
 
 
@@ -130,6 +135,11 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
     Route::post('/pertemuan/{id}/start',[AbsensiController::class,'start'])->name('absensi.start');
 
     Route::post('/pertemuan/{id}/close',[AbsensiController::class,'close'])->name('absensi.close');
+
+    Route::post('/guru/absensi/validasi/{id}', [AbsensiController::class, 'validasi'])
+    ->name('absensi.validasi');
+    Route::post('/guru/jadwal/{mengajar}/validasi-absensi', [AbsensiController::class, 'validasiDariJadwal'])
+    ->name('jadwal.validasiAbsensi');
 
     // Materi //
     

@@ -82,83 +82,70 @@
         <div class="card-body">
 
 
-            {{-- ================= PILIH KELAS ================= --}}
+            {{-- ================= PILIH JADWAL MENGAJAR ================= --}}
             <div class="section-box">
 
-                <select class="form-control" onchange="pilihKelas(this.value)">
+                <select class="form-control" onchange="pilihJadwal(this.value)">
 
-                <option value="" disabled selected>Pilih Kelas</option>
-
-                @foreach($kelas as $k)
-
-                <option value="{{ $k->mengajar->kelas_id }}"
-                @if(request('kelas_id') == $k->mengajar->kelas_id) selected @endif>
-
-                {{ $k->mengajar->kelas->nama_kelas }}
-                -
-                {{ $k->mengajar->mapel->nama }}
-
-                </option>
-
-                @endforeach
-
-                </select>
-
-            </div>
-
-
-
-            {{-- ================= PILIH PERTEMUAN ================= --}}
-            <div class="section-box">
-
-                <select class="form-control" onchange="pilihPertemuan(this.value)">
-
-                    <option disabled {{ !request('pertemuan_id') ? 'selected' : '' }}>
-                    Pilih Pertemuan
+                    <option value="" disabled {{ !request('mengajar_id') ? 'selected' : '' }}>
+                        Pilih Jadwal Mengajar Hari Ini
                     </option>
 
-                    @foreach($pertemuan as $p)
+                    @forelse($jadwal as $j)
 
-                        <option value="{{ $p->id }}"
-                            @if(request('pertemuan_id') == $p->id) selected @endif>
+                        <option value="{{ $j->id }}"
+                            @if(request('mengajar_id') == $j->id) selected @endif>
 
-                            Pertemuan {{ $p->pertemuan_ke }} - {{ $p->tanggal }}
+                            {{ $j->jam_mulai }} - {{ $j->jam_selesai }}
+                            |
+                            {{ $j->mapel->nama ?? '-' }}
+                            |
+                            {{ $j->kelas->nama_kelas ?? '-' }}
 
                         </option>
 
-                    @endforeach
+                    @empty
+
+                        <option disabled>
+                            Tidak ada jadwal mengajar hari ini
+                        </option>
+
+                    @endforelse
 
                 </select>
 
             </div>
-
 
 
             @if(isset($selectedPertemuan))
 
-            {{-- ================= ACTION BUTTON ================= --}}
             <div class="section-box action-box">
-
                 <div>
+                    @php
+                        $sekarang = now()->format('H:i:s');
+                        $belumMulai = $sekarang < $selectedJadwal->jam_mulai;
+                        $sudahSelesai = $sekarang > $selectedJadwal->jam_selesai;
+                    @endphp
 
-                    @if(!$selectedPertemuan->is_approved)
+                    @if($belumMulai)
+                        <button class="btn btn-secondary btn-absen" disabled>
+                            Belum Masuk Jam Pelajaran
+                        </button>
 
-                        <button class="btn btn-success btn-absen" disabled>Mulai Absen</button>
-                        <button class="btn btn-primary btn-absen" disabled>Simpan</button>
-                        <button class="btn btn-danger btn-absen" disabled>Tutup</button>
+                    @elseif($sudahSelesai || $selectedPertemuan->is_closed)
+                        <button class="btn btn-danger btn-absen" disabled>
+                            Absensi Ditutup
+                        </button>
 
-                    @elseif($selectedPertemuan->is_approved && !$selectedPertemuan->is_started)
-
-                        <form method="POST" action="{{ route('absensi.start',$selectedPertemuan->id) }}" style="display:inline">
+                    @elseif(!$selectedPertemuan->is_approved)
+                        <form method="POST" action="{{ route('absensi.validasi', $selectedPertemuan->id) }}" style="display:inline">
                             @csrf
-                            <button class="btn btn-success btn-absen">Mulai Absen</button>
+                            <button class="btn btn-success btn-absen">
+                                Validasi & Buka Absen
+                            </button>
                         </form>
 
-                        <button class="btn btn-primary btn-absen" disabled>Simpan</button>
-                        <button class="btn btn-danger btn-absen" disabled>Tutup</button>
-
                     @elseif($selectedPertemuan->is_started && !$selectedPertemuan->is_saved)
-
                         <button class="btn btn-success btn-absen" disabled>
                             Absensi Berjalan
                         </button>
@@ -167,63 +154,31 @@
                             Simpan
                         </button>
 
-                        <button class="btn btn-danger btn-absen" disabled>
-                            Tutup
-                        </button>
-
-                    @elseif($selectedPertemuan->is_started && $selectedPertemuan->is_saved && !$selectedPertemuan->is_closed)
-
+                    @elseif($selectedPertemuan->is_saved && !$selectedPertemuan->is_closed)
                         <button class="btn btn-success btn-absen" disabled>
                             Absensi Disimpan
                         </button>
 
-                        <button class="btn btn-primary btn-absen" disabled>
-                            Simpan
-                        </button>
-
-                        <form method="POST" action="{{ route('absensi.close',$selectedPertemuan->id) }}" style="display:inline">
-                        @csrf
-                        <button class="btn btn-danger btn-absen">
-                            Tutup
-                        </button>
-                        </form>
-
-                    @elseif($selectedPertemuan->is_closed)
-
-                        <button class="btn btn-success btn-absen" disabled>
-                            Absensi Selesai
-                        </button>
-
                         <form method="POST" action="{{ route('absensi.close',$selectedPertemuan->id) }}" style="display:inline">
                             @csrf
-                            <button class="btn btn-danger btn-absen" disabled>
-                                Absen ditutup
+                            <button class="btn btn-danger btn-absen">
+                                Tutup
                             </button>
                         </form>
-
                     @endif
-
                 </div>
 
-
                 <div>
-
                     @if($selectedPertemuan->is_started && !$selectedPertemuan->is_closed)
-
                         <button class="btn btn-outline-dark" id="btnQR">
                             <i class="fas fa-qrcode"></i>
                         </button>
-
                     @else
-
                         <button class="btn btn-outline-dark" disabled>
                             <i class="fas fa-qrcode"></i>
                         </button>
-
                     @endif
-
                 </div>
-
             </div>
 
             @endif
@@ -368,65 +323,9 @@
 
 <script>
 
-function pilihPertemuan(id){
-
-    const kelas = document.querySelector("select[onchange='pilihKelas(this.value)']").value
-
+function pilihJadwal(id){
     if(id){
-        window.location.href="/guru/absensi?kelas_id="+kelas+"&pertemuan_id="+id
-    }
-
-}
-
-const popup = document.getElementById("popupQR")
-const btnQR = document.getElementById("btnQR")
-const closeQR = document.getElementById("closeQR")
-
-if(btnQR){
-    btnQR.onclick = () => popup.style.display = "flex"
-}
-
-if(closeQR){
-    closeQR.onclick = () => popup.style.display = "none"
-}
-
-setInterval(function(){
-
-    fetch("/guru/scan-check/{{ $selectedPertemuan->id ?? '' }}")
-
-    .then(response => response.json())
-
-    .then(data => {
-
-        if(data.siswa_id){
-
-            const siswaInputs = document.querySelectorAll("input[name='siswa_id[]']")
-
-            siswaInputs.forEach(function(input){
-
-                if(input.value === data.siswa_id){
-
-                    const row = input.closest("tr")
-
-                    const hadir = row.querySelector("input[value='hadir']")
-
-                    if(hadir){
-                        hadir.checked = true
-                    }
-
-                }
-
-            })
-
-        }
-
-    })
-
-},2000)
-
-function pilihKelas(id){
-    if(id){
-        window.location.href="/guru/absensi?kelas_id="+id
+        window.location.href = "/guru/absensi?mengajar_id=" + id;
     }
 }
 

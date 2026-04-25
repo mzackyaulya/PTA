@@ -23,12 +23,10 @@
 
             <div class="mb-3">
                 <label>Kelas</label>
-                <select name="kelas_id" class="form-control" required>
-                    <option value="">-- pilih kelas --</option>
-                    @foreach($kelas as $k)
-                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
-                    @endforeach
-                </select>
+                <input type="text" class="form-control"
+                    value="{{ $kelas->tingkat }} {{ $kelas->nama_kelas }}" readonly>
+
+                <input type="hidden" name="kelas_id" value="{{ $kelas->id }}">
             </div>
 
             <div class="mb-3">

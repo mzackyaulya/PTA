@@ -8,8 +8,6 @@
     <div class="card-header">
         <h4>Jadwal Pelajaran</h4>
     </div>
-
-```
 <div class="card-body">
 
     @php

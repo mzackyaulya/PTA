@@ -2,81 +2,144 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Absensi;
 use App\Models\BarcodeAbsensi;
 use App\Models\PertemuanAbsensi;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AbsensiController extends Controller
 {
     public function index(Request $request)
     {
-        $kelas = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
-            ->get()
-            ->unique(function ($item) {
-                return $item->mengajar->kelas_id;
-            })
-            ->values();
+        $guru = auth()->user()->guru;
 
-        $pertemuan = [];
-        $siswa = [];
-        $barcode = null;
-        $selectedPertemuan = null;
+        $hariIni = now()->locale('id')->translatedFormat('l');
+        $tanggalHariIni = now()->toDateString();
 
-        /*
-        ===============================
-        FILTER KELAS
-        ===============================
-        */
-
-        if($request->kelas_id){
-
-            $pertemuan = PertemuanAbsensi::with('mengajar.kelas','mengajar.mapel')
-                ->whereHas('mengajar', function($q) use ($request){
-                    $q->where('kelas_id',$request->kelas_id);
-                })
-                ->orderBy('tanggal','desc')
-                ->get();
-        }
-
-        /*
-        ===============================
-        PILIH PERTEMUAN
-        ===============================
-        */
-
-        if($request->pertemuan_id){
-
-            $selectedPertemuan = PertemuanAbsensi::with('mengajar')
-                ->find($request->pertemuan_id);
-
-            $kelasId = $selectedPertemuan->mengajar->kelas_id;
-
-            $siswa = Siswa::with(['user','absensi'=>function($q) use ($selectedPertemuan){
-                $q->where('pertemuan_id',$selectedPertemuan->id);
-            }])
-            ->whereHas('riwayatKelas',function($q) use ($kelasId){
-                $q->where('kelas_id',$kelasId);
-            })
+        $jadwal = \App\Models\Mengajar::with(['kelas', 'mapel'])
+            ->where('guru_id', $guru->id)
+            ->where('hari', $hariIni)
+            ->orderBy('jam_mulai')
             ->get();
 
-            $barcode = BarcodeAbsensi::create([
-                'pertemuan_id'=>$selectedPertemuan->id,
-                'token'=>Str::random(40),
-                'expired_at'=>now()->addMinutes(5)
-            ]);
+        $selectedJadwal = null;
+        $selectedPertemuan = null;
+        $siswa = [];
+        $barcode = null;
+
+        if ($request->mengajar_id) {
+            $selectedJadwal = \App\Models\Mengajar::with(['kelas', 'mapel'])
+                ->where('guru_id', $guru->id)
+                ->findOrFail($request->mengajar_id);
+
+            $selectedPertemuan = PertemuanAbsensi::firstOrCreate(
+                [
+                    'mengajar_id' => $selectedJadwal->id,
+                    'tanggal' => $tanggalHariIni,
+                ],
+                [
+                    'pertemuan_ke' => PertemuanAbsensi::where('mengajar_id', $selectedJadwal->id)->count() + 1,
+                    'is_approved' => false,
+                    'is_started' => false,
+                    'is_closed' => false,
+                    'is_saved' => false,
+                ]
+            );
+
+            if ($selectedPertemuan && now()->format('H:i:s') > $selectedJadwal->jam_selesai) {
+                $selectedPertemuan->update([
+                    'is_closed' => true,
+                ]);
+            }
+
+            $kelasId = $selectedJadwal->kelas_id;
+
+            $siswa = Siswa::with(['user', 'absensi' => function ($q) use ($selectedPertemuan) {
+                    $q->where('pertemuan_id', $selectedPertemuan->id);
+                }])
+                ->whereHas('riwayatKelas', function ($q) use ($kelasId) {
+                    $q->where('kelas_id', $kelasId);
+                })
+                ->get();
+
+            if ($selectedPertemuan->is_started && !$selectedPertemuan->is_closed) {
+                $barcode = BarcodeAbsensi::create([
+                    'pertemuan_id' => $selectedPertemuan->id,
+                    'token' => Str::random(40),
+                    'expired_at' => now()->addMinutes(5),
+                ]);
+            }
         }
 
-        return view('absensi.index',compact(
-            'kelas',
-            'pertemuan',
+        return view('absensi.index', compact(
+            'jadwal',
+            'selectedJadwal',
+            'selectedPertemuan',
             'siswa',
-            'barcode',
-            'selectedPertemuan'
+            'barcode'
         ));
+    }
+
+    public function validasi($id)
+    {
+        $pertemuan = PertemuanAbsensi::with('mengajar')->findOrFail($id);
+
+        $jadwal = $pertemuan->mengajar;
+
+        $tanggal = $pertemuan->tanggal;
+
+        $jamMulai = Carbon::parse($tanggal . ' ' . $jadwal->jam_mulai);
+        $jamSelesai = Carbon::parse($tanggal . ' ' . $jadwal->jam_selesai);
+        $waktuBukaValidasi = $jamMulai->copy()->subMinutes(5);
+
+        $sekarang = now();
+
+        if ($sekarang->lt($waktuBukaValidasi)) {
+            return back()->with('error', 'Validasi belum bisa dilakukan. Validasi dibuka 5 menit sebelum jam pelajaran.');
+        }
+
+        if ($sekarang->gt($jamSelesai)) {
+            return back()->with('error', 'Validasi gagal. Jam pelajaran sudah selesai.');
+        }
+
+        $pertemuan->update([
+            'is_approved' => true,
+            'is_started' => true,
+            'is_closed' => false,
+        ]);
+
+        return back()->with('success', 'Absensi berhasil divalidasi dan dibuka.');
+    }
+
+    public function validasiDariJadwal($mengajarId)
+    {
+        $guru = auth()->user()->guru;
+
+        $jadwal = \App\Models\Mengajar::where('guru_id', $guru->id)
+            ->findOrFail($mengajarId);
+
+        $tanggalHariIni = now()->toDateString();
+
+        $pertemuan = PertemuanAbsensi::firstOrCreate(
+            [
+                'mengajar_id' => $jadwal->id,
+                'tanggal' => $tanggalHariIni,
+            ],
+            [
+                'pertemuan_ke' => PertemuanAbsensi::where('mengajar_id', $jadwal->id)->count() + 1,
+                'is_approved' => false,
+                'is_started' => false,
+                'is_closed' => false,
+                'is_saved' => false,
+            ]
+        );
+
+        return $this->validasi($pertemuan->id);
     }
 
     /*
@@ -194,9 +257,11 @@ class AbsensiController extends Controller
             'is_saved'=>true
         ]);
 
-        return redirect()->route('absensi.guru',[
-            'pertemuan_id'=>$request->pertemuan_id
-        ])->with('success','Absensi berhasil disimpan');
+        $pertemuan = PertemuanAbsensi::findOrFail($request->pertemuan_id);
+
+        return redirect()->route('absensi.guru', [
+            'mengajar_id' => $pertemuan->mengajar_id
+        ])->with('success', 'Absensi berhasil disimpan');
     }
 
     /*
