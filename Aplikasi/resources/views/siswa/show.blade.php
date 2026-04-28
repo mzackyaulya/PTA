@@ -101,6 +101,11 @@
                                 <td class="col-value">{{ $siswa->agama ?? '-' }}</td>
                             </tr>
                             <tr>
+                                <td class="col-label">Jurusan</td>
+                                <td class="col-colon">:</td>
+                                <td class="col-value">{{ $siswa->jurusan ?? '-' }}</td>
+                            </tr>
+                            <tr>
                                 <td class="col-label">Kewarganegaraan</td>
                                 <td class="col-colon">:</td>
                                 <td class="col-value">{{ $siswa->kewarganegaraan ?? '-' }}</td>
@@ -213,7 +218,7 @@
                                 <td class="col-label border-bottom-0">Penghasilan</td>
                                 <td class="col-colon border-bottom-0">:</td>
                                 <td class="col-value border-bottom-0">
-                                    {{ $siswa->penghasilan_ayah ? 'Rp ' . number_format((int) $siswa->penghasilan_ayah, 0, ',', '.') : '-' }}
+                                    {{ $siswa->penghasilan_ayah ? 'Rp ' . $siswa->penghasilan_ayah : '-' }}
                                 </td>
                             </tr>
                         </tbody>
@@ -259,7 +264,7 @@
                                 <td class="col-label border-bottom-0">Penghasilan</td>
                                 <td class="col-colon border-bottom-0">:</td>
                                 <td class="col-value border-bottom-0">
-                                    {{ $siswa->penghasilan_ibu ? 'Rp ' . number_format((int) $siswa->penghasilan_ibu, 0, ',', '.') : '-' }}
+                                    {{ $siswa->penghasilan_ibu ? 'Rp ' . $siswa->penghasilan_ibu : '-' }}
                                 </td>
                             </tr>
                         </tbody>

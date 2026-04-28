@@ -32,6 +32,7 @@ class Siswa extends Model
         'rt',
         'rw',
         'kodepos',
+        'jurusan',
         'jenis_tinggal',
         'alat_transportasi',
 

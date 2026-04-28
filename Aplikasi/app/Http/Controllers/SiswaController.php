@@ -59,13 +59,74 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'         => 'required|string|max:255',
-            'nisn'         => 'required|unique:users,nisn|max:10',
-            'email'        => 'required|email|unique:users,email',
-            'password'     => 'nullable|min:8',
-            'foto'         => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
-            'status_siswa' => 'required|in:aktif,lulus,pindah',
-        ]);
+        // Data akun
+        'name'     => 'required|string|max:255',
+        'nisn'     => 'required|digits:10|unique:users,nisn',
+        'nis'      => 'required|digits:4|unique:siswas,nis',
+        'email'    => 'required|email|unique:users,email',
+        'password' => 'nullable|min:8',
+
+        // Data pribadi
+        'jenis_kelamin'   => 'required|in:Laki-Laki,Perempuan',
+        'tempat_lahir'    => 'required|string|max:255',
+        'tanggal_lahir'   => 'required|date',
+        'kewarganegaraan' => 'required|string|max:50',
+        'agama'           => 'required|string|max:50',
+        'alamat'          => 'required|string',
+        'nik'             => 'required|string|max:20',
+        'nohp'            => 'required|string|max:20',
+
+        // Alamat
+        'dusun'             => 'required|string|max:255',
+        'kecamatan'         => 'required|string|max:255',
+        'kelurahan'         => 'required|string|max:255',
+        'rt'                => 'required|string|max:10',
+        'rw'                => 'required|string|max:10',
+        'kodepos'           => 'required|string|max:10',
+        'jenis_tinggal'     => 'required|string|max:100',
+        'alat_transportasi' => 'required|string|max:100',
+
+        // Data ayah
+        'nama_ayah'          => 'required|string|max:255',
+        'tanggal_lahir_ayah' => 'required|date',
+        'nik_ayah'           => 'required|string|max:20',
+        'pendidikan_ayah'    => 'required|string|max:100',
+        'pekerjaan_ayah'     => 'required|string|max:100',
+        'penghasilan_ayah'   => 'required|string|max:100',
+
+        // Data ibu
+        'nama_ibu'          => 'required|string|max:255',
+        'tanggal_lahir_ibu' => 'required|date',
+        'nik_ibu'           => 'required|string|max:20',
+        'pendidikan_ibu'    => 'required|string|max:100',
+        'pekerjaan_ibu'     => 'required|string|max:100',
+        'penghasilan_ibu'   => 'required|string|max:100',
+
+        // Data wali
+        'nama_wali'          => 'required|string|max:255',
+        'tanggal_lahir_wali' => 'required|date',
+        'nik_wali'           => 'required|string|max:20',
+        'pendidikan_wali'    => 'required|string|max:100',
+        'pekerjaan_wali'     => 'required|string|max:100',
+
+        // Data tambahan
+        'no_akta_lahir'    => 'required|string|max:100',
+        'kebutuhan_khusus' => 'required|in:IYA,TIDAK',
+        'jurusan'          => 'required|in:IPA,IPS',
+        'asal_sekolah'     => 'required|string|max:255',
+        'anakke'           => 'required|string|max:10',
+        'no_kk'            => 'required|string|max:20',
+        'berat_badan'      => 'required|string|max:10',
+        'tinggi_badan'     => 'required|string|max:10',
+        'lingkar_kepala'   => 'required|string|max:10',
+        'jumlah_saudara'   => 'required|string|max:10',
+        'jarak_rumah'      => 'required|string|max:20',
+
+        // Lainnya
+        'tahun_masuk'  => 'required',
+        'status_siswa' => 'required|in:aktif,lulus,pindah',
+        'foto'         => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
+    ]);
 
         DB::beginTransaction();
 
@@ -129,6 +190,7 @@ class SiswaController extends Controller
 
                 'no_akta_lahir'      => $request->no_akta_lahir,
                 'kebutuhan_khusus'   => $request->kebutuhan_khusus,
+                'jurusan'            => $request->jurusan,
                 'asal_sekolah'       => $request->asal_sekolah,
                 'anakke'             => $request->anakke,
                 'no_kk'              => $request->no_kk,
@@ -185,7 +247,8 @@ class SiswaController extends Controller
     {
         $request->validate([
             'name'          => 'required|string|max:255',
-            'nisn'          => 'required|unique:users,nisn,|max:10' . $siswa->user->id,
+            'nisn'          => 'required|digits:10|unique:users,nisn,' . $siswa->user->id,
+            'nis'           => 'required|digits:4|unique:siswas,nis,' . $siswa->id,
             'email'         => 'nullable|email|unique:users,email,' . $siswa->user->id,
             'password'      => 'nullable|min:8',
             'foto'          => 'nullable|image|mimes:jpg,jpeg,png,jfif,webp|max:5120',
@@ -255,6 +318,7 @@ class SiswaController extends Controller
             // Data tambahan
             'no_akta_lahir'       => $request->no_akta_lahir,
             'kebutuhan_khusus'    => $request->kebutuhan_khusus,
+            'jurusan'            => $request->jurusan,
             'asal_sekolah'        => $request->asal_sekolah,
             'anakke'              => $request->anakke,
             'no_kk'               => $request->no_kk,

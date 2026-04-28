@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $i => $d)
+                @forelse($data as $i => $d)
                 <tr>
                     <td class="text-center">{{ $i+1 }}</td>
                     <td class="text-center">{{ $d->tahun }}</td>
@@ -44,7 +44,11 @@
                         <a href="{{ route('tahunajaran.edit',$d->id) }}" class="btn btn-warning btn-sm">Edit</a>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">Belum ada Tahun Ajaran</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

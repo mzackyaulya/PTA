@@ -82,10 +82,14 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Jenis Kelamin</label>
-                                    <select name="jenis_kelamin" class="form-select" value="{{ old('jenis_kelamin') }}">
+                                    <select name="jenis_kelamin" class="form-select" required>
                                         <option value="">- Pilih -</option>
-                                        <option value="Laki-Laki">Laki-laki</option>
-                                        <option value="Perempuan">Perempuan</option>
+                                        <option value="Laki-Laki" {{ old('jenis_kelamin') == 'Laki-Laki' ? 'selected' : '' }}>
+                                            Laki-Laki
+                                        </option>
+                                        <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                            Perempuan
+                                        </option>
                                     </select>
                                 </div>
                             </div>
@@ -178,13 +182,13 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Jenis Tinggal</label>
-                                    <select name="jenis_tinggal" class="form-select">
+                                    <select name="jenis_tinggal" class="form-select" required>
                                         <option value="">- Pilih -</option>
-                                        <option value="Bersama Orang Tua">Bersama Orang Tua</option>
-                                        <option value="Wali">Wali</option>
-                                        <option value="Kost">Kost</option>
-                                        <option value="Asrama">Asrama</option>
-                                        <option value="Panti Asuhan">Panti Asuhan</option>
+                                        <option value="Bersama Orang Tua" {{ old('jenis_tinggal') == 'Bersama Orang Tua' ? 'selected' : '' }}>Bersama Orang Tua</option>
+                                        <option value="Wali" {{ old('jenis_tinggal') == 'Wali' ? 'selected' : '' }}>Wali</option>
+                                        <option value="Kost" {{ old('jenis_tinggal') == 'Kost' ? 'selected' : '' }}>Kost</option>
+                                        <option value="Asrama" {{ old('jenis_tinggal') == 'Asrama' ? 'selected' : '' }}>Asrama</option>
+                                        <option value="Panti Asuhan" {{ old('jenis_tinggal') == 'Panti Asuhan' ? 'selected' : '' }}>Panti Asuhan</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -382,17 +386,29 @@
                             {{-- ===================== AKADEMIK & TAMBAHAN ===================== --}}
                             <div class="section-title">Data Akademik & tambahan</div>
                             <div class="row">
-                                <div class="col-md-4 mb-3"><label class="form-label">No Akta Lahir</label><input
-                                        type="text" name="no_akta_lahir" class="form-control"
-                                        value="{{ old('no_akta_lahir') }}"></div>
+                                {{-- No Akta --}}
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">No Akta Lahir</label>
+                                    <input type="text" name="no_akta_lahir" class="form-control"
+                                        value="{{ old('no_akta_lahir') }}">
+                                </div>
+
+                                {{-- Kebutuhan Khusus --}}
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Kebutuhan Khusus</label>
                                     <select name="kebutuhan_khusus" class="form-select">
                                         <option value="">- Pilih -</option>
-                                        <option value="IYA" {{ old('kebutuhan_khusus') == 'IYA' ? 'selected' : '' }}>
-                                            IYA</option>
-                                        <option value="TIDAK" {{ old('kebutuhan_khusus') == 'TIDAK' ? 'selected' : '' }}>
-                                            TIDAK</option>
+                                        <option value="IYA" {{ old('kebutuhan_khusus') == 'IYA' ? 'selected' : '' }}>IYA</option>
+                                        <option value="TIDAK" {{ old('kebutuhan_khusus') == 'TIDAK' ? 'selected' : '' }}>TIDAK</option>
+                                    </select>
+                                </div>
+                                {{-- Jurusan --}}
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Jurusan</label>
+                                    <select name="jurusan" class="form-select" required>
+                                        <option value="">- Pilih -</option>
+                                        <option value="IPA" {{ old('jurusan') == 'IPA' ? 'selected' : '' }}>IPA</option>
+                                        <option value="IPS" {{ old('jurusan') == 'IPS' ? 'selected' : '' }}>IPS</option>
                                     </select>
                                 </div>
                             </div>

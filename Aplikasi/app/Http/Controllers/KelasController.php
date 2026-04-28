@@ -16,15 +16,27 @@ class KelasController extends Controller
     {
         $tahunAktif = TahunAjaran::where('aktif', 1)->first();
 
+        $tahunAcuan = $tahunAktif;
+
+        if ($tahunAktif && in_array(strtoupper($tahunAktif->semester), ['2', 'II'])) {
+            $tahunSemesterSatu = TahunAjaran::where('tahun', $tahunAktif->tahun)
+                ->whereIn('semester', ['1', 'I'])
+                ->first();
+
+            if ($tahunSemesterSatu) {
+                $tahunAcuan = $tahunSemesterSatu;
+            }
+        }
+
         $kelas = Kelas::query()
             ->select('kelas.*')
             ->with([
                 'wali:id,user_id',
                 'wali.user:id,name'
             ])
-            ->withCount(['riwayatKelas as jumlah_siswa' => function ($q) use ($tahunAktif) {
-                if ($tahunAktif) {
-                    $q->where('tahun_ajaran_id', $tahunAktif->id);
+            ->withCount(['riwayatKelas as jumlah_siswa' => function ($q) use ($tahunAcuan) {
+                if ($tahunAcuan) {
+                    $q->where('tahun_ajaran_id', $tahunAcuan->id);
                 }
             }])
             ->get();

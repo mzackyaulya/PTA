@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('nisn')->nullable()->unique()->after('email'); // khusus siswa
+            $table->string('nisn',10)->nullable()->unique()->after('email'); // khusus siswa
             $table->string('nip')->nullable()->unique()->after('nisn');   // khusus guru
         });
     }

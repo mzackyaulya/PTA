@@ -15,24 +15,41 @@
                     <th>No</th>
                     <th>Nama Mapel</th>
                     <th>Kode</th>
-                    <th width="150">Aksi</th>
+                    <th width="150" class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $i => $d)
+                @forelse($data as $i => $d)
                 <tr>
                     <td>{{ $i+1 }}</td>
                     <td>{{ $d->nama }}</td>
                     <td>{{ $d->kode }}</td>
-                    <td>
-                        <a href="{{ route('mapel.edit',$d->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('mapel.destroy',$d->id) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            
+                            <a href="{{ route('mapel.edit',$d->id) }}" 
+                            class="btn btn-warning btn-sm px-3">
+                                Edit
+                            </a>
+
+                            <form action="{{ route('mapel.destroy',$d->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="btn btn-danger btn-sm px-3"
+                                        onclick="return confirm('Yakin ingin menghapus data ini?')">
+                                    Hapus
+                                </button>
+                            </form>
+
+                        </div>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center">Belum ada data Mata Pelajaran</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

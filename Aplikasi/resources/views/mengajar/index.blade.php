@@ -8,7 +8,7 @@
         <h4>Jadwal Mengajar</h4>
         <small class="text-muted">
             Tahun Ajaran Aktif:
-            {{ $tahunAktif->tahun ?? '-' }}
+            {{ $tahunAktif->tahun ?? ' - ' }}
             {{ $tahunAktif ? '(' . $tahunAktif->semester . ')' : '' }}
         </small>
     </div>
@@ -44,7 +44,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">Belum ada data kelas</td>
+                        <td colspan="5" class="text-center">Belum ada data Mengajar</td>
                     </tr>
                 @endforelse
             </tbody>

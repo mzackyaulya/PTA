@@ -384,6 +384,18 @@
                                             TIDAK</option>
                                     </select>
                                 </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Jurusan</label>
+                                    <select name="jurusan" class="form-select">
+                                        <option value="">- Pilih -</option>
+                                        <option value="IPA"
+                                            {{ old('jurusan', $siswa->jurusan) == 'IPA' ? 'selected' : '' }}>
+                                            IPA</option>
+                                        <option value="IPS"
+                                            {{ old('jurusan', $siswa->jurusan) == 'IPS' ? 'selected' : '' }}>
+                                            IPS</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
