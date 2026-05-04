@@ -52,13 +52,15 @@
             </div>
 
             <div class="mb-3">
-                <label>Jam Mulai</label>
-                <input type="time" name="jam_mulai" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label>Jam Selesai</label>
-                <input type="time" name="jam_selesai" class="form-control" required>
+                <label>Jam Pelajaran</label>
+                <select name="jam" class="form-control" required>
+                    <option value="">-- pilih jam --</option>
+                    @foreach($jamList as $j)
+                        <option value="{{ $j['mulai'] }}|{{ $j['selesai'] }}">
+                            {{ $j['mulai'] }} - {{ $j['selesai'] }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <button class="btn btn-success">Simpan</button>

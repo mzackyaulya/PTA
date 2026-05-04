@@ -51,11 +51,18 @@ class MengajarController extends Controller
             'kelas_id' => 'required|exists:kelas,id'
         ]);
 
+        $jamList = [
+            ['mulai' => '07:00', 'selesai' => '08:30'],
+            ['mulai' => '08:30', 'selesai' => '10:00'],
+            ['mulai' => '10:10', 'selesai' => '12:00'],
+            ['mulai' => '13:00', 'selesai' => '15:00'],
+        ];
+
         $kelas = Kelas::findOrFail($request->kelas_id);
         $guru = Guru::with('user')->get();
         $mapel = Mapel::all();
 
-        return view('mengajar.create', compact('guru', 'kelas', 'mapel'));
+        return view('mengajar.create', compact('guru', 'kelas', 'mapel','jamList'));
     }
 
     public function store(Request $request)
@@ -65,9 +72,10 @@ class MengajarController extends Controller
             'kelas_id' => 'required|exists:kelas,id',
             'mapel_id' => 'required|exists:mapels,id',
             'hari' => 'required|string',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required|after:jam_mulai',
+            'jam' => 'required|string',
         ]);
+
+        [$jamMulai, $jamSelesai] = explode('|', $request->jam);
 
         $tahun = TahunAjaran::where('aktif', 1)->first();
 
@@ -81,8 +89,8 @@ class MengajarController extends Controller
             'mapel_id' => $request->mapel_id,
             'tahun_ajaran_id' => $tahun->id,
             'hari' => $request->hari,
-            'jam_mulai' => $request->jam_mulai,
-            'jam_selesai' => $request->jam_selesai
+            'jam_mulai' => $jamMulai,
+            'jam_selesai' => $jamSelesai,
         ]);
 
         return redirect()->route('mengajar.show', $request->kelas_id)

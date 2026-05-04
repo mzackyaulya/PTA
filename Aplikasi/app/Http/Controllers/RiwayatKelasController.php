@@ -51,6 +51,36 @@ class RiwayatKelasController extends Controller
         return view('riwayatkelas.index', compact('kelas', 'tahunAktif'));
     }
 
+    private function tahunAcuanPenempatan($tahunAktif)
+    {
+        if (!$tahunAktif) {
+            return null;
+        }
+
+        if (in_array(strtoupper($tahunAktif->semester), ['2', 'II'])) {
+            return TahunAjaran::where('tahun', $tahunAktif->tahun)
+                ->whereIn('semester', ['1', 'I'])
+                ->first();
+        }
+
+        $tahunMulai = (int) substr($tahunAktif->tahun, 0, 4);
+
+        return TahunAjaran::whereIn('semester', ['1', 'I'])
+            ->get()
+            ->filter(function ($ta) use ($tahunMulai) {
+                return (int) substr($ta->tahun, 0, 4) < $tahunMulai;
+            })
+            ->sortByDesc(function ($ta) {
+                return (int) substr($ta->tahun, 0, 4);
+            })
+            ->first();
+    }
+
+    private function harusNaikTingkat($tahunAktif)
+    {
+        return $tahunAktif && in_array(strtoupper($tahunAktif->semester), ['1', 'I']);
+    }
+
     public function create(Request $request)
     {
         $request->validate([
@@ -98,8 +128,27 @@ class RiwayatKelasController extends Controller
         return view('riwayatkelas.create', compact('siswa', 'kelasTujuan', 'tahunAktif'));
     }
 
+    private function ambilJurusan($namaKelas)
+    {
+        $namaKelas = strtoupper($namaKelas);
+
+        if (str_contains($namaKelas, 'IPA')) {
+            return 'IPA';
+        }
+
+        if (str_contains($namaKelas, 'IPS')) {
+            return 'IPS';
+        }
+
+        return null;
+    }
+
     public function getSiswa(Request $request)
     {
+        $request->validate([
+            'kelas_id' => 'required|exists:kelas,id'
+        ]);
+
         $kelasTujuan = Kelas::findOrFail($request->kelas_id);
         $tahunAktif = TahunAjaran::where('aktif', 1)->first();
 
@@ -107,38 +156,50 @@ class RiwayatKelasController extends Controller
             return response()->json([]);
         }
 
-        $tahunSebelumnya = TahunAjaran::where('id', '<', $tahunAktif->id)
-            ->orderBy('id', 'desc')
-            ->first();
-
         $tingkatTujuan = $this->ambilTingkat($kelasTujuan->tingkat);
+        $tahunAcuan = $this->tahunAcuanPenempatan($tahunAktif);
+        $jurusanTujuan = $this->ambilJurusan($kelasTujuan->nama_kelas);
 
+        // Kelas X hanya untuk siswa baru yang belum pernah ditempatkan
         if ($tingkatTujuan == 10) {
             $siswa = Siswa::with('user')
-                ->whereDoesntHave('riwayatKelas', function ($q) use ($tahunAktif) {
-                    $q->where('tahun_ajaran_id', $tahunAktif->id);
-                })
+                ->whereDoesntHave('riwayatKelas')
+                ->orderBy('id', 'desc')
                 ->get();
-        } else {
-            if (!$tahunSebelumnya) {
-                return response()->json([]);
-            }
 
-            $tingkatSebelumnya = $tingkatTujuan - 1;
-            $romawiSebelumnya = $this->romawi($tingkatSebelumnya);
-
-            $siswa = Siswa::with('user')
-                ->whereHas('riwayatKelas', function ($q) use ($tahunSebelumnya, $romawiSebelumnya) {
-                    $q->where('tahun_ajaran_id', $tahunSebelumnya->id)
-                    ->whereHas('kelas', function ($qKelas) use ($romawiSebelumnya) {
-                        $qKelas->where('tingkat', $romawiSebelumnya);
-                    });
-                })
-                ->whereDoesntHave('riwayatKelas', function ($q) use ($tahunAktif) {
-                    $q->where('tahun_ajaran_id', $tahunAktif->id);
-                })
-                ->get();
+            return response()->json($siswa);
         }
+
+        // Kalau kelas XI/XII tapi belum ada tahun acuan, kosong
+        if (!$tahunAcuan) {
+            return response()->json([]);
+        }
+
+        $tingkatAsal = $this->harusNaikTingkat($tahunAktif)
+            ? $tingkatTujuan - 1
+            : $tingkatTujuan;
+
+        $romawiAsal = $this->romawi($tingkatAsal);
+
+        $siswa = Siswa::with('user')
+            ->whereHas('riwayatKelas', function ($q) use ($tahunAcuan, $romawiAsal, $tingkatAsal, $jurusanTujuan) {
+                $q->where('tahun_ajaran_id', $tahunAcuan->id)
+                ->whereHas('kelas', function ($qKelas) use ($romawiAsal, $tingkatAsal, $jurusanTujuan) {
+                    $qKelas->whereIn('tingkat', [
+                        $romawiAsal,
+                        (string) $tingkatAsal
+                    ]);
+
+                    if ($jurusanTujuan) {
+                        $qKelas->where('nama_kelas', 'like', '%' . $jurusanTujuan . '%');
+                    }
+                });
+            })
+            ->whereDoesntHave('riwayatKelas', function ($q) use ($tahunAktif) {
+                $q->where('tahun_ajaran_id', $tahunAktif->id);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
 
         return response()->json($siswa);
     }

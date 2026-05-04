@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between">
         <div>
-            <h4>Tambah Siswa ke Kelas {{ $kelasTujuan->nama_kelas }}</h4>
+            <h4>Tambah Siswa ke Kelas{{ $kelasTujuan->nama_kelas }}</h4>
             <small class="text-muted">
                 Tahun Ajaran: {{ $tahunAktif->tahun }} ({{ $tahunAktif->semester }})
             </small>
