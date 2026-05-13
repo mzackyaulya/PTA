@@ -705,6 +705,16 @@
                                 </a>
                             </li>
                         @endif
+
+                        @if(in_array(auth()->user()->role, ['siswa', 'waka', 'admin']))
+                            <li class="nav-item mb-2">
+                                <a href="{{ route('surat.index') }}"
+                                class="{{ request()->is('surat*') ? 'active' : '' }}">
+                                    <i class="fas fa-envelope-open text-white"></i>
+                                    <p class="text-white">Surat</p>
+                                </a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>

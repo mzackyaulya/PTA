@@ -135,4 +135,14 @@ class Siswa extends Model
         return $this->hasMany(Absensi::class,'siswa_id');
     }
 
+    public function surats()
+    {
+        return $this->belongsToMany(
+            Surat::class,
+            'surat_siswas',
+            'siswa_id',
+            'surat_id'
+        )->withTimestamps();
+    }
+
 }

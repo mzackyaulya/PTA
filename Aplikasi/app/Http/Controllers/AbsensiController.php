@@ -31,6 +31,8 @@ class AbsensiController extends Controller
         $selectedPertemuan = null;
         $siswa = [];
         $barcode = null;
+        $rekapSiswa = [];
+        $jumlahPertemuan = 0;
 
         if ($request->mengajar_id) {
             $selectedJadwal = \App\Models\Mengajar::with(['kelas', 'mapel'])
@@ -67,6 +69,21 @@ class AbsensiController extends Controller
                 })
                 ->get();
 
+            $jumlahPertemuan = PertemuanAbsensi::where('mengajar_id', $selectedJadwal->id)->count();
+
+            $rekapSiswa = Siswa::with([
+                    'user',
+                    'absensi' => function ($q) use ($selectedJadwal) {
+                        $q->whereHas('pertemuan', function ($p) use ($selectedJadwal) {
+                            $p->where('mengajar_id', $selectedJadwal->id);
+                        })->with('pertemuan');
+                    }
+                ])
+                ->whereHas('riwayatKelas', function ($q) use ($kelasId) {
+                    $q->where('kelas_id', $kelasId);
+                })
+                ->get();
+
             if ($selectedPertemuan->is_started && !$selectedPertemuan->is_closed) {
                 $barcode = BarcodeAbsensi::create([
                     'pertemuan_id' => $selectedPertemuan->id,
@@ -81,7 +98,9 @@ class AbsensiController extends Controller
             'selectedJadwal',
             'selectedPertemuan',
             'siswa',
-            'barcode'
+            'barcode',
+            'rekapSiswa',
+            'jumlahPertemuan'
         ));
     }
 

@@ -64,6 +64,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(Guru::class);
     }
+
+    public function surats()
+    {
+        return $this->hasMany(Surat::class, 'user_id');
+    }
+
+    public function suratDireview()
+    {
+        return $this->hasMany(Surat::class, 'reviewed_by');
+    }
     protected function name(): Attribute
     {
         return Attribute::make(

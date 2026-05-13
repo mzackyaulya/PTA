@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RiwayatKelasController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
+use App\Http\Controllers\SuratController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -226,8 +227,25 @@ Route::middleware(['auth'])->group(function(){
 });
 /*
 |--------------------------------------------------------------------------
-| QR SCAN PUBLIC
+| SURAT
 |--------------------------------------------------------------------------
 */
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/surat', [SuratController::class, 'index'])->name('surat.index');
+    Route::get('/surat/create', [SuratController::class, 'create'])->name('surat.create');
+    Route::post('/surat', [SuratController::class, 'store'])->name('surat.store');
+
+    Route::get('/surat/{surat}', [SuratController::class, 'show'])->name('surat.show');
+    Route::get('/surat/{surat}/edit', [SuratController::class, 'edit'])->name('surat.edit');
+    Route::put('/surat/{surat}', [SuratController::class, 'update'])->name('surat.update');
+    Route::delete('/surat/{surat}', [SuratController::class, 'destroy'])->name('surat.destroy');
+
+    Route::post('/surat/{surat}/review', [SuratController::class, 'review'])->name('surat.review');
+    Route::post('/surat/{surat}/terima', [SuratController::class, 'terima'])->name('surat.terima');
+    Route::post('/surat/{surat}/tolak', [SuratController::class, 'tolak'])->name('surat.tolak');
+
+    Route::get('/surat/{surat}/download', [SuratController::class, 'download'])->name('surat.download');
+});
 
 require __DIR__.'/auth.php';

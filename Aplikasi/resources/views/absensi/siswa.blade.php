@@ -23,10 +23,6 @@
     .status-sakit { background:#17a2b8; }
     .status-alpa  { background:#dc3545; }
 
-    /* ===============================
-       POPUP SCANNER
-    =============================== */
-
     .scan-overlay {
         position: fixed;
         top: 0;
@@ -67,8 +63,6 @@
 
     <div class="card shadow-sm">
 
-        <!-- HEADER -->
-
         <div class="card-header d-flex justify-content-between align-items-center">
 
             <h5 class="mb-0">
@@ -83,133 +77,146 @@
         </div>
 
 
-        <!-- BODY -->
-
         <div class="card-body">
 
             @if($absensi->count() == 0)
 
                 <div class="alert alert-secondary text-center">
-                    Belum ada pertemuan sama sekali
+                    Belum ada pertemuan absensi
                 </div>
 
             @else
 
                 @php
-                    $grouped = $absensi->groupBy(function($item){
+                    $grouped = $absensi->filter(function($item){
+                        return $item->pertemuan
+                            && $item->pertemuan->mengajar
+                            && $item->pertemuan->mengajar->mapel;
+                    })->groupBy(function($item){
                         return $item->pertemuan->mengajar->mapel->nama;
                     });
 
-                    $maxPertemuan = $absensi->max(function($item){
+                    $maxPertemuan = $absensi->filter(function($item){
+                        return $item->pertemuan;
+                    })->max(function($item){
                         return $item->pertemuan->pertemuan_ke;
                     });
                 @endphp
 
+                @if($grouped->count() == 0)
 
-                <table class="table table-bordered text-center">
+                    <div class="alert alert-secondary text-center">
+                        Belum ada pertemuan absensi
+                    </div>
 
-                    <thead class="table-light">
+                @else
 
-                        <tr>
-                            <th rowspan="2">Mata Pelajaran</th>
-                            <th colspan="{{ $maxPertemuan }}">PERTEMUAN</th>
-                            <th rowspan="2">Persentase Kehadiran (%)</th>
-                        </tr>
+                    <table class="table table-bordered text-center">
 
-                        <tr>
-                            @for ($i = 1; $i <= $maxPertemuan; $i++)
-                                <th>{{ $i }}</th>
-                            @endfor
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @foreach($grouped as $mapel => $items)
-
-                            @php
-                                $total  = $items->count();
-                                $hadir  = $items->where('status','hadir')->count();
-                                $persen = $total > 0 ? round(($hadir / $total) * 100) : 0;
-                            @endphp
+                        <thead class="table-light">
 
                             <tr>
+                                <th rowspan="2">Mata Pelajaran</th>
+                                <th colspan="{{ $maxPertemuan }}">PERTEMUAN</th>
+                                <th rowspan="2">Persentase Kehadiran (%)</th>
+                            </tr>
 
-                                <td>{{ $mapel }}</td>
-
+                            <tr>
                                 @for ($i = 1; $i <= $maxPertemuan; $i++)
+                                    <th>{{ $i }}</th>
+                                @endfor
+                            </tr>
 
-                                    @php
-                                        $data = $items->firstWhere('pertemuan.pertemuan_ke',$i);
-                                    @endphp
+                        </thead>
 
-                                    <td
-                                        @if($data)
 
-                                            @if($data->status == 'hadir')
-                                                style="background:#28a745;color:white;font-weight:bold;font-size:18px;"
-                                            @elseif($data->status == 'izin')
-                                                style="background:#ffc107;color:black;font-weight:bold;font-size:18px;"
-                                            @elseif($data->status == 'sakit')
-                                                style="background:#17a2b8;color:white;font-weight:bold;font-size:18px;"
-                                            @elseif($data->status == 'alpa')
-                                                style="background:#dc3545;color:white;font-weight:bold;font-size:18px;"
+                        <tbody>
+
+                            @foreach($grouped as $mapel => $items)
+
+                                @php
+                                    $total  = $items->count();
+                                    $hadir  = $items->where('status','hadir')->count();
+                                    $persen = $total > 0 ? round(($hadir / $total) * 100) : 0;
+                                @endphp
+
+                                <tr>
+
+                                    <td>{{ $mapel }}</td>
+
+                                    @for ($i = 1; $i <= $maxPertemuan; $i++)
+
+                                        @php
+                                            $data = $items->firstWhere('pertemuan.pertemuan_ke',$i);
+                                        @endphp
+
+                                        <td
+                                            @if($data)
+
+                                                @if($data->status == 'hadir')
+                                                    style="background:#28a745;color:white;font-weight:bold;font-size:18px;"
+                                                @elseif($data->status == 'izin')
+                                                    style="background:#ffc107;color:black;font-weight:bold;font-size:18px;"
+                                                @elseif($data->status == 'sakit')
+                                                    style="background:#17a2b8;color:white;font-weight:bold;font-size:18px;"
+                                                @elseif($data->status == 'alpa')
+                                                    style="background:#dc3545;color:white;font-weight:bold;font-size:18px;"
+                                                @endif
+
+                                            @endif
+                                        >
+
+                                            @if($data)
+
+                                                @if($data->status == 'hadir') H
+                                                @elseif($data->status == 'izin') I
+                                                @elseif($data->status == 'sakit') S
+                                                @elseif($data->status == 'alpa') A
+                                                @endif
+
+                                            @else
+                                                -
                                             @endif
 
-                                        @endif
-                                    >
+                                        </td>
 
-                                        @if($data)
+                                    @endfor
 
-                                            @if($data->status == 'hadir') H
-                                            @elseif($data->status == 'izin') I
-                                            @elseif($data->status == 'sakit') S
-                                            @elseif($data->status == 'alpa') A
+
+                                    <td>
+
+                                        <span class="badge
+                                            @if($persen >= 80) bg-success
+                                            @elseif($persen >= 60) bg-warning text-dark
+                                            @else bg-danger
                                             @endif
-
-                                        @else
-                                            -
-                                        @endif
+                                        ">
+                                            {{ $persen }}%
+                                        </span>
 
                                     </td>
 
-                                @endfor
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
 
 
-                                <td>
+                    <div class="mt-3">
 
-                                    <span class="badge
-                                        @if($persen >= 80) bg-success
-                                        @elseif($persen >= 60) bg-warning text-dark
-                                        @else bg-danger
-                                        @endif
-                                    ">
-                                        {{ $persen }}%
-                                    </span>
+                        <strong>Keterangan :</strong>
 
-                                </td>
+                        <span class="badge bg-success">H</span> Hadir
+                        <span class="badge bg-warning text-dark">I</span> Izin
+                        <span class="badge bg-info">S</span> Sakit
+                        <span class="badge bg-danger">A</span> Alpa
 
-                            </tr>
+                    </div>
 
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
-
-                <div class="mt-3">
-
-                    <strong>Keterangan :</strong>
-
-                    <span class="badge bg-success">H</span> Hadir
-                    <span class="badge bg-warning text-dark">I</span> Izin
-                    <span class="badge bg-info">S</span> Sakit
-                    <span class="badge bg-danger">A</span> Alpa
-
-                </div>
+                @endif
 
             @endif
 
@@ -219,10 +226,6 @@
 
 </div>
 
-
-<!-- ===============================
-     POPUP SCANNER
-================================ -->
 
 <div class="scan-overlay" id="scannerPopup">
 

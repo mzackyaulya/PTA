@@ -30,11 +30,12 @@
 
             $hari = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
-            $jam = $jadwal->sortBy('jam_mulai')
-                ->map(function($j){
-                    return substr($j->jam_mulai,0,5).' - '.substr($j->jam_selesai,0,5);
-                })
-                ->unique();
+            $jam = [
+                '07:00 - 08:30',
+                '08:30 - 10:00',
+                '10:10 - 12:00',
+                '13:00 - 15:00',
+            ];
 
             $hariIni = now()->locale('id')->translatedFormat('l');
             $tanggalHariIni = now()->toDateString();
@@ -50,105 +51,119 @@
                     @foreach($hari as $h)
                         <th>{{ $h }}</th>
                     @endforeach
-
                 </tr>
             </thead>
 
             <tbody>
 
-            @foreach($jam as $j)
+                @foreach($jam as $j)
 
-                <tr>
+                    <tr>
 
-                    <td class="fw-bold">{{ $j }}</td>
+                        <td class="fw-bold">{{ $j }}</td>
 
-                    @foreach($hari as $h)
+                        @foreach($hari as $h)
 
-                    <td>
+                            <td>
 
-                        @foreach($jadwal as $item)
+                                @php
+                                    $jadwalItem = $jadwal->first(function($item) use ($h, $j) {
+                                        $jam_item = substr($item->jam_mulai, 0, 5).' - '.substr($item->jam_selesai, 0, 5);
 
-                            @php
-                                $jam_item = substr($item->jam_mulai,0,5).' - '.substr($item->jam_selesai,0,5);
+                                        return $item->hari == $h && $jam_item == $j;
+                                    });
+                                @endphp
 
-                                $pertemuan = PertemuanAbsensi::where('mengajar_id', $item->id)
-                                    ->whereDate('tanggal', $tanggalHariIni)
-                                    ->first();
+                                @if($jadwalItem)
 
-                                $jamMulai = Carbon::parse($tanggalHariIni.' '.$item->jam_mulai);
-                                $jamSelesai = Carbon::parse($tanggalHariIni.' '.$item->jam_selesai);
-                                $waktuValidasi = $jamMulai->copy()->subMinutes(5);
+                                    @php
+                                        $pertemuan = PertemuanAbsensi::where('mengajar_id', $jadwalItem->id)
+                                            ->whereDate('tanggal', $tanggalHariIni)
+                                            ->first();
 
-                                $bolehValidasi = $h == $hariIni
-                                    && $sekarang->between($waktuValidasi, $jamSelesai);
+                                        $jamMulai = Carbon::parse($tanggalHariIni.' '.$jadwalItem->jam_mulai);
+                                        $jamSelesai = Carbon::parse($tanggalHariIni.' '.$jadwalItem->jam_selesai);
+                                        $waktuValidasi = $jamMulai->copy()->subMinutes(5);
 
-                                $sudahSelesai = $h == $hariIni && $sekarang->gt($jamSelesai);
-                            @endphp
+                                        $bolehValidasi = $h == $hariIni
+                                            && $sekarang->between($waktuValidasi, $jamSelesai);
 
-                            @if($item->hari == $h && $jam_item == $j)
+                                        $sudahSelesai = $h == $hariIni && $sekarang->gt($jamSelesai);
+                                    @endphp
 
-                                <b>{{ $item->mapel->nama }}</b>
-                                <br>
-                                <small>{{ $item->kelas->nama_kelas }}</small>
-                                <br>
-                                <small class="text-muted">
-                                    {{ substr($item->jam_mulai,0,5) }} - {{ substr($item->jam_selesai,0,5) }}
-                                </small>
+                                    <b>{{ $jadwalItem->mapel->nama }}</b>
+                                    <br>
 
-                                <div class="mt-2">
+                                    <small>{{ $jadwalItem->kelas->nama_kelas }}</small>
+                                    <br>
 
-                                    @if($pertemuan && $pertemuan->is_started && !$pertemuan->is_closed)
+                                    <small class="text-muted">
+                                        {{ substr($jadwalItem->jam_mulai, 0, 5) }}
+                                        -
+                                        {{ substr($jadwalItem->jam_selesai, 0, 5) }}
+                                    </small>
 
-                                        <a href="{{ route('absensi.guru', ['mengajar_id' => $item->id]) }}"
-                                           class="btn btn-sm btn-success">
-                                            Absensi Terbuka
-                                        </a>
+                                    <div class="mt-2">
 
-                                    @elseif($pertemuan && $pertemuan->is_closed)
+                                        @if($pertemuan && $pertemuan->is_started && !$pertemuan->is_closed)
 
-                                        <button class="btn btn-sm btn-danger" disabled>
-                                            Pertemuan Selesai
-                                        </button>
+                                            <a href="{{ route('absensi.guru', ['mengajar_id' => $jadwalItem->id]) }}"
+                                               class="btn btn-sm btn-success">
+                                                Absensi Terbuka
+                                            </a>
 
-                                    @elseif($sudahSelesai)
+                                        @elseif($pertemuan && $pertemuan->is_closed)
 
-                                        <button class="btn btn-sm btn-danger" disabled>
-                                            Waktu Habis
-                                        </button>
-
-                                    @elseif($bolehValidasi)
-
-                                        <form action="{{ route('jadwal.validasiAbsensi', $item->id) }}"
-                                              method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                Validasi & Buka Absen
+                                            <button class="btn btn-sm btn-danger" disabled>
+                                                Pertemuan Selesai
                                             </button>
-                                        </form>
 
-                                    @else
+                                        @elseif($sudahSelesai)
 
-                                        <button class="btn btn-sm btn-secondary" disabled>
-                                            Belum Bisa Validasi
-                                        </button>
+                                            <button class="btn btn-sm btn-danger" disabled>
+                                                Waktu Habis
+                                            </button>
 
-                                    @endif
+                                        @elseif($bolehValidasi)
 
-                                </div>
+                                            <form action="{{ route('jadwal.validasiAbsensi', $jadwalItem->id) }}"
+                                                  method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    Validasi & Buka Absen
+                                                </button>
+                                            </form>
 
-                            @endif
+                                        @else
+
+                                            <button class="btn btn-sm btn-secondary" disabled>
+                                                Belum Bisa Validasi
+                                            </button>
+
+                                        @endif
+
+                                    </div>
+
+                                @else
+
+                                    <span class="text-muted">-</span>
+
+                                @endif
+
+                            </td>
 
                         @endforeach
 
-                    </td>
+                    </tr>
 
-                    @endforeach
-
-                </tr>
-            @endforeach
+                @endforeach
 
             </tbody>
+
         </table>
+
     </div>
+
 </div>
+
 @endsection

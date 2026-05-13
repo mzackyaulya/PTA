@@ -8,63 +8,73 @@
     <div class="card-header">
         <h4>Jadwal Pelajaran</h4>
     </div>
-<div class="card-body">
 
-    @php
-        $hari = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    <div class="card-body">
 
-        // ambil semua jam unik
-        $jam = $jadwal->sortBy('jam_mulai')
-                      ->map(function($j){
-                            return substr($j->jam_mulai,0,5).' - '.substr($j->jam_selesai,0,5);
-                      })
-                      ->unique();
-    @endphp
+        @php
+            $hari = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
-    <table class="table table-bordered text-center">
+            $jam = [
+                '07:00 - 08:30',
+                '08:30 - 10:00',
+                '10:10 - 12:00',
+                '13:00 - 15:00',
+            ];
+        @endphp
 
-        <thead class="table-dark">
-            <tr>
-                <th style="width:150px">Jam</th>
+        <table class="table table-bordered text-center">
 
-                @foreach($hari as $h)
-                    <th>{{ $h }}</th>
-                @endforeach
-            </tr>
-        </thead>
+            <thead class="table-dark">
+                <tr>
+                    <th style="width:150px">Jam</th>
 
-        <tbody>
-
-            @foreach($jam as $j)
-            <tr>
-
-                <td class="fw-bold">{{ $j }}</td>
-
-                @foreach($hari as $h)
-                <td>
-
-                    @foreach($jadwal as $item)
-
-                        @php
-                            $jam_item = substr($item->jam_mulai,0,5).' - '.substr($item->jam_selesai,0,5);
-                        @endphp
-
-                        @if($item->hari == $h && $jam_item == $j)
-
-                            <b>{{ $item->mapel->nama }}</b>
-                            <br>
-                            <small>{{ $item->guru->nama }}</small>
-
-                        @endif
-
+                    @foreach($hari as $h)
+                        <th>{{ $h }}</th>
                     @endforeach
+                </tr>
+            </thead>
 
-                </td>
+            <tbody>
+
+                @foreach($jam as $j)
+                    <tr>
+
+                        <td class="fw-bold">{{ $j }}</td>
+
+                        @foreach($hari as $h)
+                            <td>
+
+                                @php
+                                    $jadwalItem = $jadwal->first(function($item) use ($h, $j) {
+                                        $jam_item = substr($item->jam_mulai,0,5).' - '.substr($item->jam_selesai,0,5);
+
+                                        return $item->hari == $h && $jam_item == $j;
+                                    });
+                                @endphp
+
+                                @if($jadwalItem)
+
+                                    <b>{{ $jadwalItem->mapel->nama ?? '-' }}</b>
+                                    <br>
+                                    <small>{{ $jadwalItem->guru->nama ?? $jadwalItem->guru->user->name ?? '-' }}</small>
+
+                                @else
+
+                                    <span class="text-muted">-</span>
+
+                                @endif
+
+                            </td>
+                        @endforeach
+
+                    </tr>
                 @endforeach
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+
+            </tbody>
+
+        </table>
+
+    </div>
 </div>
-</div>
+
 @endsection
