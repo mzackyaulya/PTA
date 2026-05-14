@@ -708,11 +708,44 @@
 
                         @if(in_array(auth()->user()->role, ['siswa', 'waka', 'admin']))
                             <li class="nav-item mb-2">
-                                <a href="{{ route('surat.index') }}"
-                                class="{{ request()->is('surat*') ? 'active' : '' }}">
+
+                                <a data-bs-toggle="collapse" 
+                                href="#suratCollapse" 
+                                class="parent-menu {{ request()->is('surat*') ? 'active' : '' }}">
+
                                     <i class="fas fa-envelope-open text-white"></i>
                                     <p class="text-white">Surat</p>
+                                    <span class="caret"></span>
+
                                 </a>
+
+                                <div class="collapse px-4 {{ request()->is('surat*') ? 'show' : '' }}" 
+                                    id="suratCollapse">
+
+                                    <ul class="nav nav-collapse">
+
+                                        {{-- Menu Pengajuan (Create) --}}
+                                        <li>
+                                            <a href="{{ route('surat.create') }}" 
+                                            class="{{ request()->routeIs('surat.create') ? 'active' : '' }}">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Pengajuan</span>
+                                            </a>
+                                        </li>
+
+                                        {{-- Menu Riwayat (Index) --}}
+                                        <li>
+                                            <a href="{{ route('surat.index') }}" 
+                                            class="{{ request()->routeIs('surat.index') ? 'active' : '' }}">
+                                                <i class="fas fa-history"></i>
+                                                <span>Riwayat</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
                             </li>
                         @endif
                     </ul>
@@ -798,62 +831,99 @@
                 </li>
 
                 <li class="nav-item topbar-user dropdown hidden-caret">
-                  <a
-                    class="dropdown-toggle profile-pic"
-                    data-bs-toggle="dropdown"
-                    href="#"
-                    aria-expanded="false"
-                  >
-                    <div class="avatar-sm">
-                        <img
-                            src="{{ auth()->check() && auth()->user()?->siswa?->foto
-                                    ? asset('storage/'.auth()->user()->siswa->foto)
-                                    : url('assets/img/admin.png') }}"
-                            alt="Foto Profil"
-                            class="avatar-img rounded-circle"
-                        />
-                    </div>
-                    <span class="profile-username">
-                      <span class="text-white fw-bold">{{ Auth::user()->name }}</span>
-                    </span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user rounded animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
-                        <li>
-                            <div class="user-box">
-                                <div class="avatar-lg">
-                                    <img
-                                        src="{{ optional(auth()->user()->siswa)->foto
-                                                ? asset('storage/'.auth()->user()->siswa->foto)
-                                                : url('assets/img/admin.png') }}"
-                                        alt="image profile"
-                                        class="avatar-img rounded"
-                                    />
+    
+                    {{-- Logika untuk menentukan URL Foto Profil (Siswa atau Guru) --}}
+                    @php
+                        $profilePic = url('assets/img/admin.png'); // Foto default
+                        if (auth()->check()) {
+                            if (auth()->user()->role === 'siswa' && auth()->user()->siswa?->foto) {
+                                $profilePic = asset('storage/' . auth()->user()->siswa->foto);
+                            } elseif (auth()->user()->role === 'guru' && auth()->user()->guru?->foto) {
+                                $profilePic = asset('storage/' . auth()->user()->guru->foto);
+                            }
+                        }
+                    @endphp
+
+                    <a class="dropdown-toggle profile-pic d-flex align-items-center" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                        <div class="avatar-sm">
+                            <img src="{{ $profilePic }}" alt="Foto Profil" class="avatar-img rounded-circle" />
+                        </div>
+                        
+                        {{-- Tampilan Nama dan NISN/NIP (Sebelum Dropdown Dibuka) --}}
+                        <span class="profile-username ms-2 d-flex flex-column justify-content-center">
+                            <span class="text-white fw-bold" style="line-height: 1.2;">{{ Auth::user()->name }}</span>
+                            
+                            @if(auth()->user()->role === 'siswa')
+                                <small class="text-white fw-bold" style="font-size: 0.75rem;">
+                                    {{ auth()->user()->nisn ?? (auth()->user()->siswa->nis ?? '-') }}
+                                </small>
+                            @elseif(auth()->user()->role === 'guru')
+                                <small class="text-white fw-bold" style="font-size: 0.75rem;">
+                                    {{ auth()->user()->guru->nip ?? '-' }}
+                                </small>
+                            @endif
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-user rounded animated fadeIn">
+                        <div class="dropdown-user-scroll scrollbar-outer">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                        <img src="{{ $profilePic }}" alt="image profile" class="avatar-img rounded" />
+                                    </div>
+                                    
+                                    {{-- Tampilan Detail di Dalam Dropdown --}}
+                                    <div class="u-text">
+                                        <h4 class="mb-1">{{ Auth::user()->name }}</h4>
+                                        
+                                        @if(auth()->user()->role === 'siswa')
+                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->nisn ?? (auth()->user()->siswa->nis ?? '-') }}
+                                            </p>
+                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->siswa->jurusan ?? '-' }}
+                                            </p>
+                                        @elseif(auth()->user()->role === 'guru')
+                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->guru->nip ?? '-' }}
+                                            </p>
+                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->guru->jabatan ?? '-' }}
+                                            </p>
+                                        @else
+                                            {{-- Tampilan untuk Admin / Role Lainnya --}}
+                                            <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                                                {{ Auth::user()->email }}
+                                            </p>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="u-text">
-                                    <h4>{{ Auth::user()->name }}</h4>
-                                    <p class="text-muted">{{ Auth::user()->email }}</p>
-                                </div>
-                            </div>
-                        </li>
-                      <li>
-                        <div class="dropdown-divider"></div>
-                        @if(auth()->user()->role === 'siswa' || auth()->user()->role === 'guru')
-                            <a class="dropdown-item mb-1" href="{{ url('profile') }}"><i class="fas fa-user-circle me-2"></i>Profile</a>
-                        @endif
-                        <a class="dropdown-item mb-1" href="#"><i class="fas fa-unlock me-2"></i>Ganti Sandi</a>
-                        <a class="dropdown-item mb-1" href="#"><i class="fas fa-info-circle me-2"></i>Inbox</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fas fa-power-off me-2"></i>
-                            <span class="align-middle">Keluar</span>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                        </a>
-                      </li>
-                    </div>
-                  </ul>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                @if(auth()->user()->role === 'siswa' || auth()->user()->role === 'guru')
+                                    <a class="dropdown-item mb-1" href="{{ url('profile') }}">
+                                        <i class="fas fa-user-circle me-2"></i>Profile
+                                    </a>
+                                @endif
+                                <a class="dropdown-item mb-1" href="#">
+                                    <i class="fas fa-unlock me-2"></i>Ganti Sandi
+                                </a>
+                                <a class="dropdown-item mb-1" href="#">
+                                    <i class="fas fa-info-circle me-2"></i>Inbox
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-power-off me-2"></i>
+                                    <span class="align-middle">Keluar</span>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
                 </li>
               </ul>
             </div>
