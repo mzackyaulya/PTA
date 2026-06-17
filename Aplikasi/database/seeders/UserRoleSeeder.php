@@ -14,5 +14,6 @@ class UserRoleSeeder extends Seeder
         User::where('id', 1)->update(['role' => 'admin']);
         User::where('id', 2)->update(['role' => 'siswa']);
         User::where('id', 3)->update(['role' => 'guru']);
+        User::where('id', 4)->update(['role' => 'waka']);
     }
 }

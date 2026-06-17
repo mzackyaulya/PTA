@@ -23,6 +23,6 @@ class BarcodeAbsensi extends Model
 
     public function pertemuan()
     {
-        return $this->belongsTo(PertemuanAbsensi::class);
+        return $this->belongsTo(PertemuanAbsensi::class, 'pertemuan_id', 'id');
     }
 }

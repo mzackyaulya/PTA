@@ -135,6 +135,11 @@ class Siswa extends Model
         return $this->hasMany(Absensi::class,'siswa_id');
     }
 
+    public function nilai()
+    {
+        return $this->hasMany(Nilai::class, 'siswa_id', 'id');
+    }
+
     public function surats()
     {
         return $this->belongsToMany(

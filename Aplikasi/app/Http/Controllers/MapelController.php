@@ -36,7 +36,13 @@ class MapelController extends Controller
 
     public function update(Request $request, Mapel $mapel)
     {
-        $mapel->update($request->all());
+        $data = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'nullable|string|max:50',
+        ]);
+
+        $mapel->update($data);
+
         return redirect()->route('mapel.index')->with('success','Mapel diperbarui');
     }
 

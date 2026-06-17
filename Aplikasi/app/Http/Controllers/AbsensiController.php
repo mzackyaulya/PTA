@@ -320,43 +320,74 @@ class AbsensiController extends Controller
 
     public function scan($token)
     {
-        $barcode = BarcodeAbsensi::where('token',$token)->first();
+        $user = auth()->user();
 
-        if(!$barcode){
-            return response()->json(['status'=>'invalid']);
+        if (!$user || $user->role !== 'siswa') {
+            return response()->json([
+                'status' => 'login_required',
+                'message' => 'Harus login sebagai siswa'
+            ]);
         }
 
-        if(now()->greaterThan($barcode->expired_at)){
-            return response()->json(['status'=>'expired']);
+        $siswa = Siswa::where('user_id', $user->id)->first();
+
+        if (!$siswa) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'Data siswa tidak ditemukan'
+            ]);
         }
 
-        if(!auth()->check()){
-            return response()->json(['status'=>'login_required']);
+        $barcode = BarcodeAbsensi::with('pertemuan')
+            ->where('token', $token)
+            ->first();
+
+        if (!$barcode) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'QR tidak valid'
+            ]);
         }
 
-        $pertemuan = $barcode->pertemuan;
-
-        if(!$pertemuan || !$pertemuan->is_started){
-            return response()->json(['status'=>'belum_dimulai']);
+        if ($barcode->expired_at && now()->gt($barcode->expired_at)) {
+            return response()->json([
+                'status' => 'expired',
+                'message' => 'QR sudah expired'
+            ]);
         }
 
-        if($pertemuan->is_closed){
-            return response()->json(['status'=>'ditutup']);
+        if (!$barcode->pertemuan) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'Pertemuan tidak ditemukan'
+            ]);
         }
 
-        $siswa = auth()->user()->siswa;
-
-        if(!$siswa){
-            return response()->json(['status'=>'bukan_siswa']);
+        if (!$barcode->pertemuan->is_approved || !$barcode->pertemuan->is_started || $barcode->pertemuan->is_closed) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'Absensi belum dibuka atau sudah ditutup'
+            ]);
         }
 
-        // hanya kirim info ke halaman guru
+        Absensi::updateOrCreate(
+            [
+                'pertemuan_id' => $barcode->pertemuan_id,
+                'siswa_id' => $siswa->id,
+            ],
+            [
+                'status' => 'hadir',
+                'scan_barcode' => true,
+            ]
+        );
+
         $barcode->update([
             'last_scan_siswa' => $siswa->id
         ]);
 
         return response()->json([
-            'status'=>'success'
+            'status' => 'success',
+            'message' => 'Absensi berhasil disimpan'
         ]);
     }
 
@@ -391,10 +422,23 @@ class AbsensiController extends Controller
     {
         $siswa = auth()->user()->siswa;
 
-        $absensi = Absensi::with('pertemuan.mengajar.mapel')
-                ->where('siswa_id',$siswa->id)
-                ->get();
+        $tahunAktif = \App\Models\TahunAjaran::where('aktif', 1)->first();
 
-        return view('absensi.siswa',compact('absensi'));
+        $absensi = collect();
+
+        if ($siswa && $tahunAktif) {
+            $absensi = Absensi::with([
+                    'pertemuan.mengajar.mapel',
+                    'pertemuan.mengajar.kelas',
+                    'pertemuan.mengajar.guru'
+                ])
+                ->where('siswa_id', $siswa->id)
+                ->whereHas('pertemuan.mengajar', function ($query) use ($tahunAktif) {
+                    $query->where('tahun_ajaran_id', $tahunAktif->id);
+                })
+                ->get();
+        }
+
+        return view('absensi.siswa', compact('absensi', 'tahunAktif'));
     }
 }

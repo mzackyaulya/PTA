@@ -29,26 +29,34 @@
                 
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label font-weight-bold">NIS</label>
-                        <input type="text" class="form-control rounded-pill bg-light" value="{{ Auth::user()->siswa->nis ?? '-' }}" readonly>
+                        <label class="form-label font-weight-bold">NIS <span class="text-danger">*</span></label>
+                        @if(auth()->user()->role === 'siswa')
+                            <input type="text" class="form-control rounded-pill bg-light" value="{{ Auth::user()->siswa->nis ?? '-' }}" readonly>
+                            <input type="hidden" name="pengaju_user_id" value="{{ Auth::id() }}">
+                        @else
+                            <input type="text" name="nis_pengaju" id="nis_pengaju" class="form-control rounded-pill {{ $errors->has('nis_pengaju') ? 'is-invalid' : '' }}" value="{{ old('nis_pengaju') }}" placeholder="Masukkan NIS Siswa Pemohon" required>
+                            <input type="hidden" name="pengaju_user_id" id="pengaju_user_id" value="{{ old('pengaju_user_id') }}" required>
+                        @endif
                     </div>
+                    
                     <div class="col-md-6 mb-3">
                         <label class="form-label font-weight-bold">Nama Lengkap</label>
-                        <input type="text" class="form-control rounded-pill bg-light" value="{{ Auth::user()->name ?? '-' }}" readonly>
+                        <input type="text" id="nama_pengaju" class="form-control rounded-pill bg-light" value="{{ auth()->user()->role === 'siswa' ? (Auth::user()->name ?? '-') : '' }}" readonly>
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label font-weight-bold">No. HP</label>
-                        <input type="text" class="form-control rounded-pill bg-light" value="{{ Auth::user()->siswa->nohp ?? '-' }}" readonly>
+                        <input type="text" id="nohp_pengaju" class="form-control rounded-pill bg-light" value="{{ auth()->user()->role === 'siswa' ? (Auth::user()->siswa->nohp ?? '-') : '' }}" readonly>
                     </div>
+                    
                     <div class="col-md-6 mb-3">
                         <label class="form-label font-weight-bold">Tanggal Lahir</label>
-                        <input type="text" class="form-control rounded-pill bg-light" value="{{ isset(Auth::user()->siswa->tanggal_lahir) ? \Carbon\Carbon::parse(Auth::user()->siswa->tanggal_lahir)->translatedFormat('d F Y') : '-' }}" readonly>
+                        <input type="text" id="tgl_lahir_pengaju" class="form-control rounded-pill bg-light" value="{{ auth()->user()->role === 'siswa' ? (isset(Auth::user()->siswa->tanggal_lahir) ? \Carbon\Carbon::parse(Auth::user()->siswa->tanggal_lahir)->translatedFormat('d F Y') : '-') : '' }}" readonly>
                     </div>
 
                     <div class="col-md-12 mb-2">
                         <label class="form-label font-weight-bold">Alamat</label>
-                        <input type="text" class="form-control bg-light" value="{{ Auth::user()->siswa->alamat ?? '-' }}" readonly>
+                        <input type="text" id="alamat_pengaju" class="form-control bg-light" value="{{ auth()->user()->role === 'siswa' ? (Auth::user()->siswa->alamat ?? '-') : '' }}" readonly>
                     </div>
                 </div>
 
@@ -88,9 +96,9 @@
             </div>
         </div>
 
-        <div class="card " id="form_details" style="display: none;">
+        <div class="card shadow mb-4" id="form_details" style="display: none;">
             <div class="card-body">
-                <h6 class="m-0 font-weight-bold mb-3 fw-bold">Informasi Detail Pengajuan</h6>
+                <h6 class="m-0 font-weight-bold mb-3 text-gray-800">Informasi Detail Pengajuan</h6>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label font-weight-bold">Judul Surat <span class="text-danger">*</span></label>
@@ -135,26 +143,32 @@
                     {{-- Checkbox Kelompok & Form Dinamis Anggota --}}
                     <div class="col-md-12 mb-3">
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="is_kelompok" name="is_kelompok" value="1">
-                            <label class="form-check-label fw-bold " for="is_kelompok">
-                                <i class="fas fa-users me-1"></i> Project Mandiri Berkelompok / Tim
+                            <input class="form-check-input" type="checkbox" id="is_kelompok" name="is_kelompok" value="1" {{ old('is_kelompok') == '1' ? 'checked' : '' }}>
+                            <label class="form-check-label font-weight-bold text-gray-800" for="is_kelompok">
+                                <i class="fas fa-users mr-1"></i> Project Mandiri Berkelompok / Tim
                             </label>
                         </div>
 
-                        {{-- Container Anggota Tim (Disembunyikan secara default) --}}
-                        <div id="anggota_tim_container" class="p-3 border rounded bg-light" style="display: none;">          
+                        {{-- Container Anggota Tim --}}
+                        <div id="anggota_tim_container" class="p-3 border rounded bg-light" style="display: none;">         
+                            
+                            <div class="row mb-1 font-weight-bold text-gray-700 d-none d-md-flex">
+                                <div class="col-md-4">NIS Partner</div>
+                                <div class="col-md-7">Nama Partner</div>
+                                <div class="col-md-1">Aksi</div>
+                            </div>
+
                             <div id="dynamic_fields">
-                                {{-- Baris Input Pertama --}}
+                                {{-- Baris Input Pertama (Default) --}}
                                 <div class="row mb-2 anggota-row">
                                     <div class="col-md-4 mb-2">
-                                        <label class=" mb-1 fw-bold"> NIS Patner </label>
-                                        <input type="text" class="form-control nis-input" placeholder="Masukkan NIS Patner">
-                                        {{-- Input hidden ini yang akan dikirim ke controller sebagai siswa_ids[] --}}
+                                        <span class="d-md-none font-weight-bold mb-1 d-block">NIS Partner</span>
+                                        <input type="text" class="form-control nis-input" placeholder="Masukkan NIS Partner">
                                         <input type="hidden" name="siswa_ids[]" class="siswa-id-hidden">
                                     </div>
                                     <div class="col-md-7 mb-2">
-                                        <label class=" mb-1 fw-bold"> Nama Patner </label>
-                                        <input type="text" class="form-control nama-input bg-white" placeholder="Nama Patner" readonly>
+                                        <span class="d-md-none font-weight-bold mb-1 d-block">Nama Partner</span>
+                                        <input type="text" class="form-control nama-input bg-white" placeholder="Nama Partner otomatis muncul" readonly>
                                     </div>
                                     <div class="col-md-1 mb-2 d-flex align-items-center">
                                         {{-- Kosong untuk baris pertama agar tidak bisa dihapus --}}
@@ -168,7 +182,6 @@
                             <small class="d-block mt-2 text-muted">* Ketik NIS dengan benar agar Nama Siswa otomatis muncul.</small>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="mt-3">
@@ -188,11 +201,28 @@
     .card-active .icon-surat { color: #4e73df !important; }
 </style>
 
+{{-- LAKUKAN MAPPING DATA PHP DI SINI AGAR TIDAK MEMBUAT COMPILER BLADE ERROR --}}
+@php
+    $siswaJsonData = $siswas->mapWithKeys(function($s) {
+        return [$s->nis => [
+            'id' => $s->id,
+            'user_id' => $s->user->id ?? '',
+            'name' => $s->user->name ?? 'Nama tidak tersedia',
+            'nohp' => $s->nohp ?? '-',
+            'tanggal_lahir' => isset($s->tanggal_lahir) ? \Carbon\Carbon::parse($s->tanggal_lahir)->translatedFormat('d F Y') : '-',
+            'alamat' => $s->alamat ?? '-'
+        ]];
+    });
+@endphp
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.jenis-surat-card');
     const inputJenisSurat = document.getElementById('jenis_surat');
     const formDetails = document.getElementById('form_details');
+
+    // Memanggil variabel yang sudah bersih dan matang dari blok @php di atas
+    const siswaData = @json($siswaJsonData);
 
     function selectCard(type) {
         cards.forEach(c => c.classList.remove('card-active'));
@@ -202,12 +232,13 @@ document.addEventListener('DOMContentLoaded', function() {
         inputJenisSurat.value = type;
         formDetails.style.display = 'block';
         toggleSpecificFields(type);
-        formDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function toggleSpecificFields(jenisSurat) {
         const fieldPelatih = document.getElementById('field_pelatih');
         const fieldOrganisasi = document.getElementById('field_organisasi');
+        
+        // Reset default tampil
         fieldPelatih.style.display = 'block';
         fieldOrganisasi.style.display = 'block';
 
@@ -215,49 +246,97 @@ document.addEventListener('DOMContentLoaded', function() {
             fieldPelatih.style.display = 'none';
         } else if (jenisSurat === 'dispensasi' || jenisSurat === 'permohonan_lomba') {
             fieldOrganisasi.style.display = 'none';
+        } else if (jenisSurat === 'keterangan' || jenisSurat === 'lainnya') {
+            fieldPelatih.style.display = 'none';
+            fieldOrganisasi.style.display = 'none';
         }
     }
 
     cards.forEach(card => {
         card.addEventListener('click', function() {
             selectCard(this.dataset.type);
+            formDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 
+    // Jalankan jika ada nilai lama (old data jenis surat)
     if (inputJenisSurat.value) {
         selectCard(inputJenisSurat.value);
     }
 
-    // === FITUR ANGGOTA KELOMPOK DINAMIS ===
-    
-    // 1. Ubah data siswa dari database PHP ke format Object JavaScript
-    const siswaData = {};
-    @foreach($siswas as $s)
-        siswaData["{{ $s->nis }}"] = {
-            id: "{{ $s->id }}",
-            name: "{{ $s->user->name ?? 'Nama tidak tersedia' }}"
-        };
-    @endforeach
+    // === FITUR AUTO-FILL DATA PENGAJU UNTUK ADMIN / WAKA ===
+    const nisPengaju = document.getElementById('nis_pengaju');
+    if (nisPengaju) {
+        function autoFillPengaju(nis) {
+            const namaInput = document.getElementById('nama_pengaju');
+            const nohpInput = document.getElementById('nohp_pengaju');
+            const tglLahirInput = document.getElementById('tgl_lahir_pengaju');
+            const alamatInput = document.getElementById('alamat_pengaju');
+            const userIdHidden = document.getElementById('pengaju_user_id');
 
+            if (siswaData[nis]) {
+                namaInput.value = siswaData[nis].name;
+                nohpInput.value = siswaData[nis].nohp;
+                tglLahirInput.value = siswaData[nis].tanggal_lahir;
+                alamatInput.value = siswaData[nis].alamat;
+                userIdHidden.value = siswaData[nis].user_id;
+                
+                nisPengaju.classList.remove('is-invalid');
+                nisPengaju.classList.add('is-valid');
+            } else {
+                namaInput.value = '';
+                nohpInput.value = '';
+                tglLahirInput.value = '';
+                alamatInput.value = '';
+                userIdHidden.value = '';
+                
+                nisPengaju.classList.remove('is-valid');
+                if (nis.length > 0) {
+                    nisPengaju.classList.add('is-invalid');
+                }
+            }
+        }
+
+        nisPengaju.addEventListener('input', function() {
+            autoFillPengaju(this.value.trim());
+        });
+
+        if(nisPengaju.value) {
+            autoFillPengaju(nisPengaju.value.trim());
+        }
+    }
+
+    // === FITUR ANGGOTA KELOMPOK DINAMIS ===
     const cbKelompok = document.getElementById('is_kelompok');
     const containerTim = document.getElementById('anggota_tim_container');
     const btnAddAnggota = document.getElementById('btn_add_anggota');
     const wrapper = document.getElementById('dynamic_fields');
 
-    // 2. Munculkan/Sembunyikan form tim saat checkbox di klik
+    function toggleAnggotaInputs(isEnabled) {
+        const inputs = containerTim.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.disabled = !isEnabled;
+        });
+    }
+
     cbKelompok.addEventListener('change', function() {
         if (this.checked) {
             containerTim.style.display = 'block';
+            toggleAnggotaInputs(true);
         } else {
             containerTim.style.display = 'none';
-            // Opsional: Bersihkan input jika batal centang
+            toggleAnggotaInputs(false);
+            
+            // Reset fields
             document.querySelectorAll('.nis-input').forEach(input => input.value = '');
-            document.querySelectorAll('.nama-input').forEach(input => input.value = '');
+            document.querySelectorAll('.nama-input').forEach(input => {
+                input.value = '';
+                input.classList.remove('is-valid');
+            });
             document.querySelectorAll('.siswa-id-hidden').forEach(input => input.value = '');
         }
     });
 
-    // 3. Fungsi untuk mencari nama berdasarkan NIS yang diketik
     function attachNisListener(inputElement) {
         inputElement.addEventListener('input', function() {
             const nis = this.value.trim();
@@ -265,10 +344,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const namaInput = row.querySelector('.nama-input');
             const idHidden = row.querySelector('.siswa-id-hidden');
             
-            // Jika NIS ada di data siswa
             if (siswaData[nis]) {
                 namaInput.value = siswaData[nis].name;
-                idHidden.value = siswaData[nis].id; // Masukkan ID ke hidden input untuk backend
+                idHidden.value = siswaData[nis].id;
                 namaInput.classList.add('is-valid');
             } else {
                 namaInput.value = '';
@@ -278,35 +356,69 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Terapkan fungsi ke input baris pertama
-    document.querySelectorAll('.nis-input').forEach(attachNisListener);
-
-    // 4. Tambah baris anggota baru jika tombol '+' diklik
-    btnAddAnggota.addEventListener('click', function() {
+    function addNewRow(nisValue = '', idValue = '', namaValue = '') {
         const newRow = document.createElement('div');
         newRow.className = 'row mb-2 anggota-row';
         newRow.innerHTML = `
             <div class="col-md-4 mb-2">
-                <input type="text" class="form-control nis-input" placeholder="Masukkan NIS">
-                <input type="hidden" name="siswa_ids[]" class="siswa-id-hidden">
+                <span class="d-md-none font-weight-bold mb-1 d-block">NIS Partner</span>
+                <input type="text" class="form-control nis-input" placeholder="Masukkan NIS Partner" value="${nisValue}">
+                <input type="hidden" name="siswa_ids[]" class="siswa-id-hidden" value="${idValue}">
             </div>
             <div class="col-md-7 mb-2">
-                <input type="text" class="form-control nama-input bg-white" placeholder="Nama siswa otomatis tampil" readonly>
+                <span class="d-md-none font-weight-bold mb-1 d-block">Nama Partner</span>
+                <input type="text" class="form-control nama-input bg-white ${namaValue ? 'is-valid' : ''}" placeholder="Nama Partner" value="${namaValue}" readonly>
             </div>
             <div class="col-md-1 mb-2 d-flex align-items-center">
                 <button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>
             </div>
         `;
         wrapper.appendChild(newRow);
-        
-        // Aktifkan fitur cari NIS di baris baru
         attachNisListener(newRow.querySelector('.nis-input'));
         
-        // Aktifkan tombol hapus di baris baru
         newRow.querySelector('.remove-row').addEventListener('click', function() {
             newRow.remove();
         });
+    }
+
+    // Terapkan listener ke baris pertama bawaan HTML
+    document.querySelectorAll('.nis-input').forEach(attachNisListener);
+
+    btnAddAnggota.addEventListener('click', function() {
+        addNewRow();
     });
+
+    // === RESTORE OLD DATA KELOMPOK JIKA VALIDASI GAGAL ===
+    const oldSiswaIds = @json(old('siswa_ids', []));
+    if (cbKelompok.checked) {
+        containerTim.style.display = 'block';
+        toggleAnggotaInputs(true);
+
+        if (oldSiswaIds.length > 0) {
+            // Isi baris pertama
+            const firstRow = wrapper.querySelector('.anggota-row');
+            const firstId = oldSiswaIds[0];
+            let firstNis = Object.keys(siswaData).find(key => siswaData[key].id == firstId);
+            
+            if (firstNis) {
+                firstRow.querySelector('.nis-input').value = firstNis;
+                firstRow.querySelector('.siswa-id-hidden').value = firstId;
+                firstRow.querySelector('.nama-input').value = siswaData[firstNis].name;
+                firstRow.querySelector('.nama-input').classList.add('is-valid');
+            }
+
+            // Generate baris berikutnya jika ada sisa data lama
+            for (let i = 1; i < oldSiswaIds.length; i++) {
+                const id = oldSiswaIds[i];
+                let nis = Object.keys(siswaData).find(key => siswaData[key].id == id);
+                if (nis) {
+                    addNewRow(nis, id, siswaData[nis].name);
+                }
+            }
+        }
+    } else {
+        toggleAnggotaInputs(false); // Matikan input jika di awal load tidak dicentang
+    }
 });
 </script>
 @endsection

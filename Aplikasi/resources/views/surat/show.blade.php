@@ -1,11 +1,13 @@
 @extends('layout.main')
 
+@section('title','Detail Surat')
+
 @section('content')
 <div class="container-fluid">
 
+    {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">Detail Surat Permohonan</h4>
-
         <a href="{{ route('surat.index') }}" class="btn btn-secondary">
             Kembali
         </a>
@@ -29,13 +31,14 @@
 
     {{-- Error Validasi --}}
     @if ($errors->any())
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>Terjadi kesalahan!</strong>
             <ul class="mb-0 mt-2">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -44,12 +47,12 @@
         {{-- Detail Surat --}}
         <div class="col-md-8">
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-light">
                     <strong>Informasi Surat</strong>
                 </div>
 
                 <div class="card-body">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered mb-0">
                         <tr>
                             <th width="30%">Kode Surat</th>
                             <td>{{ $surat->kode_surat ?? '-' }}</td>
@@ -151,13 +154,13 @@
 
             {{-- Siswa Terkait --}}
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-light">
                     <strong>Siswa yang Terlibat</strong>
                 </div>
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover align-middle">
+                        <table class="table table-bordered table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">No</th>
@@ -187,7 +190,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">
+                                        <td colspan="4" class="text-center text-muted">
                                             Tidak ada siswa terkait.
                                         </td>
                                     </tr>
@@ -202,14 +205,14 @@
         {{-- Panel Aksi --}}
         <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-light">
                     <strong>Aksi Surat</strong>
                 </div>
 
                 <div class="card-body">
 
-                    {{-- Tombol siswa --}}
-                    @if (auth()->user()->role === 'siswa')
+                    {{-- 1. Tombol Akses SISWA --}}
+                    @if (strtolower(auth()->user()->role) === 'siswa')
                         @if ($surat->status === 'pending')
                             <a href="{{ route('surat.edit', $surat->id) }}" class="btn btn-warning w-100 mb-2">
                                 Edit Surat
@@ -245,63 +248,67 @@
                         @endif
 
                         @if ($surat->status === 'pending')
-                            <div class="alert alert-warning mb-0">
+                            <div class="alert alert-warning mb-0 mt-2">
                                 Surat masih menunggu review Waka.
                             </div>
                         @endif
                     @endif
 
-                    {{-- Tombol waka/admin --}}
-                    @if (in_array(auth()->user()->role, ['waka', 'admin']))
+
+                    {{-- 2. Tombol Akses KHUSUS WAKA (Review, Terima, Tolak) --}}
+                    @if (strtolower(auth()->user()->role) === 'waka')
 
                         @if ($surat->status === 'pending')
-                            <form action="{{ route('surat.review', $surat->id) }}" method="POST" class="mb-2">
+                            <form action="{{ route('surat.review', $surat->id) }}" method="POST" class="mb-3">
                                 @csrf
                                 <button type="submit" class="btn btn-primary w-100">
-                                    Tandai Review
+                                    Tandai Sedang Direview
                                 </button>
                             </form>
                         @endif
 
                         @if (in_array($surat->status, ['pending', 'review']))
-                            <form action="{{ route('surat.terima', $surat->id) }}" method="POST" class="mb-2"
+                            {{-- Form Terima Surat --}}
+                            <form action="{{ route('surat.terima', $surat->id) }}" method="POST" class="mb-3"
                                   onsubmit="return confirm('Yakin ingin menerima surat ini?')">
                                 @csrf
-
                                 <div class="mb-2">
-                                    <label class="form-label">Catatan Waka Opsional</label>
+                                    <label class="form-label">Catatan (Opsional)</label>
                                     <textarea name="catatan_waka" class="form-control" rows="3"
                                               placeholder="Catatan jika diperlukan...">{{ old('catatan_waka', $surat->catatan_waka) }}</textarea>
                                 </div>
-
                                 <button type="submit" class="btn btn-success w-100">
                                     Terima Surat
                                 </button>
                             </form>
 
-                            <hr>
+                            <hr class="my-3">
 
+                            {{-- Form Tolak Surat --}}
                             <form action="{{ route('surat.tolak', $surat->id) }}" method="POST"
                                   onsubmit="return confirm('Yakin ingin menolak surat ini?')">
                                 @csrf
-
                                 <div class="mb-2">
                                     <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
                                     <textarea name="catatan_waka" class="form-control" rows="3"
                                               placeholder="Masukkan alasan penolakan..." required>{{ old('catatan_waka') }}</textarea>
                                 </div>
-
                                 <button type="submit" class="btn btn-danger w-100">
                                     Tolak Surat
                                 </button>
                             </form>
                         @endif
 
+                    @endif
+
+
+                    {{-- 3. Info Status & Download untuk ADMIN dan WAKA --}}
+                    @if (in_array(strtolower(auth()->user()->role), ['waka', 'admin']))
+                        
                         @if ($surat->status === 'selesai')
                             <a href="{{ route('surat.download', $surat->id) }}" class="btn btn-success w-100 mb-2">
                                 Download Surat
                             </a>
-
                             <div class="alert alert-success mb-0">
                                 Surat sudah selesai dan dapat diunduh.
                             </div>
@@ -309,7 +316,14 @@
 
                         @if ($surat->status === 'ditolak')
                             <div class="alert alert-danger mb-0">
-                                Surat sudah ditolak.
+                                Surat telah ditolak.
+                            </div>
+                        @endif
+
+                        {{-- Pesan khusus Admin jika surat masih diproses Waka --}}
+                        @if (strtolower(auth()->user()->role) === 'admin' && in_array($surat->status, ['pending', 'review']))
+                            <div class="alert alert-info mb-0">
+                                Surat saat ini sedang dalam status <strong>{{ ucfirst($surat->status) }}</strong> oleh Waka.
                             </div>
                         @endif
 
@@ -320,7 +334,7 @@
 
             {{-- Ringkasan Status --}}
             <div class="card">
-                <div class="card-header">
+                <div class="card-header bg-light">
                     <strong>Ringkasan</strong>
                 </div>
 

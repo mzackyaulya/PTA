@@ -59,10 +59,10 @@ class MengajarController extends Controller
         ];
 
         $kelas = Kelas::findOrFail($request->kelas_id);
-        $guru = Guru::with('user')->get();
+        $guru = Guru::with('user')->where('status_guru', 'aktif')->get();
         $mapel = Mapel::all();
 
-        return view('mengajar.create', compact('guru', 'kelas', 'mapel','jamList'));
+        return view('mengajar.create', compact('guru', 'kelas', 'mapel', 'jamList'));
     }
 
     public function store(Request $request)
@@ -80,7 +80,51 @@ class MengajarController extends Controller
         $tahun = TahunAjaran::where('aktif', 1)->first();
 
         if (!$tahun) {
-            return back()->with('error', 'Tahun ajaran aktif belum diatur.');
+            return back()
+                ->withInput()
+                ->with('error', 'Tahun ajaran aktif belum diatur.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek bentrok guru
+        |--------------------------------------------------------------------------
+        | Guru yang sama tidak boleh mengajar di hari dan jam yang sama
+        */
+        $bentrokGuru = Mengajar::where('guru_id', $request->guru_id)
+            ->where('tahun_ajaran_id', $tahun->id)
+            ->where('hari', $request->hari)
+            ->where(function ($q) use ($jamMulai, $jamSelesai) {
+                $q->where('jam_mulai', '<', $jamSelesai)
+                  ->where('jam_selesai', '>', $jamMulai);
+            })
+            ->exists();
+
+        if ($bentrokGuru) {
+            return back()
+                ->withInput()
+                ->with('error', 'Jadwal bentrok. Guru ini sudah memiliki jadwal mengajar pada hari dan jam tersebut.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek bentrok kelas
+        |--------------------------------------------------------------------------
+        | Kelas yang sama tidak boleh punya dua pelajaran di hari dan jam yang sama
+        */
+        $bentrokKelas = Mengajar::where('kelas_id', $request->kelas_id)
+            ->where('tahun_ajaran_id', $tahun->id)
+            ->where('hari', $request->hari)
+            ->where(function ($q) use ($jamMulai, $jamSelesai) {
+                $q->where('jam_mulai', '<', $jamSelesai)
+                  ->where('jam_selesai', '>', $jamMulai);
+            })
+            ->exists();
+
+        if ($bentrokKelas) {
+            return back()
+                ->withInput()
+                ->with('error', 'Jadwal bentrok. Kelas ini sudah memiliki pelajaran pada hari dan jam tersebut.');
         }
 
         Mengajar::create([

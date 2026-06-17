@@ -7,9 +7,23 @@
         <h4>Tambah Jadwal Mengajar</h4>
     </div>
 
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="card-body">
         <form method="POST" action="{{ route('mengajar.store') }}">
             @csrf
+
+            <input type="hidden" name="tahun_ajaran_id" value="{{ $tahunAjaranAktif->id ?? '' }}">
 
             <div class="mb-3">
                 <label>Guru</label>
@@ -41,13 +55,14 @@
 
             <div class="mb-3">
                 <label>Hari</label>
-                <select name="hari" class="form-control">
-                    <option>Senin</option>
-                    <option>Selasa</option>
-                    <option>Rabu</option>
-                    <option>Kamis</option>
-                    <option>Jumat</option>
-                    <option>Sabtu</option>
+                <select name="hari" class="form-control" required>
+                    <option value="">-- pilih hari --</option>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
                 </select>
             </div>
 
@@ -64,6 +79,7 @@
             </div>
 
             <button class="btn btn-success">Simpan</button>
+            <a href="{{ route('mengajar.index')}}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 </div>

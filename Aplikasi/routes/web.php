@@ -48,6 +48,19 @@ Route::get('/dashboard', [DashboardController::class,'index'])
 ->middleware(['auth','verified'])
 ->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/banner/hide-session', [BannerController::class, 'hideSession'])
+        ->name('banner.hideSession');
+        
+    Route::get('/announcements/{id}/preview', [AnnouncementsController::class, 'preview'])
+        ->name('announcements.preview');
+
+    Route::get('/announcements/{id}/pdf-viewer', [AnnouncementsController::class, 'pdfViewer'])
+        ->name('announcements.pdfViewer');
+
+    Route::get('/announcements/{id}/excel-viewer', [AnnouncementsController::class, 'excelViewer'])
+        ->name('announcements.excelViewer');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +75,7 @@ Route::middleware(['auth'])->group(function(){
     Route::put('/profile/update',[ProfileController::class,'update'])->name('profile.update');
 
 });
+
 
 
 /*
@@ -93,13 +107,16 @@ Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
     Route::resource('announcements', AnnouncementsController::class)
         ->only(['index','create','store']);
 
+    
+
     Route::resource('banners', BannerController::class)
         ->only(['create','store','edit','update']);
 
-    Route::resource('nilai', NilaiController::class)
-        ->only(['index','show']);
+    Route::get('/admin/nilai', [NilaiController::class, 'adminKelas'])
+        ->name('nilai.admin.kelas');
 
-
+    Route::get('/admin/nilai/siswa/{siswa}', [NilaiController::class, 'adminShowSiswa'])
+        ->name('nilai.admin.showSiswa');
     /*
     | PERtemuan ABSENSI
     */
@@ -158,17 +175,14 @@ Route::middleware(['auth','role:guru'])->prefix('guru')->group(function(){
 
     // Nilai //
 
-    Route::get('/nilai',[NilaiController::class,'index'])->name('nilai.guru.index');
+     Route::get('/guru/nilai', [NilaiController::class, 'guruIndex'])
+        ->name('nilai.guru.index');
 
-    Route::get('/nilai/create',[NilaiController::class,'create'])->name('nilai.create');
+    Route::get('/guru/nilai/input/{mengajar}', [NilaiController::class, 'guruInput'])
+        ->name('nilai.guru.input');
 
-    Route::post('/nilai/store',[NilaiController::class,'store'])->name('nilai.store');
-
-    Route::get('/nilai/edit/{id}',[NilaiController::class,'edit'])->name('nilai.edit');
-
-    Route::put('/nilai/update/{id}',[NilaiController::class,'update'])->name('nilai.update');
-
-    Route::delete('/nilai/{id}',[NilaiController::class,'destroy'])->name('nilai.destroy');
+    Route::post('/guru/nilai/input/{mengajar}', [NilaiController::class, 'guruStore'])
+        ->name('nilai.guru.store');
 
 });
 
@@ -199,7 +213,8 @@ Route::prefix('siswa')->group(function(){
 
         Route::get('/nilai',[NilaiController::class,'index'])->name('nilai.siswa.index');
         
-        
+        Route::get('/siswa/nilai', [NilaiController::class, 'siswaNilai'])
+            ->name('nilai.siswa.index');
 
     });
 
@@ -231,6 +246,35 @@ Route::middleware(['auth'])->group(function(){
 |--------------------------------------------------------------------------
 */
 
+Route::middleware(['auth', 'role:admin,waka'])->group(function () {
+    Route::get('/admin/pertemuan', [PertemuanController::class, 'index'])
+        ->name('pertemuan.index');
+
+    Route::get('/admin/pertemuan/{id}', [PertemuanController::class, 'show'])
+        ->name('pertemuan.show');
+
+    Route::get('/admin/pertemuan/{id}/approve', [PertemuanController::class, 'approve'])
+        ->name('pertemuan.approve');
+
+    Route::get('/admin/rekap-absensi', [PertemuanController::class, 'rekap'])
+        ->name('pertemuan.rekap');
+
+    Route::get('/admin/rekap-absensi/export', [PertemuanController::class, 'exportRekap'])
+        ->name('pertemuan.rekap.export');
+        
+        Route::get('/admin/rekap-nilai', [NilaiController::class, 'rekapNilai'])
+        ->name('nilai.rekap');
+
+    Route::get('/admin/rekap-nilai/export', [NilaiController::class, 'exportRekapNilai'])
+        ->name('nilai.rekap.export');
+
+    Route::get('/admin/rekap-nilai/siswa/{siswa}', [NilaiController::class, 'rekapNilaiSiswa'])
+        ->name('nilai.rekap.siswa');
+
+    Route::get('/admin/rekap-nilai/siswa/{siswa}/export', [NilaiController::class, 'exportRekapNilaiSiswa'])
+        ->name('nilai.rekap.siswa.export');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/surat', [SuratController::class, 'index'])->name('surat.index');
     Route::get('/surat/create', [SuratController::class, 'create'])->name('surat.create');
@@ -247,5 +291,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/surat/{surat}/download', [SuratController::class, 'download'])->name('surat.download');
 });
+
+
 
 require __DIR__.'/auth.php';

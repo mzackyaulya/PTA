@@ -32,11 +32,11 @@ class PertemuanAbsensi extends Model
 
     public function absensis()
     {
-        return $this->hasMany(Absensi::class,'pertemuan_id');
+        return $this->hasMany(Absensi::class, 'pertemuan_id', 'id');
     }
 
     public function mengajar()
     {
-        return $this->belongsTo(Mengajar::class);
+        return $this->belongsTo(Mengajar::class, 'mengajar_id', 'id');
     }
 }

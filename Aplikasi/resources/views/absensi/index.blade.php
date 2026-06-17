@@ -152,7 +152,7 @@
                             |
                             {{ $j->mapel->nama ?? '-' }}
                             |
-                            {{ $j->kelas->nama_kelas ?? '-' }}
+                            {{ $j->kelas->tingkat ?? '-' }} {{ $j->kelas->nama_kelas ?? '-' }}
 
                         </option>
 
@@ -202,31 +202,17 @@
 
             <div class="section-box action-box">
                 <div>
-                    @php
-                        $sekarang = now()->format('H:i:s');
-                        $belumMulai = $sekarang < $selectedJadwal->jam_mulai;
-                        $sudahSelesai = $sekarang > $selectedJadwal->jam_selesai;
-                    @endphp
-
-                    @if($belumMulai)
-                        <button class="btn btn-secondary btn-absen" disabled>
-                            Belum Masuk Jam Pelajaran
-                        </button>
-
-                    @elseif($sudahSelesai || $selectedPertemuan->is_closed)
+                    @if($selectedPertemuan->is_closed)
                         <button class="btn btn-danger btn-absen" disabled>
                             Absensi Ditutup
                         </button>
 
                     @elseif(!$selectedPertemuan->is_approved)
-                        <form method="POST" action="{{ route('absensi.validasi', $selectedPertemuan->id) }}" style="display:inline">
-                            @csrf
-                            <button class="btn btn-success btn-absen">
-                                Validasi & Buka Absen
-                            </button>
-                        </form>
+                        <button class="btn btn-warning btn-absen" disabled>
+                            Menunggu Admin Membuka Absensi
+                        </button>
 
-                    @elseif($selectedPertemuan->is_started && !$selectedPertemuan->is_saved)
+                    @elseif($selectedPertemuan->is_approved && $selectedPertemuan->is_started && !$selectedPertemuan->is_saved)
                         <button class="btn btn-success btn-absen" disabled>
                             Absensi Berjalan
                         </button>
@@ -240,7 +226,7 @@
                             Absensi Disimpan
                         </button>
 
-                        <form method="POST" action="{{ route('absensi.close',$selectedPertemuan->id) }}" style="display:inline">
+                        <form method="POST" action="{{ route('absensi.close', $selectedPertemuan->id) }}" style="display:inline">
                             @csrf
                             <button class="btn btn-danger btn-absen">
                                 Tutup
@@ -250,7 +236,7 @@
                 </div>
 
                 <div>
-                    @if($selectedPertemuan->is_started && !$selectedPertemuan->is_closed)
+                    @if($selectedPertemuan->is_approved && $selectedPertemuan->is_started && !$selectedPertemuan->is_closed)
                         <button class="btn btn-outline-dark" id="btnQR">
                             <i class="fas fa-qrcode"></i>
                         </button>
@@ -281,11 +267,11 @@
 
                 <div class="section-box">
 
-                    <h5 class="mb-3">Rekap Absensi Semua Siswa</h5>
+                    <h5 class="mb-3"> Absensi Semua Siswa</h5>
 
                     <p>
                         <strong>Mata Pelajaran:</strong> {{ $selectedJadwal->mapel->nama ?? '-' }} <br>
-                        <strong>Kelas:</strong> {{ $selectedJadwal->kelas->nama_kelas ?? '-' }}
+                        <strong>Kelas:</strong> {{ $selectedJadwal->kelas->tingkat ?? '-' }} {{ $selectedJadwal->kelas->nama_kelas ?? '-' }}
                     </p>
 
                     <div class="table-responsive">
@@ -523,6 +509,32 @@ function pilihJadwal(id){
         window.location.href = "/guru/absensi?mengajar_id=" + id + "&mode=absen";
     }
 }
+
+    document.addEventListener('DOMContentLoaded', function () { 
+        const btnQR = document.getElementById('btnQR');
+        const popupQR = document.getElementById('popupQR');
+        const closeQR = document.getElementById('closeQR');
+
+        if (btnQR && popupQR) {
+            btnQR.addEventListener('click', function () {
+                popupQR.style.display = 'flex';
+            });
+        }
+
+        if (closeQR && popupQR) {
+            closeQR.addEventListener('click', function () {
+                popupQR.style.display = 'none';
+            });
+        }
+
+        if (popupQR) {
+            popupQR.addEventListener('click', function (e) {
+                if (e.target === popupQR) {
+                    popupQR.style.display = 'none';
+                }
+            });
+        }
+    });
 
 </script>
 

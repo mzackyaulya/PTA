@@ -226,7 +226,6 @@
                 <th width="8%">No</th>
                 <th width="25%">NIS</th>
                 <th>Nama Siswa</th>
-                <th width="20%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -235,7 +234,6 @@
                     <td class="text-center">{{ $loop->iteration }}</td>
                     <td>{{ $siswa->nis }}</td>
                     <td>{{ $siswa->user->name ?? '-' }}</td>
-                    <td class="text-center">{{ ucfirst($siswa->status_siswa) }}</td>
                 </tr>
             @empty
                 <tr>

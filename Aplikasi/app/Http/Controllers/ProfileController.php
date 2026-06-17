@@ -11,12 +11,25 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-
     public function show()
     {
-        $user = Auth::user()->load('siswa');
-        return view('profile.show', compact('user'));
+        $user = Auth::user();
+
+        if ($user->role === 'siswa') {
+            $user->load('siswa.kelasAktif.kelas');
+
+            return view('profile.show', compact('user'));
+        }
+
+        if ($user->role === 'guru') {
+            $user->load('guru');
+
+            return view('profile.guru', compact('user'));
+        }
+
+        return redirect()->route('dashboard');
     }
+
     /**
      * Display the user's profile form.
      */

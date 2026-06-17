@@ -2,132 +2,359 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\PertemuanAbsensi;
 use App\Models\Mengajar;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Absensi;
+use App\Models\Kelas;
+use App\Models\Mapel;
 
 class PertemuanController extends Controller
 {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Tampilkan daftar pertemuan
-    |--------------------------------------------------------------------------
-    */
-
-    public function index()
+    public function index(Request $request)
     {
-        $pertemuan = PertemuanAbsensi::with('mengajar.mapel','mengajar.kelas')
-                        ->orderBy('tanggal','desc')
-                        ->get();
+        $tanggalDipilih = $request->tanggal ?? now()->toDateString();
 
-        return view('admin.pertemuan.index', compact('pertemuan'));
-    }
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
 
+        $hariInggris = \Carbon\Carbon::parse($tanggalDipilih)->format('l');
 
+        $hariMap = [
+            'Monday'    => 'Senin',
+            'Tuesday'   => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday'  => 'Kamis',
+            'Friday'    => 'Jumat',
+            'Saturday'  => 'Sabtu',
+            'Sunday'    => 'Minggu',
+        ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Form buat pertemuan
-    |--------------------------------------------------------------------------
-    */
+        $hariIni = $hariMap[$hariInggris] ?? '-';
 
-    public function create()
-    {
-        $mengajar = Mengajar::with('mapel','kelas')->get();
+        $pertemuan = collect();
 
-        return view('admin.pertemuan.create', compact('mengajar'));
-    }
+        if ($tahunAktif) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Ambil jadwal hanya berdasarkan hari dan tahun ajaran aktif
+            |--------------------------------------------------------------------------
+            */
+            $jadwalPadaTanggal = Mengajar::with([
+                    'mapel',
+                    'kelas',
+                    'guru.user'
+                ])
+                ->where('hari', $hariIni)
+                ->where('tahun_ajaran_id', $tahunAktif->id)
+                ->orderBy('jam_mulai', 'asc')
+                ->get();
 
+            /*
+            |--------------------------------------------------------------------------
+            | Buat pertemuan otomatis jika belum ada
+            |--------------------------------------------------------------------------
+            */
+            foreach ($jadwalPadaTanggal as $jadwal) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Simpan pertemuan
-    |--------------------------------------------------------------------------
-    */
+                $sudahAda = PertemuanAbsensi::where('mengajar_id', $jadwal->id)
+                    ->whereDate('tanggal', $tanggalDipilih)
+                    ->first();
 
-    public function store(Request $request)
-    {
+                if (!$sudahAda) {
 
-        $request->validate([
-            'mengajar_id'   => 'required',
-            'pertemuan_ke'  => 'required',
-            'tanggal'       => 'required'
-        ]);
+                    $pertemuanKe = PertemuanAbsensi::where('mengajar_id', $jadwal->id)
+                        ->count() + 1;
 
-        $exists = PertemuanAbsensi::where('mengajar_id',$request->mengajar_id)
-            ->where('pertemuan_ke',$request->pertemuan_ke)
-            ->exists();
+                    PertemuanAbsensi::create([
+                        'id'            => Str::uuid(),
+                        'mengajar_id'   => $jadwal->id,
+                        'tanggal'       => $tanggalDipilih,
+                        'pertemuan_ke'  => $pertemuanKe,
+                        'is_approved'   => false,
+                        'is_started'    => false,
+                        'is_closed'     => false,
+                        'is_saved'      => false,
+                    ]);
+                }
+            }
 
-        if($exists){
-            return back()->with('error','Pertemuan sudah ada');
+            /*
+            |--------------------------------------------------------------------------
+            | Tampilkan pertemuan hanya dari tahun ajaran aktif
+            |--------------------------------------------------------------------------
+            */
+            $pertemuan = PertemuanAbsensi::with([
+                    'mengajar.mapel',
+                    'mengajar.kelas',
+                    'mengajar.guru.user'
+                ])
+                ->whereDate('tanggal', $tanggalDipilih)
+                ->whereHas('mengajar', function ($query) use ($hariIni, $tahunAktif) {
+                    $query->where('hari', $hariIni)
+                        ->where('tahun_ajaran_id', $tahunAktif->id);
+                })
+                ->orderBy('tanggal', 'desc')
+                ->orderBy('created_at', 'asc')
+                ->get();
         }
 
-        PertemuanAbsensi::create([
-            'id'            => Str::uuid(),
-            'mengajar_id'   => $request->mengajar_id,
-            'pertemuan_ke'  => $request->pertemuan_ke,
-            'tanggal'       => $request->tanggal,
-            'is_approved'   => false,
-            'is_started'    => false,
-            'is_closed'     => false,
-        ]);
+        $tanggalHariIni = $tanggalDipilih;
 
-        return redirect()
-                ->route('pertemuan.index')
-                ->with('success','Pertemuan berhasil dibuat');
+        return view('admin.pertemuan.index', compact(
+            'pertemuan',
+            'hariIni',
+            'tanggalHariIni',
+            'tahunAktif'
+        ));
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Approve pertemuan
-    |--------------------------------------------------------------------------
-    */
 
     public function approve($id)
     {
         $pertemuan = PertemuanAbsensi::findOrFail($id);
 
         $pertemuan->update([
-            'is_approved' => true
+            'is_approved' => true,
+            'is_started'  => true,
+            'is_closed'   => false,
+            'is_saved'    => false,
         ]);
 
         return redirect()
-                ->back()
-                ->with('success','Pertemuan berhasil disetujui');
+            ->back()
+            ->with('success', 'Absensi berhasil dibuka oleh admin.');
     }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Detail pertemuan
-    |--------------------------------------------------------------------------
-    */
 
     public function show($id)
     {
-        $pertemuan = PertemuanAbsensi::with(
+        $pertemuan = PertemuanAbsensi::with([
             'mengajar.mapel',
             'mengajar.kelas',
+            'mengajar.guru.user',
             'absensis.siswa.user'
-        )->findOrFail($id);
+        ])->findOrFail($id);
 
-        $hadir = $pertemuan->absensis->where('status','hadir')->count();
-        $izin  = $pertemuan->absensis->where('status','izin')->count();
-        $sakit = $pertemuan->absensis->where('status','sakit')->count();
-        $alpa  = $pertemuan->absensis->where('status','alpa')->count();
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
 
-        return view('admin.pertemuan.show',compact(
+        $absensi = $pertemuan->absensis;
+
+        $siswa = collect();
+
+        if ($tahunAktif && $pertemuan->mengajar) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ambil siswa berdasarkan tahun ajaran yang sama
+            |--------------------------------------------------------------------------
+            | Kalau siswa ditempatkan di semester 1, semester 2 tetap terbaca.
+            | Tapi tetap dalam tahun yang sama.
+            */
+            $tahunAjaranIds = TahunAjaran::where('tahun', $tahunAktif->tahun)
+                ->pluck('id');
+
+            $siswa = Siswa::with('user')
+                ->whereHas('riwayatKelas', function ($q) use ($pertemuan, $tahunAjaranIds) {
+                    $q->where('kelas_id', $pertemuan->mengajar->kelas_id)
+                      ->whereIn('tahun_ajaran_id', $tahunAjaranIds);
+                })
+                ->get();
+        }
+
+        $hadir = $absensi->where('status', 'hadir')->count();
+        $izin  = $absensi->where('status', 'izin')->count();
+        $sakit = $absensi->where('status', 'sakit')->count();
+        $alpa  = $absensi->where('status', 'alpa')->count();
+
+        $belumAbsen = $siswa->count() - $absensi->count();
+
+        return view('admin.pertemuan.show', compact(
             'pertemuan',
+            'siswa',
+            'absensi',
             'hadir',
             'izin',
             'sakit',
-            'alpa'
+            'alpa',
+            'belumAbsen',
+            'tahunAktif'
         ));
     }
+    public function rekap(Request $request)
+    {
+        $tahunList = TahunAjaran::orderBy('tahun', 'desc')
+            ->orderBy('semester', 'asc')
+            ->get();
 
+        $tahunAktif = TahunAjaran::where('aktif', 1)->first();
+
+        $tahunDipilih = $request->filled('tahun_ajaran_id')
+            ? TahunAjaran::find($request->tahun_ajaran_id)
+            : $tahunAktif;
+
+        $kelasList = Kelas::orderBy('tingkat')
+            ->orderBy('nama_kelas')
+            ->get();
+
+        $mapelList = Mapel::orderBy('nama')
+            ->get();
+
+        $tanggalMulai = $request->tanggal_mulai;
+        $tanggalSelesai = $request->tanggal_selesai;
+
+        $absensi = collect();
+
+        if ($tahunDipilih) {
+            $query = Absensi::with([
+                'siswa.user',
+                'pertemuan.mengajar.mapel',
+                'pertemuan.mengajar.kelas',
+                'pertemuan.mengajar.guru.user'
+            ])
+            ->whereHas('pertemuan.mengajar', function ($q) use ($tahunDipilih, $request) {
+                $q->where('tahun_ajaran_id', $tahunDipilih->id);
+
+                if ($request->filled('kelas_id')) {
+                    $q->where('kelas_id', $request->kelas_id);
+                }
+
+                if ($request->filled('mapel_id')) {
+                    $q->where('mapel_id', $request->mapel_id);
+                }
+            });
+
+            if ($tanggalMulai && $tanggalSelesai) {
+                $query->whereHas('pertemuan', function ($q) use ($tanggalMulai, $tanggalSelesai) {
+                    $q->whereBetween('tanggal', [$tanggalMulai, $tanggalSelesai]);
+                });
+            }
+
+            $absensi = $query->get();
+        }
+
+        $rekap = $absensi
+            ->groupBy(function ($item) {
+                return $item->siswa_id . '-' . optional(optional($item->pertemuan)->mengajar)->mapel_id;
+            })
+            ->map(function ($items) {
+                $first = $items->first();
+
+                $hadir = $items->where('status', 'hadir')->count();
+                $izin  = $items->where('status', 'izin')->count();
+                $sakit = $items->where('status', 'sakit')->count();
+                $alpa  = $items->where('status', 'alpa')->count();
+
+                $total = $hadir + $izin + $sakit + $alpa;
+                $persentase = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+
+                return [
+                    'siswa' => $first->siswa,
+                    'kelas' => optional(optional($first->pertemuan)->mengajar)->kelas,
+                    'mapel' => optional(optional($first->pertemuan)->mengajar)->mapel,
+                    'guru' => optional(optional($first->pertemuan)->mengajar)->guru,
+                    'hadir' => $hadir,
+                    'izin' => $izin,
+                    'sakit' => $sakit,
+                    'alpa' => $alpa,
+                    'total' => $total,
+                    'persentase' => $persentase,
+                ];
+            })
+            ->values();
+
+        return view('admin.pertemuan.rekap', compact(
+            'rekap',
+            'tahunList',
+            'tahunDipilih',
+            'kelasList',
+            'mapelList',
+            'tanggalMulai',
+            'tanggalSelesai'
+        ));
+    }
+    public function exportRekap(Request $request)
+    {
+        $tahunDipilih = $request->filled('tahun_ajaran_id')
+            ? TahunAjaran::find($request->tahun_ajaran_id)
+            : TahunAjaran::where('aktif', 1)->first();
+
+        $tanggalMulai = $request->tanggal_mulai;
+        $tanggalSelesai = $request->tanggal_selesai;
+
+        $absensi = collect();
+
+        if ($tahunDipilih) {
+            $query = Absensi::with([
+                'siswa.user',
+                'pertemuan.mengajar.mapel',
+                'pertemuan.mengajar.kelas',
+                'pertemuan.mengajar.guru.user'
+            ])
+            ->whereHas('pertemuan.mengajar', function ($q) use ($tahunDipilih, $request) {
+                $q->where('tahun_ajaran_id', $tahunDipilih->id);
+
+                if ($request->filled('kelas_id')) {
+                    $q->where('kelas_id', $request->kelas_id);
+                }
+
+                if ($request->filled('mapel_id')) {
+                    $q->where('mapel_id', $request->mapel_id);
+                }
+            });
+
+            if ($tanggalMulai && $tanggalSelesai) {
+                $query->whereHas('pertemuan', function ($q) use ($tanggalMulai, $tanggalSelesai) {
+                    $q->whereBetween('tanggal', [$tanggalMulai, $tanggalSelesai]);
+                });
+            }
+
+            $absensi = $query->get();
+        }
+
+        $rekap = $absensi
+            ->groupBy(function ($item) {
+                return $item->siswa_id . '-' . optional(optional($item->pertemuan)->mengajar)->mapel_id;
+            })
+            ->map(function ($items) {
+                $first = $items->first();
+
+                $hadir = $items->where('status', 'hadir')->count();
+                $izin  = $items->where('status', 'izin')->count();
+                $sakit = $items->where('status', 'sakit')->count();
+                $alpa  = $items->where('status', 'alpa')->count();
+
+                $total = $hadir + $izin + $sakit + $alpa;
+                $persentase = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+
+                return [
+                    'siswa' => $first->siswa,
+                    'kelas' => optional(optional($first->pertemuan)->mengajar)->kelas,
+                    'mapel' => optional(optional($first->pertemuan)->mengajar)->mapel,
+                    'guru' => optional(optional($first->pertemuan)->mengajar)->guru,
+                    'hadir' => $hadir,
+                    'izin' => $izin,
+                    'sakit' => $sakit,
+                    'alpa' => $alpa,
+                    'total' => $total,
+                    'persentase' => $persentase,
+                ];
+            })
+            ->values();
+
+        $namaFile = 'rekap_absensi_' . date('Ymd_His') . '.xls';
+
+        $html = view('admin.pertemuan.export_excel', compact(
+            'rekap',
+            'tahunDipilih',
+            'tanggalMulai',
+            'tanggalSelesai'
+        ))->render();
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename="' . $namaFile . '"')
+            ->header('Cache-Control', 'max-age=0');
+    }
 }

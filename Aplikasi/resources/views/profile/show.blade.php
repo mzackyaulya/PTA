@@ -229,43 +229,11 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
-
-        <div class="card shadow-sm rounded-4 border-0">
-            <div class="card-header bg-white py-3">
-                <h5 class="fw-bold text-dark mb-0"><i class="fas fa-award text-warning me-2"></i>Riwayat Penerimaan
-                    Beasiswa</h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped mb-0">
-                        <thead class="table-primary">
-                            <tr>
-                                <th width="30%">Tahun Ajaran / Semester</th>
-                                <th>Nama Beasiswa</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2024/2025 Ganjil</td>
-                                <td>Beasiswa KIP Kuliah</td>
-                            </tr>
-                            <tr>
-                                <td>2023/2024 Genap</td>
-                                <td>Beasiswa KIP Kuliah</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <style>
-        /* Pengaturan lebar kolom agar titik dua selalu sejajar */
         .vertical-table {
             table-layout: fixed;
             width: 100%;
@@ -277,27 +245,22 @@
 
         .col-label {
             width: 25%;
-            /* Lebar untuk nama field */
             font-weight: 600;
             color: #495057;
             background-color: #f8f9fa !important;
-            /* Memberikan warna beda sedikit untuk label */
         }
 
         .col-colon {
             width: 5%;
-            /* Lebar khusus titik dua */
             text-align: center;
             font-weight: bold;
         }
 
         .col-value {
             width: 72%;
-            /* Sisa lebar untuk isi data */
             color: #212529;
         }
 
-        /* Responsif untuk layar HP agar label tidak terlalu sempit */
         @media (max-width: 768px) {
             .col-label {
                 width: 40%;
@@ -312,7 +275,6 @@
             }
         }
 
-        /* Greetings Styling */
         .greet-word {
             font-family: 'Playfair Display', serif !important;
             font-size: 1.8rem;

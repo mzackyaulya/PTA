@@ -20,7 +20,9 @@
                     <th class="text-center">Tingkat</th>
                     <th class="text-center">Wali Kelas</th>
                     <th class="text-center">Kapasitas</th>
-                    <th class="text-center">Aksi</th>
+                    @if (auth()->user()->role === 'admin')
+                        <th class="text-center">Aksi</th>
+                    @endif
                 </tr>
             </thead>
 
@@ -40,16 +42,11 @@
                                 {{ $item->jumlah_siswa }} / {{ $item->kapasitas }}
                             @endif
                         </td>
-
-                        <td class="text-center">
-                            <a href="{{ route('kelas.edit', $item) }}" class="btn btn-sm btn-warning">Edit</a>
-
-                            <form action="{{ route('kelas.destroy', $item->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                            </form>
-                        </td>
+                        @if (auth()->user()->role === 'admin')
+                            <td class="text-center">
+                                <a href="{{ route('kelas.edit', $item) }}" class="btn btn-sm btn-warning">Edit</a>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>

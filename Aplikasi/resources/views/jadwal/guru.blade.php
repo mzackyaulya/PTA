@@ -94,7 +94,7 @@
                                     <b>{{ $jadwalItem->mapel->nama }}</b>
                                     <br>
 
-                                    <small>{{ $jadwalItem->kelas->nama_kelas }}</small>
+                                    <small>{{ $jadwalItem->kelas->tingkat }} {{ $jadwalItem->kelas->nama_kelas }}</small>
                                     <br>
 
                                     <small class="text-muted">
@@ -105,11 +105,11 @@
 
                                     <div class="mt-2">
 
-                                        @if($pertemuan && $pertemuan->is_started && !$pertemuan->is_closed)
+                                        @if($pertemuan && $pertemuan->is_approved && $pertemuan->is_started && !$pertemuan->is_closed)
 
                                             <a href="{{ route('absensi.guru', ['mengajar_id' => $jadwalItem->id]) }}"
-                                               class="btn btn-sm btn-success">
-                                                Absensi Terbuka
+                                            class="btn btn-sm btn-success">
+                                                Telah Validasi
                                             </a>
 
                                         @elseif($pertemuan && $pertemuan->is_closed)
@@ -118,30 +118,25 @@
                                                 Pertemuan Selesai
                                             </button>
 
+                                        @elseif($pertemuan && !$pertemuan->is_approved)
+
+                                            <button class="btn btn-sm btn-warning text-dark" disabled>
+                                                Menunggu Admin
+                                            </button>
+
                                         @elseif($sudahSelesai)
 
                                             <button class="btn btn-sm btn-danger" disabled>
                                                 Waktu Habis
                                             </button>
 
-                                        @elseif($bolehValidasi)
-
-                                            <form action="{{ route('jadwal.validasiAbsensi', $jadwalItem->id) }}"
-                                                  method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-primary">
-                                                    Validasi & Buka Absen
-                                                </button>
-                                            </form>
-
                                         @else
 
                                             <button class="btn btn-sm btn-secondary" disabled>
-                                                Belum Bisa Validasi
+                                                Belum bisa Validasi
                                             </button>
 
                                         @endif
-
                                     </div>
 
                                 @else

@@ -1,157 +1,286 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Akademik</title>
 
-    <link rel="shortcut icon" type="image/png" href="{{ url('assets/img/logoweb.png') }}" />
-    <link rel="stylesheet" href="{{ url('assets/css/styles.min.css') }}" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-
-    <!-- Font bagus -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="{{ url('/assets/img/logoweb.png') }}">
 
     <style>
-        /* ===== DEFAULT: MOBILE (hijau) ===== */
-        .login-bg{
-            background: #198754; /* hijau */
-            min-height: 100vh;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .login-overlay{
-            background: transparent; /* mobile gak perlu overlay gelap */
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .login-page {
+            width: 100%;
             min-height: 100vh;
+            background-color: #0f5f39;
+            background-image: url("/assets/img/backgrndLogin.png");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 18px 12px;
+            justify-content: flex-end;
+            padding-right: 150px;
         }
 
-        .login-card{
+        .login-card {
+            width: 410px;
+            background: #ffffff;
             border-radius: 18px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            padding: 32px 30px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
         }
 
-        /* Judul */
-            .login-title{
-            font-family: 'Poppins', sans-serif;
+        .logo-box {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .logo-box img {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 27px;
             font-weight: 800;
-            letter-spacing: .2px;
-            font-size: 20px; /* mobile */
+            color: #5f6f7a;
             line-height: 1.2;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
-        /* ===== PC/TABLET (md ke atas): pakai gambar background + judul lebih besar ===== */
-        @media (min-width: 768px) {
-            .login-bg{
-                background-image: url("{{ asset('assets/img/backgrndLogin.png') }}");
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
+        .login-subtitle {
+            text-align: center;
+            color: #7a8793;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #d8dee7;
+            border-radius: 7px;
+            padding: 10px 14px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 3px rgba(25,135,84,0.12);
+        }
+
+        .password-wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            border-radius: 7px 0 0 7px;
+        }
+
+        .toggle-password {
+            width: 52px;
+            border: 1px solid #d8dee7;
+            border-left: none;
+            background: #eef2f5;
+            border-radius: 0 7px 7px 0;
+            cursor: pointer;
+            font-size: 16px;
+            color: #536471;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            background: #37c979;
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            background: #27b96a;
+        }
+
+        .forgot {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 15px;
+            color: #4b5563;
+        }
+
+        .forgot a {
+            color: #16a34a;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 992px) {
+            .login-page {
+                justify-content: center;
+                padding: 20px;
             }
-            .login-overlay{
-                background: rgba(0,0,0,0.35); /* overlay cuma untuk PC */
-                padding: 0;
+
+            .login-card {
+                width: 100%;
+                max-width: 420px;
             }
-            .login-title{
-                font-size: 26px; /* windows lebih besar */
-                font-weight: 800;
+        }
+
+        @media (max-width: 576px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .login-page {
+                min-height: 100vh;
+                padding: 20px;
+                background-position: center top;
+            }
+
+            .login-card {
+                padding: 26px 22px;
+            }
+
+            .login-title {
+                font-size: 23px;
+            }
+
+            .logo-box img {
+                width: 130px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-bg">
-        <div class="login-overlay">
-            <div class="container">
-                <div class="row justify-content-center justify-content-md-end pe-md-5">
-                    <div class="col-12 col-sm-10 col-md-6 col-lg-5 col-xxl-4">
-                        <div class="card login-card">
-                            <div class="card-body p-4">
-                                <div class="text-center mb-3 d-block d-md-none">
-                                    <img src="{{ url('assets/img/Logo.png') }}" alt="Logo" width="280" height="110">
-                                </div>
 
-                                <div class="text-center login-title">Akademik SMA Muhammadiyah 2</div>
-                                <p class="text-center d-md-none mb-4">Sistem Pembelajaran Online dan Efektif</p>
-                                <p class="text-center text-muted d-none d-md-block mb-4">Sistem Pembelajaran Online dan Efektif</p>
+<div class="login-page">
 
-                                <form method="POST" action="{{ route('login') }}">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label">Username</label>
-                                        <input type="number"
-                                            class="form-control"
-                                            name="username"
-                                            placeholder="Masukkan NISN atau NIP"
-                                            value="{{ old('username') }}"
-                                            required>
-                                    </div>
+    <div class="login-card">
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Password</label>
-                                        <div class="input-group">
-                                            <input type="password"
-                                                    class="form-control"
-                                                    id="password"
-                                                    name="password"
-                                                    placeholder="Masukkan Password"
-                                                    required>
-                                            <span class="input-group-text" id="togglePassword" style="cursor:pointer">
-                                                <i class="fa-solid fa-eye" id="eyeIcon"></i>
-                                            </span>
-                                        </div>
-                                    </div>
+        <h1 class="login-title">
+            SIAKAD <br>
+            SMA Muhammadiyah 2
+        </h1>
 
-                                    <button type="submit" class="btn btn-success w-100 py-2 fs-5 rounded-3">
-                                        Login
-                                    </button>
+        <p class="login-subtitle">
+            Sistem Informasi Akademik SMAMDUPA
+        </p>
 
-                                    <div class="text-center mt-3">
-                                        <span class="fw-bold">Lupa Password?</span>
-                                        <a href="#" class="text-success fw-bold ms-1">Hubungi Admin!</a>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        @if ($errors->any())
+            <div class="alert-error">
+                Username atau Password salah!
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="number"
+                       name="username"
+                       class="form-control"
+                       placeholder="Masukkan NISN atau NIP"
+                       value="{{ old('username') }}"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+
+                <div class="password-wrapper">
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           class="form-control"
+                           placeholder="Masukkan Password"
+                           required>
+
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        👁
+                    </button>
                 </div>
             </div>
-        </div>
+
+            <button type="submit" class="login-btn">
+                Login
+            </button>
+
+            <div class="forgot">
+                Lupa Password?
+                <a href="#">Hubungi Admin!</a>
+            </div>
+
+        </form>
+
     </div>
 
-  <!-- SCRIPT -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{{ url('assets/libs/jquery/dist/jquery.min.js') }}"></script>
-  <script src="{{ url('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+</div>
 
-  <script>
-    const togglePassword = document.getElementById("togglePassword");
-    const password = document.getElementById("password");
-    const eyeIcon = document.getElementById("eyeIcon");
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
 
-    togglePassword.addEventListener("click", function () {
-      const type = password.type === "password" ? "text" : "password";
-      password.type = type;
-      eyeIcon.classList.toggle("fa-eye");
-      eyeIcon.classList.toggle("fa-eye-slash");
+    togglePassword.addEventListener('click', function () {
+        if (password.type === 'password') {
+            password.type = 'text';
+            togglePassword.textContent = '🙈';
+        } else {
+            password.type = 'password';
+            togglePassword.textContent = '👁';
+        }
     });
-  </script>
-
-  @if ($errors->any())
-  <script>
-    Swal.fire({
-      icon: 'error',
-      title: 'Login Gagal',
-      text: 'Username atau Password salah!',
-      confirmButtonColor: '#198754'
-    });
-  </script>
-  @endif
+</script>
 
 </body>
 </html>

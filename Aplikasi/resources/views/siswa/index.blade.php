@@ -115,7 +115,6 @@
                                         @elseif($item->status_siswa == 'lulus') text-primary
                                         @else text-warning
                                         @endif">
-                                        
                                         {{ ucfirst($item->status_siswa) }}
                                     </td>
                                     @if (auth()->user()->role === 'admin')
@@ -158,6 +157,7 @@
                 </div>
             </div>
             
+            {{-- Footer Pagination --}}
             <div class="card-footer bg-white border-top py-3 px-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap m-0">
                     <p class="text-muted mb-2 mb-md-0 fs-7 m-0">
@@ -167,7 +167,8 @@
                     <div class="d-flex justify-content-center justify-content-md-end m-0">
                         @if ($siswa->hasPages())
                             <div class="custom-pagination">
-                                {{ $siswa->appends(['search' => request('search')])->links() }}
+                                {{-- PERBAIKAN: Menambahkan 'pagination::bootstrap-5' agar panah raksasa hilang --}}
+                                {{ $siswa->appends(['search' => request('search')])->links('pagination::bootstrap-5') }}
                             </div>
                         @else
                             <nav class="custom-pagination">

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 
@@ -47,6 +47,16 @@ class BannerController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success','Banner berhasil ditambahkan');
+    }
+
+    public function hideSession(Request $request)
+    {
+        session(['hide_banner' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Banner disembunyikan untuk session ini'
+        ]);
     }
 
     /**

@@ -18,13 +18,22 @@
         <div class="text-center">
             <div class="p-4">
                 <div class="mb-3">
-                    @if ($siswa->foto)
-                        <img src="{{ asset('storage/' . $siswa->foto) }}" alt="Foto Siswa"
-                            class="rounded-circle shadow-sm profile-photo"
-                            style="width:150px; height:150px; object-fit:cover;">
-                    @else
-                        <img src="{{ asset('images/default-user.png') }}" class="rounded-circle shadow-sm profile-photo"
-                            style="width:150px; height:150px; object-fit:cover;">
+                    @php
+                        $fotoSiswa = url('/assets/img/admin.png');
+
+                        if ($siswa->foto) {
+                            $cleanFoto = str_replace('storage/', '', $siswa->foto);
+                            $fotoSiswa = url('/storage/' . $cleanFoto);
+                        }
+                    @endphp
+
+                    <img src="{{ $fotoSiswa }}"
+                        alt="Foto Siswa"
+                        class="rounded-circle shadow-sm profile-photo"
+                        style="width:150px; height:150px; object-fit:cover;"
+                        onerror="this.onerror=null; this.src='/assets/img/admin.png';">
+
+                    @if (!$siswa->foto)
                         <div class="text-muted mt-2 small">Belum ada foto</div>
                     @endif
                 </div>

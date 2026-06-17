@@ -50,7 +50,7 @@ class SuratController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'jenis_surat' => 'required|in:dispensasi,permohonan_lomba,permohonan_organisasi,izin_kegiatan,keterangan,lainnya',
             'judul' => 'required|string|max:255',
             'nama_kegiatan' => 'nullable|string|max:255',
@@ -62,10 +62,13 @@ class SuratController extends Controller
             'keperluan' => 'required|string',
             'siswa_ids' => 'nullable|array',
             'siswa_ids.*' => 'exists:siswas,id',
-        ]);
+            'pengaju_user_id' => 'required|exists:users,id', // Validasi input baru
+        ];
+
+        $request->validate($rules);
 
         $surat = Surat::create([
-            'user_id' => auth()->id(),
+            'user_id' => $request->pengaju_user_id, // Menggunakan ID siswa pemohon yang dikirim form
             'jenis_surat' => $request->jenis_surat,
             'judul' => $request->judul,
             'nama_kegiatan' => $request->nama_kegiatan,
@@ -308,8 +311,8 @@ class SuratController extends Controller
      */
     private function cekAksesWaka()
     {
-        if (!in_array(auth()->user()->role, ['waka', 'admin'])) {
-            abort(403, 'Hanya Waka atau Admin yang dapat melakukan aksi ini.');
+        if (auth()->user()->role !== 'waka') {
+            abort(403, 'Hanya Waka yang dapat melakukan aksi ini.');
         }
     }
 

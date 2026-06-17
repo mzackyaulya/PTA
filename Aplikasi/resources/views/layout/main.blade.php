@@ -678,7 +678,7 @@
 
                         @if(auth()->user()->role == 'admin')
                             <li class="nav-item mb-2">
-                                <a href="{{ url('admin/nilai') }}"
+                                <a href="{{ route('nilai.admin.kelas') }}"
                                 class="{{ request()->is('admin/nilai*') ? 'active' : '' }}">
                                     <i class="fas fa-chart-bar text-white"></i>
                                     <p class="text-white">Nilai</p>
@@ -688,7 +688,7 @@
 
                         @if(auth()->user()->role == 'guru')
                             <li class="nav-item mb-2">
-                                <a href="{{ url('guru/nilai') }}"
+                                <a href="{{ route('nilai.guru.index') }}"
                                 class="{{ request()->is('guru/nilai*') ? 'active' : '' }}">
                                     <i class="fas fa-chart-bar text-white"></i>
                                     <p class="text-white">Nilai</p>
@@ -698,10 +698,19 @@
 
                         @if(auth()->user()->role == 'siswa')
                             <li class="nav-item mb-2">
-                                <a href="{{ url('siswa/nilai') }}"
+                                <a href="{{ route('nilai.siswa.index') }}"
                                 class="{{ request()->is('siswa/nilai*') ? 'active' : '' }}">
                                     <i class="fas fa-chart-bar text-white"></i>
                                     <p class="text-white">Nilai</p>
+                                </a>
+                            </li>
+                        @endif
+                        @if(in_array(auth()->user()->role, ['admin', 'waka']))
+                            <li class="nav-item mb-2">
+                                <a href="{{ route('nilai.rekap') }}"
+                                class="{{ request()->is('admin/rekap-nilai*') ? 'active' : '' }}">
+                                    <i class="fas fa-file-excel text-white"></i>
+                                    <p class="text-white">Rekap Nilai</p>
                                 </a>
                             </li>
                         @endif
@@ -833,13 +842,18 @@
                 <li class="nav-item topbar-user dropdown hidden-caret">
     
                     {{-- Logika untuk menentukan URL Foto Profil (Siswa atau Guru) --}}
-                    @php
-                        $profilePic = url('assets/img/admin.png'); // Foto default
+                   @php
+                        $profilePic = url('/assets/img/admin.png');
+
                         if (auth()->check()) {
                             if (auth()->user()->role === 'siswa' && auth()->user()->siswa?->foto) {
-                                $profilePic = asset('storage/' . auth()->user()->siswa->foto);
-                            } elseif (auth()->user()->role === 'guru' && auth()->user()->guru?->foto) {
-                                $profilePic = asset('storage/' . auth()->user()->guru->foto);
+                                $fotoSiswa = str_replace('storage/', '', auth()->user()->siswa->foto);
+                                $profilePic = url('/storage/' . $fotoSiswa);
+                            }
+
+                            if (auth()->user()->role === 'guru' && auth()->user()->guru?->foto) {
+                                $fotoGuru = str_replace('storage/', '', auth()->user()->guru->foto);
+                                $profilePic = url('/storage/' . $fotoGuru);
                             }
                         }
                     @endphp
@@ -847,7 +861,7 @@
                     <a class="dropdown-toggle profile-pic d-flex align-items-center" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                         <div class="avatar-sm">
                             <img src="{{ $profilePic }}" alt="Foto Profil" class="avatar-img rounded-circle" />
-                        </div>
+                        </div>  
                         
                         {{-- Tampilan Nama dan NISN/NIP (Sebelum Dropdown Dibuka) --}}
                         <span class="profile-username ms-2 d-flex flex-column justify-content-center">
@@ -881,20 +895,19 @@
                                             <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
                                                 {{ auth()->user()->nisn ?? (auth()->user()->siswa->nis ?? '-') }}
                                             </p>
-                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
-                                                {{ auth()->user()->siswa->jurusan ?? '-' }}
+                                            <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->email ?? auth()->user()->siswa->email ?? '-' }}
                                             </p>
                                         @elseif(auth()->user()->role === 'guru')
                                             <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
                                                 {{ auth()->user()->guru->nip ?? '-' }}
                                             </p>
-                                            <p class="text-muted text-primary mb-0" style="font-size: 0.85rem;">
-                                                {{ auth()->user()->guru->jabatan ?? '-' }}
+                                            <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                                                {{ auth()->user()->email ?? auth()->user()->guru->email ?? '-' }}
                                             </p>
                                         @else
-                                            {{-- Tampilan untuk Admin / Role Lainnya --}}
                                             <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                                                {{ Auth::user()->email }}
+                                                {{ auth()->user()->email ?? '-' }}
                                             </p>
                                         @endif
                                     </div>
@@ -907,7 +920,7 @@
                                         <i class="fas fa-user-circle me-2"></i>Profile
                                     </a>
                                 @endif
-                                <a class="dropdown-item mb-1" href="#">
+                                <a class="dropdown-item mb-1" href="{{ route('profile.edit') }}">
                                     <i class="fas fa-unlock me-2"></i>Ganti Sandi
                                 </a>
                                 <a class="dropdown-item mb-1" href="#">
@@ -962,7 +975,8 @@
 
     <!-- jQuery Vector Maps -->
     <script src="{{ url('assets/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
-    <script src="assets/js/plugin/jsvectormap/world.js"></script>
+    
+    <script src="{{ url('assets/js/plugin/jsvectormap/world.js') }}"></script>
 
     <!-- Kaiadmin JS -->
     <script src="{{ url('assets/js/kaiadmin.min.js') }}"></script>

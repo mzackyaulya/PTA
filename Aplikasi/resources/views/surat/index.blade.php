@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title','Surat')
+@section('title', 'Surat')
 
 @section('content')
 <div class="container-fluid">
@@ -87,7 +87,7 @@
                             @endif
                         </p>
 
-                        {{-- Bagian Bawah: Tombol Aksi (Otomatis ke bawah berkat mt-auto) --}}
+                        {{-- Bagian Bawah: Tombol Aksi --}}
                         <div class="mt-auto">
                             <hr class="mt-0 mb-2">
                             <div class="d-flex flex-wrap gap-1 justify-content-start">
@@ -102,13 +102,15 @@
                                     </a>
                                 @endif
 
+                                {{-- Admin dan Waka otomatis bisa unduh jika status selesai --}}
                                 @if ($surat->status === 'selesai')
                                     <a href="{{ route('surat.download', $surat->id) }}" class="btn btn-sm btn-success shadow-sm">
                                         <i class="fas fa-download"></i> Unduh
                                     </a>
                                 @endif
 
-                                @if (in_array(auth()->user()->role, ['waka', 'admin']))
+                                {{-- HANYA WAKA YANG BISA REVIEWS, TERIMA, DAN TOLAK --}}
+                                @if (auth()->user()->role === 'waka')
                                     @if ($surat->status === 'pending')
                                         <form action="{{ route('surat.review', $surat->id) }}" method="POST" class="d-inline">
                                             @csrf
@@ -140,8 +142,8 @@
                 </div>
             </div>
 
-            {{-- Modal Tolak --}}
-            @if (in_array(auth()->user()->role, ['waka', 'admin']))
+            {{-- Modal Tolak HANYA UNTUK WAKA --}}
+            @if (auth()->user()->role === 'waka')
                 <div class="modal fade" id="tolakModal{{ $surat->id }}" tabindex="-1">
                     <div class="modal-dialog">
                         <form action="{{ route('surat.tolak', $surat->id) }}" method="POST">

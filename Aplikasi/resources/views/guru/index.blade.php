@@ -100,7 +100,7 @@
                             <th class="text-center py-3">Jenis Kelamin</th>
                             <th class="text-center py-3">Agama</th>
                             <th class="text-center py-3">Pendidikan</th>
-                            <th class="text-center py-3">Jabatan</th>
+                            <th class="text-center py-3">Status Pegawai</th>
                             <th class="text-center py-3">Mapel</th>
                             <th class="text-center py-3">Status</th>
                             @if (auth()->user()->role === 'admin')
@@ -108,20 +108,46 @@
                             @endif
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse ($guru as $index => $item)
                             <tr>
                                 <td class="text-center text-muted">
                                     {{ method_exists($guru, 'firstItem') ? $guru->firstItem() + $index : $index + 1 }}
                                 </td>
-                                <td class="fw-medium text-dark">{{ $item->user->name ?? '-' }}</td>
-                                <td class="text-center">{{ $item->user->nip ?? '-' }}</td>
-                                <td class="text-muted">{{ $item->user->email ?? '-' }}</td>
-                                <td class="text-center">{{ $item->jenis_kelamin ?? '-' }}</td>
-                                <td class="text-center">{{ $item->agama ?? '-' }}</td>
-                                <td class="text-center">{{ $item->pendidikan_terakhir ?? '-' }}</td>
-                                <td class="text-center">{{ $item->jabatan ?? '-' }}</td>
-                                <td class="text-center">{{ $item->mapel ?? '-' }}</td>
+
+                                <td class="fw-medium text-dark">
+                                    {{ $item->nama ?? $item->user->name ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->nip ?? $item->user->nip ?? '-' }}
+                                </td>
+
+                                <td class="text-muted">
+                                    {{ $item->email ?? $item->user->email ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->jenis_kelamin ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->agama ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->pendidikan_terakhir ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->status_kepegawaian ?? '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ $item->mapel ?? '-' }}
+                                </td>
+
                                 <td class="text-center fw-bold
                                     @if ($item->status_guru == 'aktif') text-success
                                     @elseif($item->status_guru == 'nonaktif') text-warning
@@ -138,6 +164,7 @@
                                                 aria-expanded="false">
                                                 <i class="fa fa-ellipsis-v text-muted"></i>
                                             </button>
+
                                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0"
                                                 aria-labelledby="aksiMenu{{ $item->id }}">
                                                 <li>
@@ -146,6 +173,7 @@
                                                         <i class="fa fa-eye text-info me-2 w-15px"></i> Detail
                                                     </a>
                                                 </li>
+
                                                 <li>
                                                     <a href="{{ route('guru.edit', $item->id) }}"
                                                         class="dropdown-item py-2 text-sm">

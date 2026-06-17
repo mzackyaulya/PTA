@@ -31,8 +31,14 @@
 
                 @foreach($siswa as $i => $s)
 
-                    <tr>
+                    @php
+                        $kelasSiswa = $s->riwayatKelas
+                            ->whereIn('tahun_ajaran_id', $tahunAjaranIds)
+                            ->sortByDesc('created_at')
+                            ->first();
+                    @endphp
 
+                    <tr>
                         <td class="text-center">{{ $i + 1 }}</td>
 
                         <td class="text-center">{{ $s->nis }}</td>
@@ -40,7 +46,11 @@
                         <td class="text-center">{{ $s->user->name ?? '-' }}</td>
 
                         <td class="text-center">
-                            {{ optional(optional($s->kelasAktif)->kelas)->nama_kelas ?? '-' }}
+                            @if($kelasSiswa && $kelasSiswa->kelas)
+                                {{ $kelasSiswa->kelas->tingkat }} {{ $kelasSiswa->kelas->nama_kelas }}
+                            @else
+                                -
+                            @endif
                         </td>
 
                         <td class="text-center">{{ $s->jenis_kelamin ?? '-' }}</td>
@@ -59,7 +69,6 @@
                                 Lihat Jadwal
                             </a>
                         </td>
-
                     </tr>
 
                 @endforeach

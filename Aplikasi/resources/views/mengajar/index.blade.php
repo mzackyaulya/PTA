@@ -38,7 +38,7 @@
                         <td class="text-center">{{ $k->jumlah_jadwal }}</td>
                         <td class="text-center">
                             <a href="{{ route('mengajar.show', $k->id) }}" class="btn btn-info btn-sm">
-                                Lihat Jadwal
+                                Tambah Jadwal
                             </a>
                         </td>
                     </tr>
