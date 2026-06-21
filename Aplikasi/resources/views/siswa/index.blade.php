@@ -117,29 +117,31 @@
                                         @endif">
                                         {{ ucfirst($item->status_siswa) }}
                                     </td>
-                                    @if (auth()->user()->role === 'admin')
-                                        <td class="text-center">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light border-0" type="button"
-                                                    id="aksiMenu{{ $item->id }}" data-bs-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    <i class="fa fa-ellipsis-v text-muted"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="aksiMenu{{ $item->id }}">
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light border-0" type="button"
+                                                id="aksiMenu{{ $item->id }}" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v text-muted"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="aksiMenu{{ $item->id }}">
+                                                @if (in_array(auth()->user()->role, ['admin', 'waka']))
                                                     <li>
                                                         <a href="{{ route('siswa.show', $item->id) }}" class="dropdown-item py-2 text-sm">
                                                             <i class="fa fa-eye text-info me-2 w-15px"></i> Detail
                                                         </a>
                                                     </li>
+                                                @endif
+                                                @if (auth()->user()->role === 'admin')
                                                     <li>
                                                         <a href="{{ route('siswa.edit', $item->id) }}" class="dropdown-item py-2 text-sm">
                                                             <i class="fa fa-edit text-warning me-2 w-15px"></i> Edit
                                                         </a>
                                                     </li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    @endif
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

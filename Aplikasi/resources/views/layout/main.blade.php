@@ -438,7 +438,7 @@
                             </li>
                         @endif
 
-                        @if(auth()->user()->role === 'admin')
+                        @if(in_array(auth()->user()->role, ['admin','waka']))
                             <li class="nav-item mb-2">
                                 <a data-bs-toggle="collapse"
                                 href="#data"
@@ -456,61 +456,69 @@
                                                 <span>Data Siswa</span>
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="{{ route('guru.index') }}">
-                                                <i class="fas fa-chalkboard-teacher"></i>
-                                                <span>Data Guru</span>
-                                            </a>
-                                        </li>
+                                        @if (auth()->user()->role === 'admin')
+                                            <li>
+                                                <a href="{{ route('guru.index') }}">
+                                                    <i class="fas fa-chalkboard-teacher"></i>
+                                                    <span>Data Guru</span>
+                                                </a>
+                                            </li>
+                                        @endif
                                         <li>
                                             <a href="{{ route('kelas.index') }}">
                                                 <i class="fas fa-door-open"></i>
                                                 <span>Data Kelas</span>
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="{{ route('mapel.index') }}">
-                                                <i class="fas fa-list"></i>
-                                                <span>Data Mata Pelajaran</span>
-                                            </a>
-                                        </li>
+                                        @if (auth()->user()->role === 'admin')
+                                            <li>
+                                                <a href="{{ route('mapel.index') }}">
+                                                    <i class="fas fa-list"></i>
+                                                    <span>Data Mata Pelajaran</span>
+                                                </a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </li>
-                            <li class="nav-item mb-2">
-                                <a data-bs-toggle="collapse"
-                                href="#akademik"
-                                class="parent-menu {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'active' : '' }}"
-                                aria-expanded="{{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'true' : 'false' }}">
-                                    <i class="fas fa-school text-white"></i>
-                                    <p class="text-white">Akademik</p>
-                                    <span class="caret"></span>
-                                </a>
 
-                                <div class="collapse px-4 {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'show' : '' }}" id="akademik">
-                                    <ul class="nav nav-collapse">
-                                        <li>
-                                            <a href="{{ route('tahunajaran.index') }}">
-                                                <i class="fas fa-calendar"></i>
-                                                <span>Tahun Ajaran</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ route('riwayatkelas.index') }}">
-                                                <i class="fas fa-users"></i>
-                                                <span>Penempatan Siswa</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ route('mengajar.index') }}">
-                                                <i class="fas fa-chalkboard"></i>
-                                                <span>Jadwal Mengajar</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
+                            @if (auth()->user()->role === 'admin')
+                                <li class="nav-item mb-2">
+                                    <a data-bs-toggle="collapse"
+                                    href="#akademik"
+                                    class="parent-menu {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'active' : '' }}"
+                                    aria-expanded="{{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'true' : 'false' }}">
+                                        <i class="fas fa-school text-white"></i>
+                                        <p class="text-white">Akademik</p>
+                                        <span class="caret"></span>
+                                    </a>
+
+                                    <div class="collapse px-4 {{ request()->is('tahunajaran*') || request()->is('riwayatkelas*') || request()->is('mengajar*') ? 'show' : '' }}" id="akademik">
+                                        <ul class="nav nav-collapse">
+                                            <li>
+                                                <a href="{{ route('tahunajaran.index') }}">
+                                                    <i class="fas fa-calendar"></i>
+                                                    <span>Tahun Ajaran</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('riwayatkelas.index') }}">
+                                                    <i class="fas fa-users"></i>
+                                                    <span>Penempatan Siswa</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('mengajar.index') }}">
+                                                    <i class="fas fa-chalkboard"></i>
+                                                    <span>Jadwal Mengajar</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            @endif
                         @endif
+
                         <li class="nav-item mb-2">
 
                             <a data-bs-toggle="collapse"
@@ -673,47 +681,60 @@
                         </li>
 
                         {{-- =======================
-                                    NILAI
+                                    NILAI DROPDOWN
                         ======================= --}}
+                        <li class="nav-item mb-2">
+                            <a data-bs-toggle="collapse" 
+                               href="#nilaiCollapse" 
+                               class="parent-menu {{ request()->is('*nilai*') ? 'active' : '' }}"
+                               aria-expanded="{{ request()->is('*nilai*') ? 'true' : 'false' }}">
+                                <i class="fas fa-chart-bar text-white"></i>
+                                <p class="text-white">Nilai</p>
+                                <span class="caret"></span>
+                            </a>
 
-                        @if(auth()->user()->role == 'admin')
-                            <li class="nav-item mb-2">
-                                <a href="{{ route('nilai.admin.kelas') }}"
-                                class="{{ request()->is('admin/nilai*') ? 'active' : '' }}">
-                                    <i class="fas fa-chart-bar text-white"></i>
-                                    <p class="text-white">Nilai</p>
-                                </a>
-                            </li>
-                        @endif
+                            <div class="collapse px-4 {{ request()->is('*nilai*') ? 'show' : '' }}" id="nilaiCollapse">
+                                <ul class="nav nav-collapse">
+                                    {{-- Menu Nilai sesuai Role Pengguna --}}
+                                    @if(auth()->user()->role == 'admin')
+                                        <li>
+                                            <a href="{{ route('nilai.admin.kelas') }}" class="{{ request()->is('admin/nilai*') ? 'active' : '' }}">
+                                                <i class="fas fa-clipboard-list"></i>
+                                                <span>Data Nilai</span>
+                                            </a>
+                                        </li>
+                                    @endif
 
-                        @if(auth()->user()->role == 'guru')
-                            <li class="nav-item mb-2">
-                                <a href="{{ route('nilai.guru.index') }}"
-                                class="{{ request()->is('guru/nilai*') ? 'active' : '' }}">
-                                    <i class="fas fa-chart-bar text-white"></i>
-                                    <p class="text-white">Nilai</p>
-                                </a>
-                            </li>
-                        @endif
+                                    @if(auth()->user()->role == 'guru')
+                                        <li>
+                                            <a href="{{ route('nilai.guru.index') }}" class="{{ request()->is('guru/nilai*') ? 'active' : '' }}">
+                                                <i class="fas fa-edit"></i>
+                                                <span>Input Nilai</span>
+                                            </a>
+                                        </li>
+                                    @endif
 
-                        @if(auth()->user()->role == 'siswa')
-                            <li class="nav-item mb-2">
-                                <a href="{{ route('nilai.siswa.index') }}"
-                                class="{{ request()->is('siswa/nilai*') ? 'active' : '' }}">
-                                    <i class="fas fa-chart-bar text-white"></i>
-                                    <p class="text-white">Nilai</p>
-                                </a>
-                            </li>
-                        @endif
-                        @if(in_array(auth()->user()->role, ['admin', 'waka']))
-                            <li class="nav-item mb-2">
-                                <a href="{{ route('nilai.rekap') }}"
-                                class="{{ request()->is('admin/rekap-nilai*') ? 'active' : '' }}">
-                                    <i class="fas fa-file-excel text-white"></i>
-                                    <p class="text-white">Rekap Nilai</p>
-                                </a>
-                            </li>
-                        @endif
+                                    @if(auth()->user()->role == 'siswa')
+                                        <li>
+                                            <a href="{{ route('nilai.siswa.index') }}" class="{{ request()->is('siswa/nilai*') ? 'active' : '' }}">
+                                                <i class="fas fa-file-invoice"></i>
+                                                <span>Nilai Saya</span>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Menu Rekap Nilai untuk Admin & Waka --}}
+                                    @if(in_array(auth()->user()->role, ['admin', 'waka']))
+                                        <li>
+                                            <a href="{{ route('nilai.rekap') }}" class="{{ request()->is('admin/rekap-nilai*') ? 'active' : '' }}">
+                                                <i class="fas fa-file-excel"></i>
+                                                <span>Rekap Nilai</span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+                        </li>
 
                         @if(in_array(auth()->user()->role, ['siswa', 'waka', 'admin']))
                             <li class="nav-item mb-2">
@@ -794,50 +815,6 @@
           <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom" style="background-color:#155b31;">
             <div class="container-fluid" >
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a
-                    class="nav-link dropdown-toggle"
-                    href="#"
-                    id="notifDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <i class="fa fa-bell"></i>
-                    <span class="notification">4</span>
-                  </a>
-                  <ul
-                    class="dropdown-menu notif-box animated fadeIn"
-                    aria-labelledby="notifDropdown"
-                  >
-                    <li>
-                      <div class="dropdown-title">
-                        You have 4 new notification
-                      </div>
-                    </li>
-                    <li>
-                      <div class="notif-scroll scrollbar-outer">
-                        <div class="notif-center">
-                          <a href="#">
-                            <div class="notif-icon notif-danger">
-                              <i class="fa fa-heart"></i>
-                            </div>
-                            <div class="notif-content">
-                              <span class="block"> Farrah liked Admin </span>
-                              <span class="time">17 minutes ago</span>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    </li>
-                    <li>
-                      <a class="see-all" href="javascript:void(0);"
-                        >See all notifications<i class="fa fa-angle-right"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
 
                 <li class="nav-item topbar-user dropdown hidden-caret">
     

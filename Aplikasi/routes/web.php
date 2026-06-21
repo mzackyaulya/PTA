@@ -247,6 +247,10 @@ Route::middleware(['auth'])->group(function(){
 */
 
 Route::middleware(['auth', 'role:admin,waka'])->group(function () {
+    Route::resource('siswa', SiswaController::class)->only(['index','show']);
+
+    Route::resource('kelas', KelasController::class)->only(['index']);
+
     Route::get('/admin/pertemuan', [PertemuanController::class, 'index'])
         ->name('pertemuan.index');
 
