@@ -21,7 +21,13 @@
                 <input type="text" name="kode" class="form-control">
             </div>
 
+            <div class="mb-3">
+                <label>JB</label>
+                <input type="number" name="jb" class="form-control">
+            </div>
+
             <button class="btn btn-success">Simpan</button>
+            <a href="{{ route('mapel.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 </div>

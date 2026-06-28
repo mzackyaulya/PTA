@@ -16,52 +16,56 @@ class SiswaSeeder extends Seeder
      */
     public function run(): void
     {
-        // Menggunakan lokalisasi Indonesia (id_ID) agar data nama/alamat sesuai Indonesia
         $faker = Faker::create('id_ID');
 
-        // Lakukan perulangan sebanyak 20 kali
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             
-            // 1. Generate UUID untuk User terlebih dahulu
             $userId = (string) Str::uuid();
             
-            // 2. Generate NISN 10 digit (Harus unik karena di migrasi ada rule ->unique())
             $nisnSiswa = $faker->unique()->numerify('##########');
 
-            // 3. Insert data ke tabel Users (Sekarang sudah lengkap dengan NISN)
+            $namaSiswa = $faker->firstName . ' ' . $faker->lastName;
+
             User::create([
                 'id' => $userId, 
-                'name' => $faker->name,
+                'name' => $namaSiswa,
                 'email' => $faker->unique()->safeEmail,
-                'nisn' => $nisnSiswa, // KUNCI UTAMA: Ditambahkan di sini agar bisa digunakan login
-                'nip' => null, // Karena ini siswa, NIP dikosongkan
-                'password' => Hash::make('password123'), // Password default semua siswa untuk login
+                'nisn' => $nisnSiswa, 
+                'nip' => null, 
+                'password' => Hash::make('password123'), 
             ]);
 
-            // 4. Insert data ke tabel Siswas (Berelasi dengan user_id di atas)
+            $alamatPalembang = 'Jl. ' . $faker->streetName . ' No. ' . $faker->buildingNumber . ', Palembang, Sumatera Selatan';
+
+            $nisSiswa4Digit = str_pad($i, 4, '0', STR_PAD_LEFT); 
+
+            $kebutuhanKhusus = $faker->randomElement(['IYA', 'TIDAK']);
+
+            $jurusanSekolah = $faker->randomElement(['IPA', 'IPS']);
+
             DB::table('siswas')->insert([
                 'id' => (string) Str::uuid(),
-                'user_id' => $userId, // Menghubungkan ke user yang baru dibuat
-                'nis' => $faker->numerify('##########'), // Ini NIS lokal sekolah (boleh disamakan/dibedakan dengan NISN)
+                'user_id' => $userId, 
+                'nis' => $nisSiswa4Digit, 
                 'jenis_kelamin' => $faker->randomElement(['Laki-laki', 'Perempuan']),
-                'tempat_lahir' => $faker->city,
-                'tanggal_lahir' => $faker->date('Y-m-d', '-16 years'), // Kisaran umur siswa 16 tahun
+                'tempat_lahir' => 'Palembang',
+                'tanggal_lahir' => $faker->date('Y-m-d', '-16 years'), 
                 'kewarganegaraan' => 'WNI',
-                'agama' => $faker->randomElement(['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Khonghucu']),
-                'alamat' => $faker->address,
-                'nik' => $faker->numerify('################'), // 16 digit NIK
+                'agama' => 'Islam', 
+                'alamat' => $alamatPalembang,
+                'nik' => $faker->numerify('################'), 
                 'nohp' => $faker->phoneNumber,
-                'dusun' => 'Dusun ' . $faker->word,
-                'kecamatan' => $faker->city,
+                'dusun' => 'Lorong ' . $faker->word,
+                'kecamatan' => $faker->randomElement(['Ilir Timur I', 'Ilir Timur II', 'Sako', 'Sujakarami', 'Plaju', 'Seberang Ulu I']), 
                 'kelurahan' => $faker->streetName,
                 'rt' => $faker->numerify('0##'),
                 'rw' => $faker->numerify('0##'),
-                'kodepos' => $faker->postcode,
+                'kodepos' => $faker->numerify('30###'), 
                 'jenis_tinggal' => $faker->randomElement(['Tinggal dengan Orang Tua', 'Kos', 'Asrama']),
                 'alat_transportasi' => $faker->randomElement(['Sepeda Motor', 'Angkutan Umum', 'Jalan Kaki']),
 
                 // Data Orang Tua (Ayah)
-                'nama_ayah' => $faker->name('male'),
+                'nama_ayah' => $faker->firstName('male') . ' ' . $faker->lastName,
                 'tanggal_lahir_ayah' => $faker->date('Y-m-d', '-45 years'),
                 'nik_ayah' => $faker->numerify('################'),
                 'pendidikan_ayah' => $faker->randomElement(['SD', 'SMP', 'SMA', 'S1', 'S2']),
@@ -69,14 +73,14 @@ class SiswaSeeder extends Seeder
                 'penghasilan_ayah' => $faker->randomElement(['Rp 1.000.000 - Rp 3.000.000', 'Rp 3.000.000 - Rp 5.000.000', '> Rp 5.000.000']),
 
                 // Data Orang Tua (Ibu)
-                'nama_ibu' => $faker->name('female'),
+                'nama_ibu' => $faker->firstName('female') . ' ' . $faker->lastName,
                 'tanggal_lahir_ibu' => $faker->date('Y-m-d', '-42 years'),
                 'nik_ibu' => $faker->numerify('################'),
                 'pendidikan_ibu' => $faker->randomElement(['SD', 'SMP', 'SMA', 'S1']),
                 'pekerjaan_ibu' => $faker->randomElement(['Ibu Rumah Tangga', 'PNS', 'Karyawan Swasta']),
                 'penghasilan_ibu' => $faker->randomElement(['Tidak Berpenghasilan', 'Rp 1.000.000 - Rp 3.000.000']),
 
-                // Data Wali (Diisi default strip jika tidak ada)
+                // Data Wali
                 'nama_wali' => '-',
                 'tanggal_lahir_wali' => $faker->date('Y-m-d', '-40 years'),
                 'nik_wali' => '-',
@@ -85,9 +89,9 @@ class SiswaSeeder extends Seeder
 
                 // Data Tambahan Sekolah
                 'no_akta_lahir' => $faker->numerify('AKTA-#####'),
-                'jurusan' => $faker->randomElement(['RPL', 'TKJ', 'Multimedia']),
-                'kebutuhan_khusus' => 'Tidak Ada',
-                'asal_sekolah' => 'SMPN 1 ' . $faker->city,
+                'jurusan' => $jurusanSekolah,
+                'kebutuhan_khusus' => $kebutuhanKhusus,
+                'asal_sekolah' => 'SMP Negeri di Palembang',
                 'anakke' => (string) $faker->numberBetween(1, 4),
                 'no_kk' => $faker->numerify('################'),
                 'berat_badan' => (string) $faker->numberBetween(45, 75),

@@ -71,8 +71,11 @@
                             </div>
                         </form>
 
-                        {{-- Tombol Tambah --}}
                         @if (auth()->user()->role === 'admin')
+                            {{-- PERBAIKAN: Mengubah data-bs-target menjadi #importExcelModal agar sesuai dengan ID modal di bawah --}}
+                            <button type="button" class="btn btn-success btn-sm px-3 shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#importExcelModal">
+                                <i class="fa fa-file-excel me-1"></i> Import Excel
+                            </button>
                             <a href="{{ route('siswa.create') }}" class="btn btn-primary btn-sm px-3 shadow-sm text-nowrap">
                                 <i class="fa fa-plus me-1"></i> Tambah Siswa
                             </a>
@@ -169,7 +172,6 @@
                     <div class="d-flex justify-content-center justify-content-md-end m-0">
                         @if ($siswa->hasPages())
                             <div class="custom-pagination">
-                                {{-- PERBAIKAN: Menambahkan 'pagination::bootstrap-5' agar panah raksasa hilang --}}
                                 {{ $siswa->appends(['search' => request('search')])->links('pagination::bootstrap-5') }}
                             </div>
                         @else
@@ -190,23 +192,63 @@
                     </div>
                 </div>
             </div>
-            
         </div>
     </div>
-
-    @if (session('success'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: "{{ session('success') }}",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    toast: true,
-                    position: 'top-end'
-                });
-            });
-        </script>
-    @endif
 @endsection
+
+{{-- MODAL & SCRIPT DI LETAKKAN DI LUAR @endsection UNTUK MENCEGAH BUG BACKDROP CODES FREEZE --}}
+<div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="importExcelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importExcelModalLabel">Import Data Siswa via Excel</h5>
+                <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="file_excel" class="form-label">Pilih File Excel (.xlsx, .xls)</label>
+                        <input type="file" name="file_excel" class="form-control" id="file_excel" required>
+                    </div>
+                    <div class="text-muted small">
+                        *Pastikan format kolom Excel sudah sesuai urutan data siswa.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-close="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Mulai Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (session('success'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 3000,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: "{{ session('error') }}",
+                showConfirmButton: true
+            });
+        });
+    </script>
+@endif

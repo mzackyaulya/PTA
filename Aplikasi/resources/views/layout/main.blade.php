@@ -537,19 +537,31 @@
                                 <ul class="nav nav-collapse">
 
                                     {{-- =======================
-                                            ABSENSI
+                                                ABSENSI
                                     ======================= --}}
 
-                                    {{-- ADMIN --}}
-                                    @if(auth()->user()->role === 'admin')
+                                    {{-- ADMIN & WAKA --}}
+                                    @if(auth()->user()->role === 'admin' || strtolower(auth()->user()->role) === 'waka')
 
-                                        <li>
-                                            <a href="{{ route('pertemuan.index') }}"
-                                            class="{{ request()->is('admin/pertemuan*') ? 'active' : '' }}">
-                                                <i class="fas fa-calendar-check"></i>
-                                                <span>Pertemuan Absensi</span>
-                                            </a>
-                                        </li>
+                                        @if(strtolower(auth()->user()->role) === 'waka')
+                                            {{-- Khusus Waka: Langsung menuju Rekap Absensi --}}
+                                            <li>
+                                                <a href="{{ url('admin/rekap-absensi') }}"
+                                                class="{{ request()->is('admin/rekap-absensi*') ? 'active' : '' }}">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                    <span>Rekap Absensi</span>
+                                                </a>
+                                            </li>
+                                        @else
+                                            {{-- Khusus Admin: Tetap ke Pertemuan Absensi --}}
+                                            <li>
+                                                <a href="{{ route('pertemuan.index') }}"
+                                                class="{{ request()->is('admin/pertemuan*') ? 'active' : '' }}">
+                                                    <i class="fas fa-calendar-check"></i>
+                                                    <span>Pertemuan Absensi</span>
+                                                </a>
+                                            </li>
+                                        @endif
 
                                     @endif
 
@@ -584,7 +596,8 @@
                                     {{-- =======================
                                             JADWAL
                                     ======================= --}}
-                                    @if(auth()->user()->role === 'admin')
+                                    {{-- Mengizinkan Admin dan Waka untuk membuka menu dropdown Jadwal --}}
+                                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'waka')
 
                                     <li>
 
@@ -602,13 +615,17 @@
 
                                             <ul class="nav nav-collapse">
 
+                                                {{-- List Guru hanya bisa dilihat oleh Admin --}}
+                                                @if(auth()->user()->role === 'admin')
                                                 <li>
                                                     <a href="{{ route('jadwal.guru.list') }}">
                                                         <i class="fas fa-chalkboard-teacher"></i>
                                                         <span>List Guru</span>
                                                     </a>
                                                 </li>
+                                                @endif
 
+                                                {{-- List Siswa otomatis bisa dilihat oleh Admin dan Waka --}}
                                                 <li>
                                                     <a href="{{ route('jadwal.siswa.list') }}">
                                                         <i class="fas fa-user-graduate"></i>
@@ -742,19 +759,17 @@
                                 <a data-bs-toggle="collapse" 
                                 href="#suratCollapse" 
                                 class="parent-menu {{ request()->is('surat*') ? 'active' : '' }}">
-
                                     <i class="fas fa-envelope-open text-white"></i>
                                     <p class="text-white">Surat</p>
                                     <span class="caret"></span>
-
                                 </a>
 
                                 <div class="collapse px-4 {{ request()->is('surat*') ? 'show' : '' }}" 
                                     id="suratCollapse">
-
                                     <ul class="nav nav-collapse">
 
-                                        {{-- Menu Pengajuan (Create) --}}
+                                        {{-- Menu Pengajuan (Hanya untuk Siswa dan Admin, Waka disembunyikan) --}}
+                                        @if(in_array(auth()->user()->role, ['siswa', 'admin']))
                                         <li>
                                             <a href="{{ route('surat.create') }}" 
                                             class="{{ request()->routeIs('surat.create') ? 'active' : '' }}">
@@ -762,8 +777,9 @@
                                                 <span>Pengajuan</span>
                                             </a>
                                         </li>
+                                        @endif
 
-                                        {{-- Menu Riwayat (Index) --}}
+                                        {{-- Menu Riwayat (Index) - Semua role (Siswa, Waka, Admin) bisa melihat --}}
                                         <li>
                                             <a href="{{ route('surat.index') }}" 
                                             class="{{ request()->routeIs('surat.index') ? 'active' : '' }}">
@@ -773,7 +789,6 @@
                                         </li>
 
                                     </ul>
-
                                 </div>
 
                             </li>

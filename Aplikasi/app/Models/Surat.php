@@ -12,6 +12,7 @@ class Surat extends Model
 
     protected $fillable = [
         'id',
+        'tahun_ajaran_id',
         'user_id',
         'kode_surat',
         'jenis_surat',
@@ -64,5 +65,11 @@ class Surat extends Model
     public function waka()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+    
+    public function tahunAjaran()
+    {
+        // Relasi menggunakan id berbasis string/UUID
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
     }
 }

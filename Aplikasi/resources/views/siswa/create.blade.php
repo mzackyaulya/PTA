@@ -60,9 +60,15 @@
                                     required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">NISN</label>
-                                <input type="text" name="nisn" class="form-control" value="{{ old('nisn') }}"
-                                    required>
+                                <label for="nisn" class="form-label">NISN</label>
+                                <input type="text" 
+                                    id="nisn" 
+                                    name="nisn" 
+                                    maxlength="10" 
+                                    oninput="validateInput(this, 10, 'error-nisn')" 
+                                    class="form-control" 
+                                    value="{{ old('nisn') }}" required>
+                                <small id="error-nisn" class="text-danger" style="display: none;"></small>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
@@ -77,8 +83,15 @@
                             <div class="section-title">Data Pribadi</div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">NIS</label>
-                                    <input type="text" name="nis" class="form-control" value="{{ old('nis') }}">
+                                    <label for="nis" class="form-label">NIS</label>
+                                    <input type="text" 
+                                        id="nis" 
+                                        name="nis" 
+                                        maxlength="4" 
+                                        oninput="validateInput(this, 4, 'error-nis')" 
+                                        class="form-control" 
+                                        value="{{ old('nis') }}" required>
+                                    <small id="error-nis" class="text-danger" style="display: none;"></small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Jenis Kelamin</label>
@@ -195,12 +208,12 @@
                                     <label class="form-label">Alat Transportasi</label>
                                     <select name="alat_transportasi" class="form-select">
                                         <option value="">- Pilih -</option>
-                                        <option value="Jalan Kaki">Jalan Kaki</option>
-                                        <option value="Sepeda">Sepeda</option>
-                                        <option value="Motor">Motor</option>
-                                        <option value="Mobil">Mobil</option>
-                                        <option value="Angkutan Umum">Angkutan Umum</option>
-                                        <option value="Ojek">Ojek</option>
+                                        <option value="Jalan Kaki" {{ old('alat_transportasi') == 'Jalan Kaki' ? 'selected' : '' }}>Jalan Kaki</option>
+                                        <option value="Sepeda" {{ old('alat_transportasi') == 'Sepeda' ? 'selected' : '' }}>Sepeda</option>
+                                        <option value="Motor" {{ old('alat_transportasi') == 'Motor' ? 'selected' : '' }}>Motor</option>
+                                        <option value="Mobil" {{ old('alat_transportasi') == 'Mobil' ? 'selected' : '' }}>Mobil</option>
+                                        <option value="Angkutan Umum" {{ old('alat_transportasi') == 'Angkutan Umum' ? 'selected' : '' }}>Angkutan Umum</option>
+                                        <option value="Ojek" {{ old('alat_transportasi') == 'Ojek' ? 'selected' : '' }}>Ojek</option>
                                     </select>
                                 </div>
                             </div>
@@ -530,5 +543,20 @@
 
             return rupiah;
         }
+    </script>
+    <script>
+    function validateInput(input, maxLength, errorId) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        
+        const errorElement = document.getElementById(errorId);
+        
+        // Jika panjangnya mencapai batas maksimal, tampilkan peringatan
+        if (input.value.length >= maxLength) {
+            errorElement.innerText = `Batas maksimal ${maxLength} digit telah tercapai!`;
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.style.display = 'none';
+        }
+    }
     </script>
 @endsection

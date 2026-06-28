@@ -93,7 +93,8 @@
                         class="rounded-circle shadow-sm profile-photo"
                         style="width:150px; height:150px; object-fit:cover;">
                 @else
-                    <img src="{{ asset('images/default-user.png') }}" alt="Foto Guru"
+                    {{-- Menggunakan SVG/UI Avatars Online yang bersih dan responsif --}}
+                    <img src="{{ url('assets/img/admin.png') }}"
                         class="rounded-circle shadow-sm profile-photo"
                         style="width:150px; height:150px; object-fit:cover;">
                     <div class="text-muted mt-2 small">Belum ada foto</div>

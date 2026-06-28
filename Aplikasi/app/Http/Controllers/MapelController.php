@@ -21,7 +21,9 @@ class MapelController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'=>'required'
+            'kode'  =>'required',
+            'nama'  =>'required',
+            'jb'    =>'required'
         ]);
 
         Mapel::create($request->all());
@@ -37,8 +39,10 @@ class MapelController extends Controller
     public function update(Request $request, Mapel $mapel)
     {
         $data = $request->validate([
-            'nama' => 'required|string|max:255',
-            'kode' => 'nullable|string|max:50',
+            'nama'  => 'required|string|max:255',
+            'kode'  => 'required|string|max:50',
+            'jb'    => 'required'
+
         ]);
 
         $mapel->update($data);

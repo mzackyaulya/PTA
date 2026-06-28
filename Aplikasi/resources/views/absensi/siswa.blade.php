@@ -548,105 +548,83 @@
 
         document.getElementById("reader").innerHTML = "";
 
+        // Inisialisasi scanner baru
         scanner = new Html5Qrcode("reader");
 
-        Html5Qrcode.getCameras().then(devices => {
+        // LANGKAH UTAMA: Langsung panggil kamera belakang dengan facingMode: "environment"
+        scanner.start(
+            { facingMode: "environment" }, // Memaksa browser HP menggunakan kamera belakang utama
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            },
+            function(decodedText){
+                if(scanned) return;
+                scanned = true;
 
-            if(devices && devices.length){
+                beep.play();
 
-                let backCamera = devices.find(camera =>
-                    camera.label.toLowerCase().includes("back") ||
-                    camera.label.toLowerCase().includes("environment")
-                );
+                scanner.stop().then(()=>{
+                    document.getElementById("reader").innerHTML = `
+                        <div style="padding:30px;text-align:center">
+                            <div class="spinner-border text-success"></div>
+                            <p class="mt-2">Memproses absensi...</p>
+                        </div>
+                    `;
 
-                let cameraId = backCamera ? backCamera.id : devices[0].id;
+                    let url = new URL(decodedText);
 
-                scanner.start(
-                    cameraId,
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 }
-                    },
+                    fetch(url.pathname, {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if(!response.ok){
+                            throw new Error("Server error");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if(data.status === "success"){
+                            document.getElementById("reader").innerHTML =
+                                "<h5 style='color:green'>Scan berhasil</h5>";
 
-                    function(decodedText){
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1500);
 
-                        if(scanned) return;
-                        scanned = true;
+                        } else if(data.status === "expired"){
+                            document.getElementById("reader").innerHTML =
+                                "<h5 style='color:red'>QR expired</h5>";
 
-                        beep.play();
+                        } else if(data.status === "login_required"){
+                            document.getElementById("reader").innerHTML =
+                                "<h5 style='color:red'>Harus login sebagai siswa</h5>";
 
-                        scanner.stop().then(()=>{
+                        } else if(data.status === "invalid"){
+                            document.getElementById("reader").innerHTML =
+                                "<h5 style='color:red'>QR tidak valid</h5>";
 
-                            document.getElementById("reader").innerHTML = `
-                                <div style="padding:30px;text-align:center">
-                                    <div class="spinner-border text-success"></div>
-                                    <p class="mt-2">Memproses absensi...</p>
-                                </div>
-                            `;
-
-                            let url = new URL(decodedText);
-
-                            fetch(url.pathname,{
-                                method:'GET',
-                                credentials:'include',
-                                headers:{
-                                    'Accept':'application/json'
-                                }
-                            })
-                            .then(response => {
-                                if(!response.ok){
-                                    throw new Error("Server error");
-                                }
-
-                                return response.json();
-                            })
-                            .then(data => {
-
-                                if(data.status === "success"){
-
-                                    document.getElementById("reader").innerHTML =
-                                        "<h5 style='color:green'>Scan berhasil</h5>";
-
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 1500);
-
-                                } else if(data.status === "expired"){
-
-                                    document.getElementById("reader").innerHTML =
-                                        "<h5 style='color:red'>QR expired</h5>";
-
-                                } else if(data.status === "login_required"){
-
-                                    document.getElementById("reader").innerHTML =
-                                        "<h5 style='color:red'>Harus login sebagai siswa</h5>";
-
-                                } else if(data.status === "invalid"){
-
-                                    document.getElementById("reader").innerHTML =
-                                        "<h5 style='color:red'>QR tidak valid</h5>";
-
-                                } else {
-
-                                    document.getElementById("reader").innerHTML =
-                                        "<h5 style='color:red'>Gagal memproses</h5>";
-                                }
-                            })
-                            .catch(error => {
-                                console.log(error);
-
-                                document.getElementById("reader").innerHTML =
-                                    "<h5 style='color:red'>Server error</h5>";
-                            });
-                        });
-                    },
-
-                    function(error){}
-                );
-            }
-        })
+                        } else {
+                            document.getElementById("reader").innerHTML =
+                                "<h5 style='color:red'>Gagal memproses</h5>";
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        document.getElementById("reader").innerHTML =
+                            "<h5 style='color:red'>Server error</h5>";
+                    });
+                });
+            },
+            function(error){}
+        )
         .catch(err => {
-            alert("Kamera tidak dapat diakses");
+            console.log(err);
+            alert("Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan dan Anda menggunakan koneksi HTTPS Ngrok yang aman.");
         });
     };
 

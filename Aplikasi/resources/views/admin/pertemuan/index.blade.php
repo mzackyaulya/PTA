@@ -197,7 +197,9 @@
                             <th width="11%">Tanggal</th>
                             <th width="10%">Jam</th>
                             <th width="13%">Status</th>
-                            <th width="12%">Aksi</th>
+                            @if(auth()->user()->role === 'admin')
+                                <th width="12%">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
 
@@ -270,7 +272,7 @@
                                         </span>
                                     @endif
                                 </td>
-
+                                @if(auth()->user()->role === 'admin')
                                 <td class="text-center">
                                     @if(!$p->is_approved)
                                         <a href="{{ route('pertemuan.approve', $p->id) }}"
@@ -284,6 +286,7 @@
                                         Lihat Absensi
                                     </a>
                                 </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>

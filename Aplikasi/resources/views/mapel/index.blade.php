@@ -13,8 +13,9 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Nama Mapel</th>
                     <th>Kode</th>
+                    <th>Nama Mapel</th>
+                    <th>JB</th>
                     <th width="150" class="text-center">Aksi</th>
                 </tr>
             </thead>
@@ -22,8 +23,9 @@
                 @forelse($data as $i => $d)
                 <tr>
                     <td>{{ $i+1 }}</td>
-                    <td>{{ $d->nama }}</td>
                     <td>{{ $d->kode }}</td>
+                    <td>{{ $d->nama }}</td>
+                    <td>{{ $d->jb ?? '-' }}</td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
                             

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\SiswaImport;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\User;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaController extends Controller
 {
@@ -331,6 +333,122 @@ class SiswaController extends Controller
             return back()
                 ->withInput()
                 ->with('error', $e->getMessage());
+        }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            // KEMBALI KE NORMAL: Tanpa startRow karena Excel sudah dimulai dari baris 1
+            (new \Rap2hpoutre\FastExcel\FastExcel)->import($request->file('file_excel'), function ($line) {
+                
+                $userId = (string) \Illuminate\Support\Str::uuid();
+
+                // Membaca kolom secara akurat dari baris 1 Excel
+                $namaSiswa  = $line['Nama Lengkap'] ?? $line['nama'] ?? $line['Nama'] ?? null;
+                $nisnSiswa  = $line['NISN'] ?? $line['nisn'] ?? null;
+                $emailSiswa = $line['Email'] ?? $line['email'] ?? null;
+                $nisSiswa   = $line['NIS'] ?? $line['nis'] ?? null;
+
+                // Skip jika ada baris kosong di bagian bawah excel
+                if (!$namaSiswa && !$nisnSiswa) {
+                    return; 
+                }
+
+                if (!$namaSiswa) {
+                    throw new \Exception("Ada baris data yang kolom 'Nama Lengkap'-nya kosong.");
+                }
+
+                if (!$emailSiswa) {
+                    $emailSiswa = $nisnSiswa ? $nisnSiswa . '@example.com' : \Illuminate\Support\Str::random(10) . '@example.com';
+                }
+
+                // 1. Buat data User
+                $user = \App\Models\User::create([
+                    'id'       => $userId, 
+                    'name'     => $namaSiswa,
+                    'nisn'     => $nisnSiswa,
+                    'email'    => $emailSiswa,
+                    'password' => \Illuminate\Support\Facades\Hash::make($line['Password'] ?? $line['password'] ?? 'password123'),
+                    'role'     => 'siswa',
+                ]);
+
+                // 2. Buat data detail Siswa
+                \App\Models\Siswa::create([
+                    'id'                => (string) \Illuminate\Support\Str::uuid(),
+                    'user_id'           => $user->id,
+                    'nis'               => $nisSiswa,
+                    'jenis_kelamin'     => $line['Jenis Kelamin'] ?? $line['jenis_kelamin'] ?? 'Laki-laki',
+                    'tempat_lahir'      => $line['Tempat Lahir'] ?? $line['tempat_lahir'] ?? 'Palembang',
+                    'tanggal_lahir'     => $line['Tanggal Lahir'] ?? $line['tanggal_lahir'] ?? now()->subYears(16)->format('Y-m-d'),
+                    'kewarganegaraan'   => $line['Kewarganegaraan'] ?? 'WNI',
+                    'agama'             => $line['Agama'] ?? 'Islam',
+                    'alamat'            => $line['Alamat'] ?? '',
+                    'nik'               => $line['NIK'] ?? $line['nik'] ?? '',
+                    'nohp'              => $line['No HP'] ?? $line['nohp'] ?? '',
+                    'dusun'             => $line['Dusun'] ?? '',
+                    'kecamatan'         => $line['Kecamatan'] ?? '',
+                    'kelurahan'         => $line['Kelurahan'] ?? '',
+                    'rt'                => $line['RT'] ?? '000',
+                    'rw'                => $line['RW'] ?? '000',
+                    'kodepos'           => $line['Kode Pos'] ?? $line['kodepos'] ?? '',
+                    'jenis_tinggal'     => $line['Jenis Tinggal'] ?? 'Tinggal dengan Orang Tua',
+                    'alat_transportasi' => $line['Alat Transportasi'] ?? 'Jalan Kaki',
+
+                    // Data Orang Tua
+                    'nama_ayah'          => $line['Nama Ayah'] ?? '-',
+                    'tanggal_lahir_ayah' => now()->subYears(45)->format('Y-m-d'),
+                    'nik_ayah'           => '',
+                    'pendidikan_ayah'    => '-',
+                    'pekerjaan_ayah'     => $line['Pekerjaan Ayah'] ?? '-',
+                    'penghasilan_ayah'   => '0',
+
+                    'nama_ibu'          => $line['Nama Ibu'] ?? '-',
+                    'tanggal_lahir_ibu' => now()->subYears(42)->format('Y-m-d'),
+                    'nik_ibu'           => '',
+                    'pendidikan_ibu'    => '-',
+                    'pekerjaan_ibu'     => $line['Pekerjaan Ibu'] ?? '-',
+                    'penghasilan_ibu'   => '0',
+
+                    'nama_wali'          => '-',
+                    'tanggal_lahir_wali' => now()->subYears(40)->format('Y-m-d'),
+                    'nik_wali'           => '-',
+                    'pendidikan_wali'    => '-',
+                    'pekerjaan_wali'     => '-',
+
+                    // Data Tambahan
+                    'no_akta_lahir'    => '-',
+                    'jurusan'          => $line['Jurusan'] ?? 'IPA',
+                    'kebutuhan_khusus' => 'Tidak Ada',
+                    'asal_sekolah'     => $line['Asal Sekolah'] ?? '-',
+                    'anakke'           => '1',
+                    'no_kk'            => '',
+                    'berat_badan'      => '0',
+                    'tinggi_badan'     => '0',
+                    'lingkar_kepala'   => '0',
+                    'jumlah_saudara'   => '0',
+                    'jarak_rumah'      => '0 KM',
+                    'foto'             => null,
+                    'tahun_masuk'      => $line['Tahun Masuk'] ?? 2025,
+                    'status_siswa'     => $line['Status'] ?? 'aktif',
+                ]);
+            });
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()
+                ->route('siswa.index')
+                ->with('success', 'Semua data siswa dari Excel berhasil di-import.');
+                
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->with('error', 'Gagal mengimport data. Pesan Error: ' . $e->getMessage());
         }
     }
 }

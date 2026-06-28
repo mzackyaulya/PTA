@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
+        // PERBAIKAN 2: Percayai Host Header dari Ngrok
+        $middleware->trustHosts(at: ['localhost', '*.ngrok-free.app']);
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);

@@ -247,7 +247,9 @@ class PertemuanController extends Controller
                 $alpa  = $items->where('status', 'alpa')->count();
 
                 $total = $hadir + $izin + $sakit + $alpa;
-                $persentase = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+
+                $totalBobotKehadiran = ($hadir * 1.0) + ($izin * 0.5) + ($sakit * 0.5) + ($alpa * 0.0);
+                $persentase = $total > 0 ? round(($totalBobotKehadiran / $total) * 100, 2) : 0;
 
                 return [
                     'siswa' => $first->siswa,
@@ -274,6 +276,7 @@ class PertemuanController extends Controller
             'tanggalSelesai'
         ));
     }
+    
     public function exportRekap(Request $request)
     {
         $tahunDipilih = $request->filled('tahun_ajaran_id')
@@ -326,7 +329,9 @@ class PertemuanController extends Controller
                 $alpa  = $items->where('status', 'alpa')->count();
 
                 $total = $hadir + $izin + $sakit + $alpa;
-                $persentase = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+
+                $totalBobotKehadiran = ($hadir * 1.0) + ($izin * 0.5) + ($sakit * 0.5) + ($alpa * 0.0);
+                $persentase = $total > 0 ? round(($totalBobotKehadiran / $total) * 100, 2) : 0;
 
                 return [
                     'siswa' => $first->siswa,

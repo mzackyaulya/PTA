@@ -172,7 +172,6 @@
                             <th>NISN</th>
                             <th>Nama Siswa</th>
                             <th>Status</th>
-                            <th>Scan Barcode</th>
                             <th>Keterangan</th>
                         </tr>
                     </thead>
@@ -207,14 +206,6 @@
                                         <span class="badge bg-danger">Alpa</span>
                                     @else
                                         <span class="badge bg-secondary">-</span>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    @if($dataAbsen && $dataAbsen->scan_barcode)
-                                        <span class="badge bg-success">Ya</span>
-                                    @else
-                                        <span class="badge bg-secondary">Tidak</span>
                                     @endif
                                 </td>
 

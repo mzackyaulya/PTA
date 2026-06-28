@@ -114,7 +114,22 @@
                     </thead>
 
                     <tbody>
+                        @php
+                            $totalMapelSiswa = 0;
+                            $totalRataP = 0;
+                            $totalRataK = 0;
+                            $totalRataAkhir = 0;
+                            $jumlahSiswa = 0;
+                        @endphp
+
                         @forelse($rekap as $key => $r)
+                            @php
+                                $jumlahSiswa++;
+                                $totalMapelSiswa += $r['jumlah_mapel'] ?? 0;
+                                $totalRataP += $r['rata_pengetahuan'] ?? 0;
+                                $totalRataK += $r['rata_keterampilan'] ?? 0;
+                                $totalRataAkhir += $r['rata_akhir'] ?? 0;
+                            @endphp
                             <tr>
                                 <td>{{ $key + 1 }}</td>
 

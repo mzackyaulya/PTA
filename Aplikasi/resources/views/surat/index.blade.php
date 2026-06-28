@@ -5,8 +5,26 @@
 @section('content')
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <h1 class="mb-0 fw-bold">Riwayat Surat</h1>
+        
+        {{-- BAGIAN FILTER TAHUN AJARAN --}}
+        <div class="card shadow-sm border-0 m-0">
+            <div class="card-body p-2">
+                <form action="{{ route('surat.index') }}" method="GET" id="filterForm" class="d-flex align-items-center gap-2">
+                    <label for="tahun_ajaran_filter" class="mb-0 text-muted fw-bold small text-nowrap">
+                        <i class="fas fa-filter me-1"></i> Tahun Ajaran:
+                    </label>
+                    <select name="tahun_ajaran_filter" id="tahun_ajaran_filter" class="form-select form-select-sm border-0 bg-light fw-bold text-primary" onchange="document.getElementById('filterForm').submit();" style="min-width: 200px; cursor: pointer;">
+                        @foreach ($daftarTahunAjaran as $ta)
+                            <option value="{{ $ta->id }}" {{ request('tahun_ajaran_filter', $tahunAjaranAktif->id ?? '') == $ta->id ? 'selected' : '' }}>
+                                {{ $ta->tahun }} - Semester {{ $ta->semester }} {{$ta->aktif ? '(Aktif)' : ''}}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+        </div>
     </div>
 
     {{-- Alert Success --}}
@@ -45,15 +63,15 @@
                             
                             <div>
                                 @if ($surat->status === 'pending')
-                                    <span class="badge bg-warning rounded-pill text-dark px-5 py-3 fw-bold">Pending</span>
+                                    <span class="badge bg-warning rounded-pill text-dark px-3 py-2 fw-bold">Pending</span>
                                 @elseif ($surat->status === 'review')
-                                    <span class="badge bg-info rounded-pill text-dark px-4 py-3 fw-bold">Review</span>
+                                    <span class="badge bg-info rounded-pill text-dark px-3 py-2 fw-bold">Review</span>
                                 @elseif ($surat->status === 'selesai')
-                                    <span class="badge bg-success rounded-pill px-4 py-3 fw-bold">Selesai</span>
+                                    <span class="badge bg-success rounded-pill px-3 py-2 fw-bold">Selesai</span>
                                 @elseif ($surat->status === 'ditolak')
-                                    <span class="badge bg-danger rounded-pill px-4 py-3 fw-bold">Ditolak</span>
+                                    <span class="badge bg-danger rounded-pill px-3 py-2 fw-bold">Ditolak</span>
                                 @else
-                                    <span class="badge bg-secondary rounded-pill px-4 py-3 fw-bold">{{ $surat->status }}</span>
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2 fw-bold">{{ $surat->status }}</span>
                                 @endif
                             </div>
                         </div>
@@ -79,9 +97,9 @@
                         <p class="text-muted mb-3" style="font-size: 0.85rem;">
                             <i class="fas fa-calendar-alt me-1"></i>
                             @if ($surat->tanggal_mulai && $surat->tanggal_selesai)
-                                {{ $surat->tanggal_mulai->format('d M Y') }} - {{ $surat->tanggal_selesai->format('d M Y') }}
+                                {{ \Carbon\Carbon::parse($surat->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($surat->tanggal_selesai)->format('d M Y') }}
                             @elseif ($surat->tanggal_mulai)
-                                {{ $surat->tanggal_mulai->format('d M Y') }}
+                                {{ \Carbon\Carbon::parse($surat->tanggal_mulai)->format('d M Y') }}
                             @else
                                 -
                             @endif
@@ -96,20 +114,12 @@
                                     <i class="fas fa-eye"></i> Detail
                                 </a>
 
-                                @if (auth()->user()->role === 'siswa' && $surat->status === 'pending')
-                                    <a href="{{ route('surat.edit', $surat->id) }}" class="btn btn-sm btn-warning shadow-sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                @endif
-
-                                {{-- Admin dan Waka otomatis bisa unduh jika status selesai --}}
                                 @if ($surat->status === 'selesai')
                                     <a href="{{ route('surat.download', $surat->id) }}" class="btn btn-sm btn-success shadow-sm">
                                         <i class="fas fa-download"></i> Unduh
                                     </a>
                                 @endif
 
-                                {{-- HANYA WAKA YANG BISA REVIEWS, TERIMA, DAN TOLAK --}}
                                 @if (auth()->user()->role === 'waka')
                                     @if ($surat->status === 'pending')
                                         <form action="{{ route('surat.review', $surat->id) }}" method="POST" class="d-inline">
@@ -177,7 +187,7 @@
                         <div class="text-muted mb-3">
                             <i class="fas fa-folder-open fa-3x"></i>
                         </div>
-                        <h5 class="text-muted">Belum ada data surat.</h5>
+                        <h5 class="text-muted">Belum ada data surat pada Tahun Ajaran ini.</h5>
                     </div>
                 </div>
             </div>
@@ -187,7 +197,7 @@
     {{-- Pagination --}}
     @if ($surats->hasPages())
         <div class="d-flex justify-content-center mt-4">
-            {{ $surats->links() }}
+            {{ $surats->appends(request()->query())->links() }}
         </div>
     @endif
 

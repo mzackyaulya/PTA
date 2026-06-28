@@ -160,46 +160,71 @@ class RiwayatKelasController extends Controller
         $tahunAcuan = $this->tahunAcuanPenempatan($tahunAktif);
         $jurusanTujuan = $this->ambilJurusan($kelasTujuan->nama_kelas);
 
-        // Kelas X hanya untuk siswa baru yang belum pernah ditempatkan
+        // KONDISI 1: KELAS X
         if ($tingkatTujuan == 10) {
-            $siswa = Siswa::with('user')
-                ->whereDoesntHave('riwayatKelas')
-                ->orderBy('id', 'desc')
-                ->get();
-
-            return response()->json($siswa);
-        }
-
-        // Kalau kelas XI/XII tapi belum ada tahun acuan, kosong
-        if (!$tahunAcuan) {
-            return response()->json([]);
-        }
-
-        $tingkatAsal = $this->harusNaikTingkat($tahunAktif)
-            ? $tingkatTujuan - 1
-            : $tingkatTujuan;
-
-        $romawiAsal = $this->romawi($tingkatAsal);
-
-        $siswa = Siswa::with('user')
-            ->whereHas('riwayatKelas', function ($q) use ($tahunAcuan, $romawiAsal, $tingkatAsal, $jurusanTujuan) {
-                $q->where('tahun_ajaran_id', $tahunAcuan->id)
-                ->whereHas('kelas', function ($qKelas) use ($romawiAsal, $tingkatAsal, $jurusanTujuan) {
-                    $qKelas->whereIn('tingkat', [
-                        $romawiAsal,
-                        (string) $tingkatAsal
-                    ]);
-
-                    if ($jurusanTujuan) {
-                        $qKelas->where('nama_kelas', 'like', '%' . $jurusanTujuan . '%');
-                    }
+            $siswaQuery = Siswa::with('user')
+                ->where(function($query) use ($tahunAktif, $kelasTujuan) {
+                    // Ambil siswa yang BELUM punya riwayat kelas sama sekali
+                    $query->whereDoesntHave('riwayatKelas')
+                    // ATAU siswa yang sudah terdaftar DI KELAS INI pada tahun aktif ini (supaya tetap muncul)
+                    ->orWhereHas('riwayatKelas', function($q) use ($tahunAktif, $kelasTujuan) {
+                        $q->where('tahun_ajaran_id', $tahunAktif->id)
+                        ->where('kelas_id', $kelasTujuan->id);
+                    });
                 });
-            })
-            ->whereDoesntHave('riwayatKelas', function ($q) use ($tahunAktif) {
-                $q->where('tahun_ajaran_id', $tahunAktif->id);
-            })
-            ->orderBy('id', 'desc')
-            ->get();
+
+            if ($jurusanTujuan) {
+                $siswaQuery->where('jurusan', $jurusanTujuan);
+            }
+
+            $siswa = $siswaQuery->orderBy('id', 'desc')->get();
+        } 
+        // KONDISI 2: KELAS XI & XII
+        else {
+            if (!$tahunAcuan) return response()->json([]);
+
+            $tingkatAsal = $this->harusNaikTingkat($tahunAktif) ? $tingkatTujuan - 1 : $tingkatTujuan;
+            $romawiAsal = $this->romawi($tingkatAsal);
+
+            $siswaQuery = Siswa::with('user')
+                ->where(function($query) use ($tahunAcuan, $romawiAsal, $tingkatAsal, $jurusanTujuan, $tahunAktif, $kelasTujuan) {
+                    // Kondisi asal kenaikan tingkat
+                    $query->whereHas('riwayatKelas', function ($q) use ($tahunAcuan, $romawiAsal, $tingkatAsal, $jurusanTujuan) {
+                        $q->where('tahun_ajaran_id', $tahunAcuan->id)
+                        ->whereHas('kelas', function ($qKelas) use ($romawiAsal, $tingkatAsal, $jurusanTujuan) {
+                            $qKelas->whereIn('tingkat', [$romawiAsal, (string) $tingkatAsal]);
+                            if ($jurusanTujuan && $tingkatAsal > 10) {
+                                $qKelas->where('nama_kelas', 'like', '%' . $jurusanTujuan . '%');
+                            }
+                        });
+                    })
+                    // Belum ditempatkan di kelas LAIN pada tahun aktif ini
+                    ->whereDoesntHave('riwayatKelas', function ($q) use ($tahunAktif, $kelasTujuan) {
+                        $q->where('tahun_ajaran_id', $tahunAktif->id)
+                        ->where('kelas_id', '!=', $kelasTujuan->id); 
+                    })
+                    // ATAU dia memang sudah terdaftar di kelas ini
+                    ->orWhereHas('riwayatKelas', function($q) use ($tahunAktif, $kelasTujuan) {
+                        $q->where('tahun_ajaran_id', $tahunAktif->id)
+                        ->where('kelas_id', $kelasTujuan->id);
+                    });
+                });
+
+            if ($jurusanTujuan) {
+                $siswaQuery->where('jurusan', $jurusanTujuan);
+            }
+
+            $siswa = $siswaQuery->orderBy('id', 'desc')->get();
+        }
+
+        // Tambahkan flag 'terdaftar' secara dinamis untuk dibaca JavaScript frontend
+        $siswa->map(function($s) use ($kelasTujuan, $tahunAktif) {
+            $s->terdaftar = $s->riwayatKelas()
+                ->where('tahun_ajaran_id', $tahunAktif->id)
+                ->where('kelas_id', $kelasTujuan->id)
+                ->exists();
+            return $s;
+        });
 
         return response()->json($siswa);
     }
@@ -208,9 +233,19 @@ class RiwayatKelasController extends Controller
     {
         $request->validate([
             'kelas_id' => 'required|exists:kelas,id',
-            'siswa_id' => 'required|array',
+            'siswa_id' => 'nullable|array',
             'siswa_id.*' => 'exists:siswas,id',
         ]);
+
+        $kelasTujuan = Kelas::findOrFail($request->kelas_id);
+        $arrSiswaTerpilih = $request->input('siswa_id', []);
+
+        // VALIDASI PROTEKSI BACKEND: Cek apakah jumlah yang dicentang melebihi batas maksimal kelas
+        // Catatan: Ganti 'max_siswa' sesuai nama kolom kuota kelas Anda di database
+        $batasMaksimal = $kelasTujuan->max_siswa ?? 20; 
+        if (count($arrSiswaTerpilih) > $batasMaksimal) {
+            return back()->with('error', 'Gagal menyimpan! Jumlah siswa terpilih (' . count($arrSiswaTerpilih) . ') melebihi batas maksimal kelas yaitu ' . $batasMaksimal . ' siswa.');
+        }
 
         $tahunAktif = TahunAjaran::where('aktif', 1)->first();
 
@@ -230,20 +265,29 @@ class RiwayatKelasController extends Controller
             }
         }
 
-        foreach ($request->siswa_id as $siswaId) {
-            RiwayatKelas::updateOrCreate(
-                [
-                    'siswa_id' => $siswaId,
-                    'tahun_ajaran_id' => $tahunSimpan->id,
-                ],
-                [
-                    'kelas_id' => $request->kelas_id,
-                ]
-            );
+        // 1. PROSES UNCHECK: Hapus siswa yang sebelumnya ada di kelas ini, tapi sekarang TIDAK dicentang
+        RiwayatKelas::where('kelas_id', $request->kelas_id)
+            ->where('tahun_ajaran_id', $tahunSimpan->id)
+            ->whereNotIn('siswa_id', $arrSiswaTerpilih)
+            ->delete();
+
+        // 2. PROSES CHECK: Masukkan atau perbarui siswa yang sedang dicentang
+        if (!empty($arrSiswaTerpilih)) {
+            foreach ($arrSiswaTerpilih as $siswaId) {
+                RiwayatKelas::updateOrCreate(
+                    [
+                        'siswa_id' => $siswaId,
+                        'tahun_ajaran_id' => $tahunSimpan->id,
+                    ],
+                    [
+                        'kelas_id' => $request->kelas_id,
+                    ]
+                );
+            }
         }
 
         return redirect()->route('riwayatkelas.index')
-            ->with('success', 'Siswa berhasil ditempatkan ke kelas.');
+            ->with('success', 'Penempatan siswa berhasil disimpan.');
     }
 
     public function destroy(RiwayatKelas $riwayatKelas)

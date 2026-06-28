@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title','Rekap Nilai Per Siswa')
+@section('title','Rekap Nilai Persiswa')
 
 @section('content')
 
@@ -10,30 +10,19 @@
 
         <div class="card-header bg-white d-flex justify-content-between align-items-center py-4 px-4">
             <div>
-                <h5 class="mb-0 fw-bold">Rekap Nilai Per Siswa</h5>
-                <small class="text-muted">
-                    Nama: {{ $siswa->user->name ?? '-' }} |
-                    NIS: {{ $siswa->nis ?? '-' }}
-                    <br>
-                    Tahun Ajaran:
-                    {{ $tahun->tahun ?? '-' }}
-                    {{ $tahun && $tahun->semester ? 'Semester ' . $tahun->semester : '' }}
+                <h5 class="mb-0 fw-bold">Rekap Nilai Persiswa</h5>
+                <small class="text-muted d-block mt-1">
+                    Nama: {{ $siswa->user->name ?? '-' }} | NIS: {{ $siswa->nis ?? '-' }} | Tahun Ajaran: {{ $tahun->tahun ?? '-' }} ({{ $tahun->semester ?? '-' }})
                 </small>
             </div>
 
             <div>
-                <a href="{{ route('nilai.rekap', ['tahun_ajaran_id' => $tahun->id ?? null]) }}"
-                   class="btn btn-secondary">
+                <a href="{{ route('nilai.rekap', ['tahun_ajaran_id' => $tahun->id ?? null]) }}" class="btn btn-secondary btn-sm px-3">
                     Kembali
                 </a>
 
-                <a href="{{ route('nilai.rekap.siswa.export', [
-                        'siswa' => $siswa->id,
-                        'tahun_ajaran_id' => $tahun->id ?? null
-                    ]) }}"
-                   class="btn btn-success">
-                    <i class="fas fa-file-excel me-1"></i>
-                    Download Excel
+                <a href="{{ route('nilai.rekap.siswa.export', ['siswa' => $siswa->id, 'tahun_ajaran_id' => $tahun->id ?? null]) }}" class="btn btn-success btn-sm px-3">
+                    <i class="fas fa-file-excel me-1"></i> Download Excel
                 </a>
             </div>
         </div>
@@ -43,122 +32,106 @@
             <form action="{{ route('nilai.rekap.siswa', $siswa->id) }}" method="GET" class="mb-4">
                 <div class="row align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Pilih Tahun Ajaran</label>
-                        <select name="tahun_ajaran_id" class="form-control">
+                        <label class="form-label fw-semibold small text-muted">Pilih Tahun Ajaran</label>
+                        <select name="tahun_ajaran_id" class="form-select form-select-sm">
                             @foreach($tahunList as $t)
-                                <option value="{{ $t->id }}"
-                                    {{ $tahun && $tahun->id == $t->id ? 'selected' : '' }}>
-                                    {{ $t->tahun }} Semester {{ $t->semester }}
-                                    {{ $t->aktif ? '- Aktif' : '' }}
+                                <option value="{{ $t->id }}" {{ $tahun && $tahun->id == $t->id ? 'selected' : '' }}>
+                                    {{ $t->tahun }} Semester {{ $t->semester }} {{ $t->aktif ? '- Aktif' : '' }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            Tampilkan
-                        </button>
-
-                        <a href="{{ route('nilai.rekap.siswa', $siswa->id) }}" class="btn btn-secondary">
-                            Tahun Aktif
-                        </a>
+                        <button type="submit" class="btn btn-sm btn-primary px-3">Tampilkan</button>
+                        <a href="{{ route('nilai.rekap.siswa', $siswa->id) }}" class="btn btn-sm btn-secondary px-3">Tahun Aktif</a>
                     </div>
                 </div>
             </form>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-striped text-center align-middle">
-                    <thead>
+                <table class="table table-bordered text-center align-middle m-0">
+                    <thead class="table-light fw-bold text-uppercase fs-7" style="background-color: #f8f9fa;">
                         <tr>
-                            <th rowspan="2">No</th>
-                            <th rowspan="2">Mata Pelajaran</th>
-                            <th rowspan="2">Guru</th>
-                            <th rowspan="2">Kelas</th>
-                            <th rowspan="2">KKM</th>
-                            <th colspan="2">Pengetahuan</th>
-                            <th colspan="2">Keterampilan</th>
-                            <th rowspan="2">Nilai Akhir</th>
-                            <th rowspan="2">Predikat</th>
+                            <th rowspan="2" class="align-middle" style="width: 5%;">NO</th>
+                            <th rowspan="2" class="align-middle" style="width: 25%;">MATA PELAJARAN</th>
+                            <th rowspan="2" class="align-middle" style="width: 8%;">KKM</th>
+                            <th rowspan="2" class="align-middle" style="width: 8%;">JB (B)</th>
+                            <th colspan="2" style="width: 18%;">PENGETAHUAN</th>
+                            <th colspan="2" style="width: 18%;">KETERAMPILAN</th>
+                            <th rowspan="2" class="align-middle" style="width: 10%;">RATA - RATA (N)</th>
+                            <th rowspan="2" class="align-middle" style="width: 10%;">N X B</th>
                         </tr>
                         <tr>
-                            <th>Nilai</th>
-                            <th>Predikat</th>
-                            <th>Nilai</th>
-                            <th>Predikat</th>
+                            <th>NILAI</th>
+                            <th>PREDIKAT</th>
+                            <th>NILAI</th>
+                            <th>PREDIKAT</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @php
+                            $totalJB = 0;
                             $totalPengetahuan = 0;
                             $totalKeterampilan = 0;
-                            $totalAkhir = 0;
+                            $totalRataRataN = 0;
+                            $totalNxB = 0;
                             $jumlahData = 0;
                         @endphp
 
                         @forelse($nilai as $key => $n)
                             @php
-                                $totalPengetahuan += $n->nilai_pengetahuan ?? 0;
-                                $totalKeterampilan += $n->nilai_keterampilan ?? 0;
-                                $totalAkhir += $n->nilai_akhir ?? 0;
                                 $jumlahData++;
+                                $jb = $n->mapel->jb ?? $n->jb ?? 0;
+                                $nilaiP = $n->nilai_pengetahuan ?? 0;
+                                $nilaiK = $n->nilai_keterampilan ?? 0;
+                                
+                                $rataRataN = ($nilaiP + $nilaiK) / 2;
+                                $nxB = $rataRataN * $jb;
+
+                                $totalJB += $jb;
+                                $totalPengetahuan += $nilaiP;
+                                $totalKeterampilan += $nilaiK;
+                                $totalRataRataN += $rataRataN;
+                                $totalNxB += $nxB;
                             @endphp
 
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-
-                                <td class="text-start">
-                                    {{ $n->mapel->nama ?? '-' }}
-                                </td>
-
-                                <td>
-                                    {{ $n->guru->nama ?? $n->guru->user->name ?? '-' }}
-                                </td>
-
-                                <td>
-                                    {{ $n->kelas->tingkat ?? '' }}
-                                    {{ $n->kelas->nama_kelas ?? '-' }}
-                                </td>
-
-                                <td>{{ $n->kkm ?? '-' }}</td>
-
-                                <td>{{ $n->nilai_pengetahuan ?? '-' }}</td>
+                                <td class="text-start px-3">{{ $n->mapel->nama ?? '-' }}</td>
+                                <td>{{ $n->kkm ?? '75' }}</td>
+                                <td>{{ $jb }}</td>
+                                <td>{{ $nilaiP + 0 }}</td>
                                 <td>{{ $n->predikat_pengetahuan ?? '-' }}</td>
-
-                                <td>{{ $n->nilai_keterampilan ?? '-' }}</td>
+                                <td>{{ $nilaiK + 0 }}</td>
                                 <td>{{ $n->predikat_keterampilan ?? '-' }}</td>
-
-                                <td>{{ $n->nilai_akhir ?? '-' }}</td>
-
-                                <td>
-                                    <span class="badge
-                                        @if($n->predikat_akhir == 'A') bg-success
-                                        @elseif($n->predikat_akhir == 'B') bg-primary
-                                        @elseif($n->predikat_akhir == 'C') bg-warning text-dark
-                                        @else bg-danger
-                                        @endif">
-                                        {{ $n->predikat_akhir ?? '-' }}
-                                    </span>
-                                </td>
+                                <td class="fw-bold">{{ $rataRataN + 0 }}</td>
+                                <td class="fw-bold ">{{ $nxB + 0 }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-muted py-4">
-                                    Belum ada nilai pada tahun ajaran dan semester ini.
-                                </td>
+                                <td colspan="10" class="text-muted py-4">Belum ada data nilai pada semester ini.</td>
                             </tr>
                         @endforelse
 
                         @if($jumlahData > 0)
-                            <tr class="fw-bold">
-                                <td colspan="5">Rata-rata</td>
-                                <td>{{ round($totalPengetahuan / $jumlahData, 2) }}</td>
+                            <tr class="fw-bold" style="background-color: #f8f9fa;">
+                                <td colspan="3" class="text-center">Jumlah</td>
+                                <td>{{ $totalJB }}</td>
+                                <td>{{ $totalPengetahuan + 0 }}</td>
                                 <td></td>
-                                <td>{{ round($totalKeterampilan / $jumlahData, 2) }}</td>
+                                <td>{{ $totalKeterampilan + 0 }}</td>
                                 <td></td>
-                                <td>{{ round($totalAkhir / $jumlahData, 2) }}</td>
-                                <td></td>
+                                <td>{{ $totalRataRataN + 0 }}</td>
+                                <td>{{ $totalNxB + 0 }}</td>
+                            </tr>
+
+                            <tr class="fw-bold" style="background-color: #cfe2ff;">
+                                <td colspan="3" class="text-center">Jumlah Rata - Rata</td>
+                                <td colspan="7" class="text-center fs-6">
+                                    {{ round($totalNxB / $totalJB, 2) + 0 }}
+                                </td>
                             </tr>
                         @endif
                     </tbody>
@@ -166,9 +139,7 @@
             </div>
 
         </div>
-
     </div>
-
 </div>
 
 @endsection

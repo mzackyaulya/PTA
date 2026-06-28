@@ -376,28 +376,37 @@ public function rekapNilai(Request $request)
             ->values();
 
         $rekap = $riwayat->map(function ($r) use ($tahun) {
-            $nilai = Nilai::where('siswa_id', $r->siswa_id)
+            // Pastikan relasi mapel di-load untuk mengambil kolom 'jb'
+            $nilai = Nilai::with('mapel')
+                ->where('siswa_id', $r->siswa_id)
                 ->where('tahun_ajaran_id', $tahun->id)
                 ->get();
 
             $jumlahMapel = $nilai->count();
+            
+            // Hitung total JP/JB keseluruhan mapel yang memiliki nilai
+            $totalJB = $nilai->sum(function($n) {
+                return $n->mapel->jb ?? 0;
+            });
 
-            $rataPengetahuan = $jumlahMapel > 0
-                ? round($nilai->avg('nilai_pengetahuan'), 2)
+            // Perhitungan Rata-rata Tertimbang berdasarkan bobot JB
+            $rataPengetahuan = $totalJB > 0
+                ? round($nilai->sum(function($n) { return ($n->nilai_pengetahuan ?? 0) * ($n->mapel->jb ?? 0); }) / $totalJB, 2)
                 : null;
 
-            $rataKeterampilan = $jumlahMapel > 0
-                ? round($nilai->avg('nilai_keterampilan'), 2)
+            $rataKeterampilan = $totalJB > 0
+                ? round($nilai->sum(function($n) { return ($n->nilai_keterampilan ?? 0) * ($n->mapel->jb ?? 0); }) / $totalJB, 2)
                 : null;
 
-            $rataAkhir = $jumlahMapel > 0
-                ? round($nilai->avg('nilai_akhir'), 2)
+            $rataAkhir = $totalJB > 0
+                ? round($nilai->sum(function($n) { return ($n->nilai_akhir ?? 0) * ($n->mapel->jb ?? 0); }) / $totalJB, 2)
                 : null;
 
             return [
                 'siswa' => $r->siswa,
                 'kelas' => $r->kelas,
                 'jumlah_mapel' => $jumlahMapel,
+                'total_jb' => $totalJB, // tambahkan ini jika ingin ditampilkan di list rekap utama
                 'rata_pengetahuan' => $rataPengetahuan,
                 'rata_keterampilan' => $rataKeterampilan,
                 'rata_akhir' => $rataAkhir,

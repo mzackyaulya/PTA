@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="id">
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login Akademik</title>
@@ -247,7 +248,7 @@
                            required>
 
                     <button type="button" class="toggle-password" id="togglePassword">
-                        👁
+                        <i class="bi bi-eye" id="eyeIcon" style="font-size: 1.1rem;"></i>
                     </button>
                 </div>
             </div>
@@ -270,14 +271,19 @@
 <script>
     const togglePassword = document.getElementById('togglePassword');
     const password = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
 
     togglePassword.addEventListener('click', function () {
         if (password.type === 'password') {
             password.type = 'text';
-            togglePassword.textContent = '🙈';
+            // Ubah class menjadi mata tercoret
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
         } else {
             password.type = 'password';
-            togglePassword.textContent = '👁';
+            // Kembalikan class menjadi mata terbuka
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
         }
     });
 </script>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('nama');
             $table->string('kode')->nullable();
+            $table->integer('jb')->default(2);
             $table->timestamps();
         });
     }

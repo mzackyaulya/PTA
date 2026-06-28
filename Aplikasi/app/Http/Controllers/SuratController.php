@@ -4,32 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\Surat;
 use App\Models\Siswa;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class SuratController extends Controller
 {
-    /**
-     * Menampilkan daftar surat.
-     * Siswa hanya melihat surat miliknya.
-     * Waka/Admin melihat semua surat.
-     */
-    public function index()
+    
+    public function index(Request $request)
     {
         $user = auth()->user();
+        
+        // 1. Ambil semua daftar tahun ajaran untuk filter dropdown
+        $daftarTahunAjaran = TahunAjaran::orderBy('tahun', 'desc')->orderBy('semester', 'desc')->get();
 
+        // 2. Cari tahun ajaran yang sedang aktif sebagai default awal
+        $tahunAjaranAktif = TahunAjaran::where('aktif', true)->first();
+
+        $query = Surat::with(['pembuat', 'siswaTerlibat', 'waka']);
+
+        // 3. LOGIKA FILTER FIX: Fokus murni pada ID Tahun Ajaran (Tanpa tanggal/bulan)
+        if ($request->filled('tahun_ajaran_filter')) {
+            // Jika dropdown filter dipilih, cari yang ID-nya sama persis
+            $query->where('tahun_ajaran_id', $request->tahun_ajaran_filter);
+        } else {
+            // Jika pertama kali dibuka, tampilkan tahun ajaran yang aktif saat ini saja
+            if ($tahunAjaranAktif) {
+                $query->where('tahun_ajaran_id', $tahunAjaranAktif->id);
+            } else {
+                $query->whereNull('id');
+            }
+        }
+
+        // 4. Filter berdasarkan Role Akses User
         if ($user->role === 'siswa') {
-            $surats = Surat::with(['pembuat', 'siswaTerlibat', 'waka'])
-                ->where('user_id', $user->id)
+            $surats = $query->where('user_id', $user->id)
                 ->latest()
                 ->paginate(10);
         } else {
-            $surats = Surat::with(['pembuat', 'siswaTerlibat', 'waka'])
-                ->latest()
+            $surats = $query->latest()
                 ->paginate(10);
         }
 
-        return view('surat.index', compact('surats'));
+        return view('surat.index', compact('surats', 'daftarTahunAjaran', 'tahunAjaranAktif'));
     }
 
     /**
@@ -62,13 +79,16 @@ class SuratController extends Controller
             'keperluan' => 'required|string',
             'siswa_ids' => 'nullable|array',
             'siswa_ids.*' => 'exists:siswas,id',
-            'pengaju_user_id' => 'required|exists:users,id', // Validasi input baru
+            'pengaju_user_id' => 'required|exists:users,id', 
         ];
 
         $request->validate($rules);
 
+        // AMBIL TAHUN AJARAN YANG SEDANG AKTIF SAAT SURAT INI DIBUAT
+        $tahunAjaranAktif = TahunAjaran::where('aktif', true)->first();
+
         $surat = Surat::create([
-            'user_id' => $request->pengaju_user_id, // Menggunakan ID siswa pemohon yang dikirim form
+            'user_id' => $request->pengaju_user_id, 
             'jenis_surat' => $request->jenis_surat,
             'judul' => $request->judul,
             'nama_kegiatan' => $request->nama_kegiatan,
@@ -79,6 +99,7 @@ class SuratController extends Controller
             'nama_organisasi' => $request->nama_organisasi,
             'keperluan' => $request->keperluan,
             'status' => 'pending',
+            'tahun_ajaran_id' => $tahunAjaranAktif ? $tahunAjaranAktif->id : null, // KUNCI DI SINI
         ]);
 
         if ($request->filled('siswa_ids')) {
@@ -108,7 +129,6 @@ class SuratController extends Controller
 
     /**
      * Mengubah status surat menjadi review.
-     * Digunakan oleh Waka/Admin.
      */
     public function review(Surat $surat)
     {
@@ -129,7 +149,6 @@ class SuratController extends Controller
 
     /**
      * Waka menerima surat.
-     * Status menjadi selesai dan siswa bisa download.
      */
     public function terima(Request $request, Surat $surat)
     {
@@ -179,10 +198,6 @@ class SuratController extends Controller
         return back()->with('success', 'Surat berhasil ditolak.');
     }
 
-    /**
-     * Download surat dalam bentuk PDF.
-     * Hanya bisa jika status selesai.
-     */
     public function download(Surat $surat)
     {
         $user = auth()->user();
@@ -205,10 +220,6 @@ class SuratController extends Controller
         return $pdf->download($namaFile);
     }
 
-    /**
-     * Edit surat.
-     * Untuk awal, sebaiknya hanya surat pending yang boleh diedit.
-     */
     public function edit(Surat $surat)
     {
         $user = auth()->user();
@@ -233,9 +244,6 @@ class SuratController extends Controller
         return view('surat.edit', compact('surat', 'siswas'));
     }
 
-    /**
-     * Update surat.
-     */
     public function update(Request $request, Surat $surat)
     {
         $user = auth()->user();
@@ -283,10 +291,6 @@ class SuratController extends Controller
             ->with('success', 'Surat berhasil diperbarui.');
     }
 
-    /**
-     * Hapus surat.
-     * Opsional, hanya admin atau pemilik surat yang statusnya pending.
-     */
     public function destroy(Surat $surat)
     {
         $user = auth()->user();
@@ -306,9 +310,6 @@ class SuratController extends Controller
             ->with('success', 'Surat berhasil dihapus.');
     }
 
-    /**
-     * Cek akses Waka/Admin.
-     */
     private function cekAksesWaka()
     {
         if (auth()->user()->role !== 'waka') {
@@ -316,19 +317,27 @@ class SuratController extends Controller
         }
     }
 
-    /**
-     * Generate kode surat otomatis.
-     */
     private function generateKodeSurat(Surat $surat)
     {
-        $tahun = date('Y');
+        $tahunAjaranAktif = TahunAjaran::where('aktif', true)->first();
 
-        $jumlahSuratSelesai = Surat::whereYear('created_at', $tahun)
-            ->whereNotNull('kode_surat')
-            ->count() + 1;
+        if (!$tahunAjaranAktif) {
+            $tahun = date('Y');
+            $jumlahSuratSelesai = Surat::whereYear('created_at', $tahun)
+                ->whereNotNull('kode_surat')
+                ->count() + 1;
+        } else {
+            // Hitung surat berdasarkan ID Tahun Ajaran aktif (Bukan berdasarkan range tanggal lagi)
+            $jumlahSuratSelesai = Surat::whereNotNull('kode_surat')
+                ->where('tahun_ajaran_id', $tahunAjaranAktif->id)
+                ->count() + 1;
+
+            $tahun = str_replace('/', '-', $tahunAjaranAktif->tahun);
+        }
 
         $nomorUrut = str_pad($jumlahSuratSelesai, 3, '0', STR_PAD_LEFT);
+        $semesterCode = $tahunAjaranAktif ? '/SMT' . $tahunAjaranAktif->semester : '';
 
-        return $nomorUrut . '/SMA-MUH2/AKD/' . $tahun;
+        return $nomorUrut . '/SMA-MUH2/AKD' . $semesterCode . '/' . $tahun;
     }
 }

@@ -297,8 +297,14 @@
 
                                     @php
                                         $totalPertemuan = $jumlahPertemuan ?? 0;
-                                        $jumlahHadir = $s->absensi->where('status','hadir')->count();
-                                        $persen = $totalPertemuan > 0 ? round(($jumlahHadir / $totalPertemuan) * 100) : 0;
+                                        
+                                        $bobotHadir = $s->absensi->where('status','hadir')->count() * 1.0;
+                                        $bobotIzin = $s->absensi->where('status','izin')->count() * 0.5;
+                                        $bobotSakit = $s->absensi->where('status','sakit')->count() * 0.5;
+                                        $bobotAlpa = $s->absensi->where('status','alpa')->count() * 0.0;
+                                        
+                                        $totalBobotKehadiran = $bobotHadir + $bobotIzin + $bobotSakit + $bobotAlpa;
+                                        $persen = $totalPertemuan > 0 ? round(($totalBobotKehadiran / $totalPertemuan) * 100) : 0;
                                     @endphp
 
                                     <tr>
@@ -363,12 +369,13 @@
                         </table>
                     </div>
 
+                    {{-- KETERANGAN INI SEKARANG HANYA MUNCUL DI LIHAT SEMUA ABSENSI (REKAP) --}}
                     <div class="mt-3">
                         <strong>Keterangan :</strong>
-                        <span class="status-box status-hadir text-center">H</span> Hadir
-                        <span class="status-box status-izin text-center">I</span> Izin
-                        <span class="status-box status-sakit text-center">S</span> Sakit
-                        <span class="status-box status-alpa text-center">A</span> Alpa
+                        <span class="status-box status-hadir text-center">H</span> Hadir (100%)
+                        <span class="status-box status-izin text-center">I</span> Izin (50%)
+                        <span class="status-box status-sakit text-center">S</span> Sakit (50%)
+                        <span class="status-box status-alpa text-center">A</span> Alpa (0%)
                     </div>
 
                 </div>
@@ -405,8 +412,11 @@
                             <tbody>
 
                                 @forelse($siswa ?? [] as $key => $s)
-
-                                    <tr>
+                                    @php
+                                        $absensiSekarang = $s->absensi->first();
+                                        $isLocked = isset($selectedPertemuan) && ($selectedPertemuan->is_closed || !$selectedPertemuan->is_started);
+                                    @endphp
+                                    <tr data-siswa-id="{{ $s->id }}">
 
                                         <td>{{ $key+1 }}</td>
                                         <td>{{ $s->user->nisn }}</td>
@@ -415,29 +425,29 @@
                                         <td>
                                             <input type="radio"
                                             name="status[{{ $key }}]"
-                                            value="hadir"
-                                            {{ optional($s->absensi->first())->status == 'hadir' ? 'checked' : '' }}>
+                                            value="hadir" class="radio-hadir"
+                                            {{ optional($absensiSekarang)->status == 'hadir' ? 'checked' : '' }} {{ $isLocked ? 'disabled' : '' }}>
                                         </td>
 
                                         <td>
                                             <input type="radio"
                                             name="status[{{ $key }}]"
                                             value="izin"
-                                            {{ optional($s->absensi->first())->status == 'izin' ? 'checked' : '' }}>
+                                            {{ optional($absensiSekarang)->status == 'izin' ? 'checked' : '' }} {{ $isLocked ? 'disabled' : '' }}>
                                         </td>
 
                                         <td>
                                             <input type="radio"
                                             name="status[{{ $key }}]"
                                             value="sakit"
-                                            {{ optional($s->absensi->first())->status == 'sakit' ? 'checked' : '' }}>
+                                            {{ optional($absensiSekarang)->status == 'sakit' ? 'checked' : '' }} {{ $isLocked ? 'disabled' : '' }}>
                                         </td>
 
                                         <td>
                                             <input type="radio"
                                             name="status[{{ $key }}]"
                                             value="alpa"
-                                            {{ optional($s->absensi->first())->status == 'alpa' ? 'checked' : '' }}>
+                                            {{ optional($absensiSekarang)->status == 'alpa' ? 'checked' : '' }} {{ $isLocked ? 'disabled' : '' }}>
                                         </td>
 
                                         <td>
@@ -445,7 +455,7 @@
                                             name="keterangan[{{ $key }}]"
                                             class="form-control"
                                             placeholder="Keterangan siswa....."
-                                            value="{{ optional($s->absensi->first())->keterangan }}">
+                                            value="{{ optional($absensiSekarang)->keterangan }}" {{ $isLocked ? 'disabled' : '' }}>
                                         </td>
 
                                         <input type="hidden" name="siswa_id[]" value="{{ $s->id }}">
@@ -534,6 +544,29 @@ function pilihJadwal(id){
                 }
             });
         }
+
+        @if(isset($selectedPertemuan) && request('mode', 'absen') == 'absen' && !$selectedPertemuan->is_closed)
+            setInterval(function() {
+                fetch("/guru/absensi/scan-check/{{ $selectedPertemuan->id }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.siswa_id) {
+                            let row = document.querySelector(`tr[data-siswa-id="${data.siswa_id}"]`);
+                            if(row) {
+                                let radioHadir = row.querySelector('.radio-hadir');
+                                if(radioHadir) {
+                                    radioHadir.checked = true;
+                                    row.style.backgroundColor = '#d4edda';
+                                    setTimeout(() => {
+                                        row.style.backgroundColor = 'transparent';
+                                    }, 3000);
+                                }
+                            }
+                        }
+                    })
+                    .catch(err => console.log(err));
+            }, 3000);
+        @endif
     });
 
 </script>

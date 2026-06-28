@@ -69,7 +69,9 @@ class AbsensiController extends Controller
                 })
                 ->get();
 
-            $jumlahPertemuan = PertemuanAbsensi::where('mengajar_id', $selectedJadwal->id)->count();
+            $jumlahPertemuan = PertemuanAbsensi::where('mengajar_id', $selectedJadwal->id)
+                ->where('is_approved', true)
+                ->count();
 
             $rekapSiswa = Siswa::with([
                     'user',

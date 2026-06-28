@@ -87,7 +87,6 @@ Route::middleware(['auth'])->group(function(){
 Route::middleware(['auth','role:admin'])->prefix('admin')->group(function(){
 
     Route::resource('siswa',SiswaController::class);
-    Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
     Route::resource('guru',GuruController::class);
     Route::resource('kelas', KelasController::class)
         ->parameters(['kelas' => 'kelas']);

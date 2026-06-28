@@ -10,9 +10,11 @@
                 <i class="fas fa-arrow-left me-2"></i> Kembali
             </a>
             
-            <a href="{{ route('siswa.edit', $siswa->id) }}" class="btn btn-warning px-4 rounded-pill shadow-sm ms-2">
-                <i class="fas fa-edit me-2"></i> Edit Data
-            </a>
+            @if (auth()->user()->role === 'admin')
+                <a href="{{ route('siswa.edit', $siswa->id) }}" class="btn btn-warning px-4 rounded-pill shadow-sm ms-2">
+                    <i class="fas fa-edit me-2"></i> Edit Data
+                </a>
+            @endif
         </div>
 
         <div class="text-center">
